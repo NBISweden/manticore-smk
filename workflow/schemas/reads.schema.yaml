@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: Read schema definition. List read files.
+type: object
+properties:
+  SM:
+    type: string
+    description: sample identifier. Must match sample in sample definition file
+  unit:
+    type: string
+    description: read set identifier
+  reads:
+    type: string
+    format: uri
+    description: fastq/sam/bam/cram file
+    pattern: .*(.fastq|.fastq.gz|.fq|.fq.gz|.sam|.bam|.cram)$
+  id:
+    type: integer
+    description: read identifier. For single-end reads equals 1.
+    enum: [1, 2]
+    default: 1
+  PU:
+    type: string
+    description: Platform unit (e.g. flowcell-barcode.lane for Illumina).
+  LANE:
+    type: [string, number]
+    description: Platform lane.
+  BC:
+    type: string
+    description: >
+        Barcode sequence identifying the sample or library. This value
+        is the expected barcode bases as read by the sequencing
+        machine in the absence of errors. If there are several
+        barcodes for the sample/library (e.g., one on each end of the
+        template), the recommended implementation concatenates all the
+        barcodes separating them with hyphens (-)
+  CN:
+    type: string
+    description: Name of sequencing center producing the read.
+  DT:
+    type: string
+    description: Date the run was produced.
+  LB:
+    type: string
+    description: Library.
+  PL:
+    type: string
+    description: Platform/technology used to produce the reads.
+    enum:
+      - CAPILLARY
+      - LS454
+      - ILLUMINA
+      - SOLID
+      - HELICOS
+      - IONTORRENT
+      - ONT
+      - PACBIO
+
+required:
+  - SM
+  - unit
+  - reads

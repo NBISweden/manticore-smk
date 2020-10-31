@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: Various definitions
+
+type: object
+
+definitions:
+  fs:
+    type: object
+    description: >
+        file system layout; defines Path objects and wildcards for
+        snakemake rules
+    default: {}
+    properties:
+      external:
+        type: string
+        default: data/external
+      interim:
+        type: string
+        default: data/interim
+      metadata:
+        type: string
+        default: data/metadata
+      raw:
+        type: string
+        default: data/raw
+      resources:
+        type: string
+        default: resources
+  rule:
+    type: object
+    description: generic configuration for rules
+    properties:
+      options:
+        type: [string, array, object]
+        default: ""
+        items:
+          type: string
+      runtime:
+        default: 60
+        type: number
+      threads:
+        default: 1
+        type: number
+      mem_mb:
+        description: Resource that defines assigned memory
+        default: 8192
+        type: number
+  workflow:
+    type: object
+    description: >
+        Workflow configuration. Define high-level options that apply
+        to workflow logic and execution
+    default: {}
+    properties:
+      trim:
+        type: boolean
+        default: true
+        description: perform adapter trimming or not
+  db:
+    type: object
+    description:
+      Configuration for various database resources
+    default: {}
+    properties:
+      ref:
+        description: Reference sequence collection
+        type: object
+        default: {}
+        properties:
+          seq:
+            type: string
+            description: path to sequence file
+          alias:
+            type: string
+            pattern: '[a-zA-Z\-0-9\.]+$'
+            description: short alias name used as basename for index

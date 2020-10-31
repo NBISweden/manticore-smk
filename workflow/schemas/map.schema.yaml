@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: mapping rules configuration
+
+type: object
+
+definitions:
+  map:
+    type: object
+    description: qc configuration
+    default: {}
+    properties:
+      bwa:
+        type: object
+        description: Main bwa configuration
+        default: {}
+        properties:
+          index:
+            type: object
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+          mem:
+            type: object
+            default: {}
+            allOf:
+              - properties:
+                  sort:
+                    type: string
+                    enum: ['none', 'picard', 'samtools']
+                    default: samtools
+                  sort_order:
+                    type: string
+                    enum: ['queryname', 'coordinate']
+                    default: coordinate
+                  sort_extra:
+                    type: string
+                    default: ""
+              - $ref: "definitions.schema.yaml#/definitions/rule"

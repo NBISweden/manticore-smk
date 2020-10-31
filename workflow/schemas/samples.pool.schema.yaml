@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: An entry in the sample sheet, pool sequencing
+type: object
+properties:
+  SM:
+    type: string
+    description: Sample name/identifier
+  population:
+    type: string
+    description: Population name/identifier.
+  species:
+    type: string
+    description: Species name.
+  genus:
+    type: string
+    description: Genus name.
+  treatment:
+    type: string
+    description: Sample treatment.
+  sex:
+    type: string
+    description: sample sex
+    enum:
+      - male
+      - female
+      - haploid
+    default: haploid
+  size:
+    type: integer
+    description: pool size
+
+required:
+  - SM
+  - population
+  - size

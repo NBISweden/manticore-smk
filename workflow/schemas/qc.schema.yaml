@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: qc rules configuration
+
+type: object
+
+definitions:
+  qc:
+    type: object
+    description: qc configuration
+    default: {}
+    properties:
+      multiqc:
+        type: object
+        description: multiqc configuration
+        default: {}
+        $ref: "definitions.schema.yaml#/definitions/rule"
+      fastqc:
+        type: object
+        description: fastqc configuration
+        default: {}
+        $ref: "definitions.schema.yaml#/definitions/rule"
+      jellyfish:
+        type: object
+        description: jellyfish configuration
+        default: {}
+        properties:
+          kmer:
+            type: array
+            items:
+              type: integer
+            uniqueItems: true
+            default: [21]
+          count:
+            description: jellyfish count config
+            default: {}
+            allOf:
+              - properties:
+                  options:
+                    type: string
+                    default: -s 100M -C
+              - $ref: "definitions.schema.yaml#/definitions/rule"
+          histo:
+            description: jellyfish histo config
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+      picard:
+        type: object
+        description: picard configuration
+        default: {}
+        properties:
+          options:
+            description: generic picard options
+            type: string
+            default: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+          collect_alignment_summary_metrics:
+            description: picard alignment summary metrics
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+          collect_insert_size_metrics:
+            description: picard insert size metrics
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+          mark_duplicates:
+            description: picard alignment summary metrics
+            default: {}
+            allOf:
+              - properties:
+                  options:
+                    description: picard mark duplicates option
+                    type: string
+                    default: "REMOVE_DUPLICATES=true"
+              - $ref: "definitions.schema.yaml#/definitions/rule"

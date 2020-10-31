@@ -1,0 +1,15 @@
+reads:
+  readfile: config/reads.tsv
+samples:
+  individual: config/samples.individual.tsv
+  pool: config/samples.pool.tsv
+  ignore: ["A", "PUR.HG00733", "YRI.NA19238", "PUR"]
+datasources: config/datasources.tsv
+
+workflow:
+  trim: true
+
+db:
+  ref:
+    seq: data/external/ref/scaffolds.fa
+    alias: ref

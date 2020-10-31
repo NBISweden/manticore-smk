@@ -1,0 +1,17 @@
+# The main entry point of your workflow.
+# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+include: "rules/common.smk"
+include: "rules/qc.smk"
+include: "rules/trim.smk"
+include: "rules/map.smk"
+include: "rules/utils.smk"
+
+report: "report/workflow.rst"
+
+# Allow users to fix the underlying OS via singularity.
+container: "docker://continuumio/miniconda3"
+
+rule all:
+    input: unpack(all)
+        # The first rule should define the default target files
+        # Subsequent target rules can be specified below. They should start with all_*.

@@ -1,0 +1,4 @@
+name: "manticore_get_external"
+description: Retrieve external resource with appropriate protocol
+authors:
+  - Per Unneberg

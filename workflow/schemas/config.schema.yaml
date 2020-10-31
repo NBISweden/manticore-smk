@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+  samples:
+    type: object
+    default: {}
+    properties:
+      individual:
+        type: [string, 'null']
+        format: uri
+        description: samplesheet for individuals
+        default: null
+      pool:
+        type: [string, 'null']
+        format: uri
+        description: samplesheet for pools
+        default: null
+      ignore:
+        type: array
+        description: list of samples (SM) to exclude in analysis
+        uniqueItems: true
+        default: []
+      items:
+        type: string
+  reads:
+    type: object
+    default: {}
+    properties:
+      readfile:
+        type: [string, 'null']
+        description: file containing reads
+        default: null
+      read_group_fmt:
+        type: string
+        description: >
+          format string for readgroup. Express as python miniformat
+          string using columns in reads file.
+        default: "{SM}_{unit}"
+        format: uri
+        examples:
+          - "{SM}"
+          - "{SM}_{unit}"
+          - "{SM}_{PU}"
+      ignore:
+        type: array
+        description: list of reads (unit column) to exclude in analysis
+        uniqueItems: true
+        default: []
+        items:
+          type: string
+  datasources:
+    type: [string, 'null']
+    default: null
+    format: uri
+  fs:
+    $ref: "definitions.schema.yaml#/definitions/fs"
+    default: {}
+  workflow:
+    $ref: "definitions.schema.yaml#/definitions/workflow"
+    default: {}
+  db:
+    $ref: "definitions.schema.yaml#/definitions/db"
+    default: {}
+
+
+  ##############################
+  # Modules
+  ##############################
+  trim:
+    $ref: "trim.schema.yaml#/definitions/trim"
+    default: {}
+
+  qc:
+    $ref: "qc.schema.yaml#/definitions/qc"
+    default: {}
+
+  map:
+    $ref: "map.schema.yaml#/definitions/map"
+    default: {}
+
+
+
+additionalProperties: false
+# required:
+#   - assemblies
