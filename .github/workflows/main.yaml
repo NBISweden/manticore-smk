@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches_ignore: []
 
@@ -31,7 +31,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba --wrapper-prefix file:///github/workspace/workflow/wrappers"
+        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --conda-frontend mamba --wrapper-prefix file:///github/workspace/workflow/wrappers"
         stagein: mamba install -y -c conda-forge rsync
     # - name: Test report
     #   uses: snakemake/snakemake-github-action@v1.5.3

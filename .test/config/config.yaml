@@ -1,3 +1,5 @@
+db:
+  ref: data/external/ref/scaffolds.fa
 reads:
   readfile: config/reads.tsv
 samples:
@@ -8,8 +10,8 @@ datasources: config/datasources.tsv
 
 workflow:
   trim: true
-
-db:
-  ref:
-    seq: data/external/ref/scaffolds.fa
-    alias: ref
+  regions:
+    scaffolds:
+      bed: data/external/ref/scaffolds.bed
+      npart: 3
+      ploidy: 2

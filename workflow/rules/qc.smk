@@ -55,7 +55,7 @@ rule jellyfish_histo:
 rule picard_collect_alignment_summary_metrics:
     output: "{results}/qc/align/{prefix}{bam}.align_metrics.txt"
     input: bam = "{prefix}{bam}",
-           ref = config['db']['ref']['seq']
+           ref = config['db']['ref']
     log: "logs/{results}/qc/align/{prefix}{bam}.align_metrics.log"
     params:
         config['qc']['picard']['options']

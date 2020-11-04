@@ -4,6 +4,7 @@ include: "rules/common.smk"
 include: "rules/qc.smk"
 include: "rules/trim.smk"
 include: "rules/map.smk"
+include: "rules/rawvc.smk"
 include: "rules/utils.smk"
 
 report: "report/workflow.rst"

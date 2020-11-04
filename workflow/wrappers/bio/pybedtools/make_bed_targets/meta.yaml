@@ -1,0 +1,4 @@
+name: "pybedtools make_bed_targets"
+description: Use pybedtools to make bed target files
+authors:
+  - Per Unneberg

@@ -53,6 +53,58 @@ definitions:
         to workflow logic and execution
     default: {}
     properties:
+      variantcallers:
+        title: Variant callers
+        type: object
+        default: {}
+        properties:
+          ind:
+            type: array
+            description: Variant callers for individuals
+            uniqueItems: true
+            default: ['gatkhc']
+            items:
+              type: string
+              enum: ['gatkhc', 'freebayes', 'bcftools']
+          pool:
+            type: array
+            description: Variant callers for pools
+            uniqueItems: true
+            default: ['popoolation']
+            items:
+              type: string
+              enum: ['popoolation']
+      regions:
+        type: object
+        title: region definitions
+        description: >
+            key-value mapping of region name to bed file defining
+            regions for region-based analyses. If no regions are
+            provided, the default region *all* will be generated using
+            the reference file
+        default: {}
+        patternProperties:
+          '^[a-zA-Z\-_0-9]+$':
+            properties:
+              bed:
+                type: string
+                description: filename for bed file defining regions
+                pattern: .+\.bed
+                examples:
+                  - data/metadata/all.bed
+                  - data/metadata/autosomes.bed
+                  - data/metadata/PAR.bed
+              ploidy:
+                type: integer
+                description: >
+                    ploidy for region. Will be adjusted by pool size
+                    for pool calls
+                default: 2
+              npart:
+                type: integer
+                description: define number of partitions for scatter-gather calls
+                default: 1
+        additionalProperties: false
       trim:
         type: boolean
         default: true
@@ -64,14 +116,5 @@ definitions:
     default: {}
     properties:
       ref:
-        description: Reference sequence collection
-        type: object
-        default: {}
-        properties:
-          seq:
-            type: string
-            description: path to sequence file
-          alias:
-            type: string
-            pattern: '[a-zA-Z\-0-9\.]+$'
-            description: short alias name used as basename for index
+        description: Reference sequence name; path to sequence file
+        type: string

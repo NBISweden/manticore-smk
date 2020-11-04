@@ -10,6 +10,19 @@ definitions:
     description: qc configuration
     default: {}
     properties:
+      samtools:
+        type: object
+        description: samtools config for mapping module
+        default: {}
+        properties:
+          faidx:
+            type: object
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+          index:
+            type: object
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
       bwa:
         type: object
         description: Main bwa configuration

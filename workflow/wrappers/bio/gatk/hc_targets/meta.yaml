@@ -1,0 +1,4 @@
+name: gatk hc_targets
+description: Run gatk HaplotypeCaller on target regions.
+authors:
+  - Per Unneberg

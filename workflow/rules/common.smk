@@ -104,22 +104,30 @@ ext = {
     'fa': [".fa", ".fasta"],
     'fastq': [".fq", ".fastq"],
     'gz': [".gz", ".bgz"],
+    'gatk_modes': [".g"],
     'readno': ["_1", "_2"]
 }
-
 wildcard_constraints:
     bam = wildcards_or(ext["bam"]),
     bamfastq = wildcards_or(ext["bam"] + ext["fastq"]),
     bgz = wildcards_or(ext["bgz"], True),
     fa = wildcards_or(ext["fa"]),
     fastq = wildcards_or(ext["fastq"]),
-    genome = config['db']['ref']['alias'],
+    genome = os.path.splitext(os.path.basename(config['db']['ref']))[0],
     gz = wildcards_or(ext["gz"], True),
-    kmer = "\d+",
+    kmer = "[0-9]+",
+    partitions = "[0-9]+",
     readno = wildcards_or(ext["readno"]),
-    sample = wildcards_or(samples)
+    region = wildcards_or(config['workflow']['regions'].keys()),
+    sample = wildcards_or(samples),
+    ind_vc = wildcards_or(config['workflow']['variantcallers']['ind'])
 
 wc = workflow._wildcard_constraints
+
+##################################################
+# Core configuration
+##################################################
+include: "core/config.smk"
 
 ##################################################
 ## Uri parsing functions
@@ -157,12 +165,9 @@ def manticore_get_external_input(uri):
         return []
     return uri
 
-
-
 ##################################################
 # Input collection functions
 ##################################################
-
 def all(wildcards):
     d = {
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
@@ -172,97 +177,14 @@ def all(wildcards):
 ##############################
 # qc
 ##############################
-def trim_all(wildcards):
-    if not config["workflow"]["trim"]:
-        return {'reads': [], 'qc': []}
-    seq = reads["reads.trimmed"]
-    # List reads as paired-end or single-end
-    df = reads.groupby(level=["SM", "unit"]).size().to_frame("pe")
-    df = reads[reads["id"] == 1].droplevel("id").join(df["pe"])
-    df["pe"] = df["pe"].map({1: "se", 2: "pe"})
-    ext = rf"(_1)({wc['fastq']}{wc['gz']})$"
-    df["metrics"] = df["reads"].str.replace(
-        str(__RAW__), f"logs/{str(__INTERIM__)}/mapping/trim")
-    df["metrics"] = df["metrics"].str.replace(
-            ext, "\\2.{pe}.cutadapt_metrics.txt")
-    qc = [x.format(pe=pe) for x, pe in zip(df["metrics"], df["pe"])]
-    return dict(reads=seq, qc=qc)
-
-def multiqc_all(wildcards):
-    val = {
-        'qc': trim_all(wildcards)['qc']  + fastqc_all(wildcards),
-        'jellyfish': jellyfish_all(wildcards),
-        'picard': picard_alignqc_all(wildcards)
-    }
-    return val
-
-def fastqc_all(wildcards):
-    # Regular input reads
-    qc = [f"{str(__RESULTS__)}/qc/fastqc/{x}_fastqc.zip" for x in reads['reads']]
-    if config["workflow"]["trim"]:
-        qc = qc + [f"{str(__RESULTS__)}/qc/fastqc/{x}_fastqc.zip" for x in trim_all(wildcards)['reads']]
-    return qc
-
-def jellyfish_count(wildcards):
-    df = reads[reads["SM"] == wildcards.sample]
-    if wildcards.trimmed == ".trimmed":
-        seq = df['reads'].str.replace(str(__RAW__), str(__INTERIM__ / "mapping/trim")).tolist()
-    else:
-        seq = df['reads'].tolist()
-    return {'seq': seq}
-
-def jellyfish_all(wildcards):
-    val = []
-    trim = ".trimmed" if config["workflow"]["trim"] else ""
-    for kmer in config['qc']['jellyfish']['kmer']:
-        hist = expand(str(__RESULTS__ / "qc/jellyfish/{sample}{trim}.{kmer}_jf.hist"),
-                      sample=samples, trim=trim, kmer=kmer)
-        val.extend(hist)
-    return val
-
-def picard_alignqc_all(wildcards):
-    inbam = bwa_mem_all(wildcards)
-    dupbam = [os.path.join(os.path.dirname(x), "dedup", os.path.basename(x)) for x in inbam]
-    align_metrics = ["{}/qc/align/{}.align_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
-    insert_metrics = ["{}/qc/align/{}.insert_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
-    dup_metrics = [f"{x}.dup_metrics.txt" for x in dupbam]
-    return align_metrics + insert_metrics + dup_metrics
+include: "input/qc.smk"
 
 ##############################
 # Mapping
 ##############################
-bwa_ext = [".amb", ".ann", ".bwt", ".pac", ".sa"]
+include: "input/mapping.smk"
 
-def bwa_mem_rg(wildcards):
-    df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample) & (reads["unit"] == wildcards.unit)]
-    rg = {
-        'LB': 'lib',
-        'PL': 'ILLUMINA',
-        'SM': wildcards.sample,
-        'PU': wildcards.unit
-    }
-    rglist = df.to_dict('rglist')
-    assert len(rglist) == 1, "only one sample and unit should match read configuration"
-    rg.update(rglist[0])
-    rg['id'] = config['reads']['read_group_fmt'].format(**rglist[0])
-    rgstr = r'-R "@RG\tID:{id}LB:{LB}\tPL:{PL}\tSM:{SM}\tPU:{PU}"'.format(**rg)
-    return rgstr
-
-
-def bwa_mem_input(wildcards):
-    df = reads[(reads["SM"] == wildcards.sample) & (reads["unit"] == wildcards.unit)]
-    return sorted(df['reads.trimmed'].to_list())
-
-def bwa_mem_all(wildcards):
-    df = reads[reads["id"] == 1]
-    fn = str(__INTERIM__/ "map/bwa/{genome}/{{SM}}.bam")
-    fn = fn.format(genome=config['db']['ref']['alias'])
-    bam = [fn.format(**x) for k, x in df.iterrows()]
-    return bam
-
-def picard_merge_sam_input(wildcards):
-    df = reads[(reads["SM"] == wildcards.sample) & (reads["id"] == 1)]
-    fn = str(__INTERIM__/ "map/bwa/{genome}/{{SM}}/{{unit}}.bam")
-    fn = fn.format(genome=config['db']['ref']['alias'])
-    bam = [fn.format(**x) for k, x in df.iterrows()]
-    return bam
+##############################
+# Raw variant calling
+##############################
+include: "input/rawvc.smk"
