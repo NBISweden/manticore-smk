@@ -1,0 +1,4 @@
+name: gatk GenotypeGVCFs
+description: Run GATK GenotypeGVCFs
+authors:
+  - Per Unneberg

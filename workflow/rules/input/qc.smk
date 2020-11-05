@@ -1,3 +1,14 @@
+def all_multiqc(wildcards):
+    val = {
+        'qc': all_trim(wildcards)['qc'] + all_fastqc(wildcards),
+        'jellyfish': all_jellyfish(wildcards),
+        'picard': all_picard_alignqc(wildcards),
+        'qualimap': all_qualimap_bamqc(wildcards),
+        'sambamba': all_sambamba_depth(wildcards)  # Should go to report.smk as we need to make separate plot of this
+    }
+    return val
+
+
 def all_trim(wildcards):
     if not config["workflow"]["trim"]:
         return {'reads': [], 'qc': []}
@@ -11,16 +22,10 @@ def all_trim(wildcards):
     qc = [x.format(pe=pe) for x, pe in zip(df["metrics"], df["pe"])]
     return dict(reads=seq, qc=qc)
 
-def all_multiqc(wildcards):
-    val = {
-        'qc': all_trim(wildcards)['qc'] + all_fastqc(wildcards),
-        'jellyfish': all_jellyfish(wildcards),
-        'picard': all_picard_alignqc(wildcards),
-        'qualimap': all_qualimap_bamqc(wildcards)
-    }
-    return val
 
 def all_fastqc(wildcards):
+    if 'fastqc' not in config['workflow']['qc']:
+        return []
     # Regular input reads
     qc = [f"{str(__RESULTS__)}/qc/fastqc/{x}_fastqc.zip" for x in reads['reads']]
     if config["workflow"]["trim"]:
@@ -36,6 +41,8 @@ def jellyfish_count(wildcards):
     return {'seq': seq}
 
 def all_jellyfish(wildcards):
+    if 'jellyfish' not in config['workflow']['qc']:
+        return []
     val = []
     trim = ".trimmed" if config["workflow"]["trim"] else ""
     for kmer in config['qc']['jellyfish']['kmer']:
@@ -45,8 +52,9 @@ def all_jellyfish(wildcards):
     return val
 
 def all_picard_alignqc(wildcards):
+    if 'picard' not in config['workflow']['qc']:
+        return []
     inbam = all_bwa_mem_samples(wildcards)
-    print(inbam)
     dupbam = [os.path.join(os.path.dirname(x), "dedup", os.path.basename(x)) for x in inbam]
     align_metrics = ["{}/qc/align/{}.align_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
     insert_metrics = ["{}/qc/align/{}.insert_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
@@ -55,9 +63,21 @@ def all_picard_alignqc(wildcards):
 
 
 def all_qualimap_bamqc(wildcards):
+    if 'qualimap' not in config['workflow']['qc']:
+        return []
     inbam = all_bwa_mem_samples(wildcards)
     bamdf = {os.path.splitext(os.path.basename(x))[0]:os.path.basename(x) for x in inbam}
     df = {x["SM"]:x["pe"] for k, x in read_pairs_dataframe().iterrows()}
-    fn = str(__INTERIM__/ "qc/qualimap/{bam}.{pe}.qualimap/genome_results.txt")
+    fn = str(__RESULTS__/ "qc/qualimap/{bam}.{pe}.qualimap/genome_results.txt")
     results = [fn.format(bam=bamdf[SM], pe=df[SM]) for SM in bamdf.keys()]
+    return results
+
+
+def all_sambamba_depth(wildcards):
+    if 'sambamba' not in config['workflow']['qc']:
+        return []
+    inbam = all_bwa_mem_samples(wildcards)
+    bampfx = [re.sub(wc["bam"], "", x) for x in inbam]
+    fn = str(__RESULTS__/ f"qc/sambamba/{{SM}}.depth.w100.bed.gz")
+    results = [fn.format(SM=x) for x in samples]
     return results

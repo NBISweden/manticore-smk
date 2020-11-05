@@ -1,0 +1,4 @@
+name: gatk GenomicsDBImport
+description: Run gatk GenomicsDBImport on target regions.
+authors:
+  - Per Unneberg

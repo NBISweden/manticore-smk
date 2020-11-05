@@ -12,13 +12,18 @@ from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
-bam = snakemake.input.bam
-outdir = os.path.dirname(snakemake.output.genome_results)
-mem_mb = snakemake.resources.mem_mb
+inbam = snakemake.input.bam
+outbed = snakemake.output.bed
+
 threads = snakemake.threads
+extra = snakemake.params.get("extra", "-c 0")
+gzip = ""
+if re.search("(.gz|.gzip)$", snakemake.output.bed):
+    gzip = " | gzip -v - "
+
+window_size = snakemake.params.window_size
 
 shell(
-    "unset DISPLAY; "
-    "qualimap bamqc -bam {bam} -nt {threads} qualimap --java-mem-size={mem_mb}M -outdir {outdir}"
-    " {log}"
+    "sambamba depth window -t {threads} {extra} -w {window_size} {inbam}"
+    " {gzip} > {outbed} {log}"
 )

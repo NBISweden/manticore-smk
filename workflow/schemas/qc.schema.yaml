@@ -76,3 +76,8 @@ definitions:
         description: qualimap configuration
         default: {}
         $ref: "definitions.schema.yaml#/definitions/rule"
+      sambamba:
+        type: object
+        description: sambamba configuration
+        default: {}
+        $ref: "definitions.schema.yaml#/definitions/rule"

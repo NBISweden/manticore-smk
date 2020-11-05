@@ -42,5 +42,33 @@ rule rawvc_picard_create_sequence_dictionary:
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/picard/createsequencedictionary"
 
 
+rule gatk_genomics_db_import:
+    output: temp(directory("{interim}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"))
+    input: unpack(gatk_genomics_db_import_input)
+    params:
+        options = config['rawvc']['gatk']['genomics_db_import']['options']
+    resources:
+        runtime = lambda wildcards, attempt: attempt * config['rawvc']['gatk']['genomics_db_import']['runtime'],
+        mem_mb = lambda wildcards, attempt: attempt * config['rawvc']['gatk']['genomics_db_import']['mem_mb']
+    threads: config['rawvc']['gatk']['genomics_db_import']['threads']
+    log: "logs/{interim}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
+    wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genomics_db_import"
 
-localrules: pybedtools_make_bed_targets
+
+rule gatk_genotype_gvcfs:
+    output:
+        vcf = "{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz",
+        tbi = "{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz.tbi"
+    input: unpack(gatk_genotype_gvcfs_input)
+    params:
+        options = config['rawvc']['gatk']['genotype_gvcfs']['options'],
+        annotation = config['rawvc']['gatk']['genotype_gvcfs']['annotation']
+    resources:
+        runtime = lambda wildcards, attempt: attempt * config['rawvc']['gatk']['genomics_db_import']['runtime'],
+        mem_mb = lambda wildcards, attempt: attempt * config['rawvc']['gatk']['genomics_db_import']['mem_mb']
+    threads: config['rawvc']['gatk']['genotype_gvcfs']['threads']
+    log: "logs/{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
+
+
+localrules: pybedtools_make_bed_targets, rawvc_picard_create_sequence_dictionary

@@ -87,49 +87,62 @@ rule picard_mark_duplicates:
 
 rule qualimap_bamqc_pe:
     output:
-        genome_results = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/genome_results.txt",
-        html = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/qualimapReport.html",
-        coverage_across_reference = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/coverage_across_reference.txt",
-        coverage_histogram = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/coverage_histogram.txt",
-        duplication_rate_histogram = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/duplication_rate_histogram.txt",
-        genome_fraction_coverage = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/genome_fraction_coverage.txt",
-        homopolymer_indels = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/homopolymer_indels.txt",
-        mapped_reads_clipping_profile = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_clipping_profile.txt",
-        mapped_reads_gc_content_distribution = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
-        mapped_reads_nucleotide_content = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
-        mapping_quality_across_reference = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapping_quality_across_reference.txt",
-        mapping_quality_histogram = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
-        insert_size_across_reference = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
-        insert_size_histogram = "{interim}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
+        genome_results = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/genome_results.txt",
+        html = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/qualimapReport.html",
+        coverage_across_reference = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/coverage_across_reference.txt",
+        coverage_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/coverage_histogram.txt",
+        duplication_rate_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/duplication_rate_histogram.txt",
+        genome_fraction_coverage = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/genome_fraction_coverage.txt",
+        homopolymer_indels = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/homopolymer_indels.txt",
+        mapped_reads_clipping_profile = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_clipping_profile.txt",
+        mapped_reads_gc_content_distribution = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+        mapped_reads_nucleotide_content = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
+        mapping_quality_across_reference = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapping_quality_across_reference.txt",
+        mapping_quality_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
+        insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
+        insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
     input: bam = bwa_mem_sample
     resources:
         runtime = lambda wildcards, attempt: attempt * config['qc']['qualimap']['runtime'],
         mem_mb = lambda wildcards, attempt: attempt * config['qc']['qualimap']['mem_mb']
     threads: config['qc']['qualimap']['threads']
-    log: "logs/{interim}/qc/qualimap/{sample}{bam}.pe.qualimap.log"
+    log: "logs/{results}/qc/qualimap/{sample}{bam}.pe.qualimap.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/qualimap/bamqc"
 
 
 rule qualimap_bamqc_se:
     output:
-        genome_results = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/genome_results.txt",
-        html = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/qualimapReport.html",
-        coverage_across_reference = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/coverage_across_reference.txt",
-        coverage_histogram = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/coverage_histogram.txt",
-        duplication_rate_histogram = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/duplication_rate_histogram.txt",
-        genome_fraction_coverage = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/genome_fraction_coverage.txt",
-        homopolymer_indels = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/homopolymer_indels.txt",
-        mapped_reads_clipping_profile = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_clipping_profile.txt",
-        mapped_reads_gc_content_distribution = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
-        mapped_reads_nucleotide_content = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
-        mapping_quality_across_reference = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapping_quality_across_reference.txt",
-        mapping_quality_histogram = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
-        insert_size_across_reference = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
-        insert_size_histogram = "{interim}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
+        genome_results = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/genome_results.txt",
+        html = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/qualimapReport.html",
+        coverage_across_reference = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/coverage_across_reference.txt",
+        coverage_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/coverage_histogram.txt",
+        duplication_rate_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/duplication_rate_histogram.txt",
+        genome_fraction_coverage = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/genome_fraction_coverage.txt",
+        homopolymer_indels = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/homopolymer_indels.txt",
+        mapped_reads_clipping_profile = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_clipping_profile.txt",
+        mapped_reads_gc_content_distribution = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+        mapped_reads_nucleotide_content = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
+        mapping_quality_across_reference = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapping_quality_across_reference.txt",
+        mapping_quality_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
+        insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
+        insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
     input: bam = bwa_mem_sample
     resources:
         runtime = lambda wildcards, attempt: attempt * config['qc']['qualimap']['runtime'],
         mem_mb = lambda wildcards, attempt: attempt * config['qc']['qualimap']['mem_mb']
     threads: config['qc']['qualimap']['threads']
-    log: "logs/{interim}/qc/qualimap/{sample}{bam}.se.qualimap.log"
+    log: "logs/{results}/qc/qualimap/{sample}{bam}.se.qualimap.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/qualimap/bamqc"
+
+
+rule sambamba_depth:
+    output: bed = "{results}/qc/sambamba/{sample}.depth.w{window_size}.bed{gz}"
+    input: bam = bwa_mem_sample,
+           bai = bwa_mem_sample_bai
+    resources:
+        runtime = lambda wildcards, attempt: attempt * config['qc']['sambamba']['runtime'],
+        mem_mb = lambda wildcards, attempt: attempt * config['qc']['sambamba']['mem_mb']
+    params: window_size = lambda wildcards: wildcards.window_size
+    threads: config['qc']['sambamba']['threads']
+    log: "logs/{results}/qc/sambamba/{sample}.depth.w{window_size}.bed{gz}.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/sambamba/depth"

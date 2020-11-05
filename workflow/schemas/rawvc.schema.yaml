@@ -37,3 +37,23 @@ definitions:
             description: haplotype caller config
             default: {}
             $ref: "definitions.schema.yaml#/definitions/rule"
+          genomics_db_import:
+            description: Genomics DB import config
+            default: {}
+            $ref: "definitions.schema.yaml#/definitions/rule"
+          genotype_gvcfs:
+            type: object
+            description: GenotypeGVCFs config
+            default: {}
+            allOf:
+              - properties:
+                  annotation:
+                    type: array
+                    uniqueItems: true
+                    items:
+                      type: string
+                    default: ['QualByDepth', 'FisherStrand',
+                      'StrandOddsRatio', 'RMSMappingQuality',
+                      'MappingQualityRankSumTest', 'ReadPosRankSumTest',
+                      'InbreedingCoeff']
+              - $ref: "definitions.schema.yaml#/definitions/rule"

@@ -39,6 +39,10 @@ def bwa_mem_sample(wildcards):
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
+def bwa_mem_sample_bai(wildcards):
+    bam = bwa_mem_sample(wildcards)
+    return [f"{x}.bai" for x in bam]
+
 
 def all_bwa_mem_samples(wildcards):
     df = reads[reads["id"] == 1]

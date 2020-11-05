@@ -109,6 +109,19 @@ definitions:
         type: boolean
         default: true
         description: perform adapter trimming or not
+      qc:
+        type: array
+        default: ['picard', 'fastqc', 'qualimap', 'jellyfish', 'sambamba']
+        description: qc programs to run on input and mapped data
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+            - picard
+            - fastqc
+            - qualimap
+            - jellyfish
+            - sambamba
   db:
     type: object
     description:
