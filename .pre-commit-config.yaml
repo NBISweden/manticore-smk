@@ -13,6 +13,6 @@ repos:
   hooks:
     - id: lint
       name: Snakemake lint
-      entry: snakemake
+      entry: snakemake --lint text
       language: system
-      files: --lint
+      files: ''
