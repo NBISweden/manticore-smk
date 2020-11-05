@@ -86,7 +86,4 @@ properties:
     $ref: "rawvc.schema.yaml#/definitions/rawvc"
     default: {}
 
-
 additionalProperties: false
-# required:
-#   - assemblies

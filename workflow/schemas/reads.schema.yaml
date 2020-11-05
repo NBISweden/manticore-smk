@@ -58,4 +58,5 @@ properties:
 required:
   - SM
   - unit
+  - id
   - reads

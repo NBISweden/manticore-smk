@@ -118,3 +118,4 @@ definitions:
       ref:
         description: Reference sequence name; path to sequence file
         type: string
+        default: ""

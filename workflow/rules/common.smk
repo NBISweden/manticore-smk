@@ -5,6 +5,7 @@ import itertools
 import urllib
 import pandas as pd
 import numpy as np
+from snakemake.io import _load_configfile
 from snakemake.utils import logger, validate
 
 # Determine wrapper prefix since we mix local wrappers with wrappers
@@ -37,13 +38,17 @@ __REPORTS__ = Path("reports")
 __RESOURCES__ = Path(config["fs"]["resources"])
 __RESULTS__ = Path("results")
 
-def _read_tsv(infile, index, schema):
+def _read_tsv(infile, index, schemafile):
     if infile is None:
-        return None
-    df = pd.read_csv(infile, sep="\t").set_index(index, drop=False)
-    df = df.replace({np.nan: None})
+        schema = _load_configfile(os.path.join(workflow.current_basedir, schemafile))
+        cols = schema["required"]
+        df = pd.DataFrame({k:[] for k in cols})
+        df = df.set_index(index, drop=False)
+    else:
+        df = pd.read_csv(infile, sep="\t").set_index(index, drop=False)
+        df = df.replace({np.nan: None})
     df.index.names = index
-    validate(df, schema=schema)
+    validate(df, schema=schemafile)
     return df
 
 individuals = _read_tsv(config["samples"]["individual"], ["SM"],
@@ -55,6 +60,7 @@ datasources = _read_tsv(config["datasources"], ["data"],
 reads = _read_tsv(config["reads"]["readfile"], ["SM", "unit", "id"],
                   "../schemas/reads.schema.yaml")
 
+
 # Subset by ignore
 def _subset_by_ignore(df, ignore):
     if ignore is None:
@@ -65,15 +71,15 @@ def _subset_by_ignore(df, ignore):
         df = df[~i]
     return df
 
-individuals = _subset_by_ignore(individuals, config["samples"]["ignore"])
-pools = _subset_by_ignore(pools, config["samples"]["ignore"])
-reads = _subset_by_ignore(reads, config["reads"]["ignore"])
+individuals = _subset_by_ignore(individuals, config["samples"].get("ignore", []))
+pools = _subset_by_ignore(pools, config["samples"].get("ignore", []))
+reads = _subset_by_ignore(reads, config["reads"].get("ignore", []))
 samples = individuals["SM"].tolist() + pools["SM"].tolist()
 # Subset reads to samples list
 reads = reads[reads.index.isin(samples, "SM")]
 # Add "reads.trimmed" column to indicate reads that go into mapping
 reads["reads.trimmed"] = reads["reads"]
-if config["workflow"]["trim"]:
+if config["workflow"]["trim"] and len(reads) > 0:
     reads["reads.trimmed"] = reads["reads"].str.replace(str(__RAW__), str(__INTERIM__ / "mapping/trim"))
 
 # Save current base dir for later validation in functions

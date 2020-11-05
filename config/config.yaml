@@ -1,0 +1,6 @@
+samples:
+  individual: config/samples.individual.tsv
+datasources: config/datasources.tsv
+
+workflow:
+  trim: true
