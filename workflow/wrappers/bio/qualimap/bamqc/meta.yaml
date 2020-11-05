@@ -1,0 +1,4 @@
+name: qualimap bamqc
+description: Run qualimap bamqc
+authors:
+  - Per Unneberg

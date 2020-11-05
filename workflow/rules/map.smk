@@ -1,5 +1,5 @@
-rule map_all:
-    input: bwa_mem_all
+rule all_map:
+    input: all_bwa_mem_samples
 
 rule bwa_link_ref:
     output: "{interim}/map/bwa/index/{genome}.fasta"

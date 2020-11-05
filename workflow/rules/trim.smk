@@ -1,6 +1,6 @@
-rule trim_all:
+rule all_trim:
     """Pseudo-rule to trim all input sequences"""
-    input: unpack(trim_all)
+    input: unpack(all_trim)
 
 
 rule cutadapt_pe:

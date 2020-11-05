@@ -71,3 +71,8 @@ definitions:
                     type: string
                     default: "REMOVE_DUPLICATES=true"
               - $ref: "definitions.schema.yaml#/definitions/rule"
+      qualimap:
+        type: object
+        description: qualimap configuration
+        default: {}
+        $ref: "definitions.schema.yaml#/definitions/rule"

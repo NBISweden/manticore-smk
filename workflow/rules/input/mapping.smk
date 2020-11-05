@@ -40,11 +40,12 @@ def bwa_mem_sample(wildcards):
     return bam
 
 
-def bwa_mem_all(wildcards):
+def all_bwa_mem_samples(wildcards):
     df = reads[reads["id"] == 1]
     fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
+
 
 def picard_merge_sam_input(wildcards):
     df = reads[(reads["SM"] == wildcards.sample) & (reads["id"] == 1)]
