@@ -5,6 +5,7 @@ description: snakemake configuration file
 type: object
 
 properties:
+  $ref: "#/definitions/config"
   samples:
     type: object
     default: {}
@@ -24,8 +25,8 @@ properties:
         description: list of samples (SM) to exclude in analysis
         uniqueItems: true
         default: []
-      items:
-        type: string
+        items:
+          type: string
   reads:
     type: object
     default: {}
@@ -66,24 +67,25 @@ properties:
     $ref: "definitions.schema.yaml#/definitions/db"
     default: {}
 
-
   ##############################
-  # Modules
+  # Resources and rules
   ##############################
-  trim:
-    $ref: "trim.schema.yaml#/definitions/trim"
+  resources.default:
+    $ref: "definitions.schema.yaml#/definitions/resources.default"
     default: {}
 
-  qc:
-    $ref: "qc.schema.yaml#/definitions/qc"
+
+  resources:
+    $ref: "definitions.schema.yaml#/definitions/resources"
     default: {}
 
-  map:
-    $ref: "map.schema.yaml#/definitions/map"
-    default: {}
 
-  rawvc:
-    $ref: "rawvc.schema.yaml#/definitions/rawvc"
-    default: {}
+##############################
+# resources configuration for specific regions, treatments and other factors
+##############################
+patternProperties:
+  '^resources/([a-zA-Z\.\-_0-9/\{\}]+)':
+    $ref: "#/definitions/resources"
+
 
 additionalProperties: false

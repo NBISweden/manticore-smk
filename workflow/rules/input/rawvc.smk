@@ -1,3 +1,8 @@
+def all_rawvc(wildcards):
+    return []
+
+
+
 def gatkhc_targets_input(wildcards):
     ref = config['db']['ref']
     fai = f"{ref}.fai"
@@ -11,11 +16,11 @@ def gatkhc_targets_input(wildcards):
             'bam': bam, 'bai': bai, 'dict': d}
 
 
-
 def all_gatkhc_samples(wildcards):
     d = dict(wildcards)
     fn = "{interim}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.bgz".format(**d)
     return expand(fn, SM=individuals["SM"].tolist())
+
 
 def gatk_genomics_db_import_input(wildcards):
     ref = config['db']['ref']

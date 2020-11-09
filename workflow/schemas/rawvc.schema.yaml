@@ -5,55 +5,34 @@ description: rawvc rules configuration
 type: object
 
 definitions:
-  rawvc:
+
+  rawvc_picard_create_sequence_dictionary:
+    description: configuration for picard CreateSequenceDictionary
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  rawvc_samtools_faidx_ref:
+    description: configuration for samtools faidx
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"
+
+  rawvc_gatkhc_targets:
+    description: haplotype caller config
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  rawvc_gatk_genomics_db_import:
+    description: Genomics DB import config
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  rawvc_gatk_genotype_gvcfs:
+    description: GenotypeGVCFs config
     type: object
-    description: Raw variant calling configuration
     default: {}
     properties:
-      picard:
-        type: object
-        description: rawvc picard config
-        default: {}
-        properties:
-          create_sequence_dictionary:
-            type: object
-            default: {}
-            $ref: "definitions.schema.yaml#/definitions/rule"
-      samtools:
-        type: object
-        description: rawvc samtools config
-        default: {}
-        properties:
-          faidx:
-            type: object
-            default: {}
-            $ref: "definitions.schema.yaml#/definitions/rule"
-      gatk:
-        type: object
-        description: gatk configuration
-        default: {}
-        properties:
-          haplotype_caller_targets:
-            description: haplotype caller config
-            default: {}
-            $ref: "definitions.schema.yaml#/definitions/rule"
-          genomics_db_import:
-            description: Genomics DB import config
-            default: {}
-            $ref: "definitions.schema.yaml#/definitions/rule"
-          genotype_gvcfs:
-            type: object
-            description: GenotypeGVCFs config
-            default: {}
-            allOf:
-              - properties:
-                  annotation:
-                    type: array
-                    uniqueItems: true
-                    items:
-                      type: string
-                    default: ['QualByDepth', 'FisherStrand',
-                      'StrandOddsRatio', 'RMSMappingQuality',
-                      'MappingQualityRankSumTest', 'ReadPosRankSumTest',
-                      'InbreedingCoeff']
-              - $ref: "definitions.schema.yaml#/definitions/rule"
+      annotation:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+        default: ['QualByDepth', 'FisherStrand',
+        'StrandOddsRatio', 'RMSMappingQuality',
+        'MappingQualityRankSumTest', 'ReadPosRankSumTest',
+        'InbreedingCoeff']

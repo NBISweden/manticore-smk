@@ -45,7 +45,7 @@ def all_jellyfish(wildcards):
         return []
     val = []
     trim = ".trimmed" if config["workflow"]["trim"] else ""
-    for kmer in config['qc']['jellyfish']['kmer']:
+    for kmer in config['resources']['qc_jellyfish']['kmer']:
         hist = expand(str(__RESULTS__ / "qc/jellyfish/{sample}{trim}.{kmer}_jf.hist"),
                       sample=samples, trim=trim, kmer=kmer)
         val.extend(hist)

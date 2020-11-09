@@ -3,7 +3,7 @@ rule all_trim:
     input: unpack(all_trim)
 
 
-rule cutadapt_pe:
+rule trim_cutadapt_pe:
     """Cutadapt: cut paired end sequences
 
     Cut both five- and threeprime adapter.
@@ -16,28 +16,28 @@ rule cutadapt_pe:
         read1 = __RAW__ / "{prefix}_1{fastq}{gz}",
         read2 = __RAW__ / "{prefix}_2{fastq}{gz}"
     resources:
-        runtime = lambda wildcards, attempt: attempt * config['trim']['cutadapt']['pe']['runtime']
+        runtime = lambda wildcards, attempt: resources("trim_cutadapt_pe", "runtime", attempt)
     params:
-        others = config['trim']['cutadapt']['pe']['options'],
-        adapters = config['trim']['cutadapt']['pe']['adapters']
-    threads: config['trim']['cutadapt']['pe']['threads']
+        others = get_params("trim_cutadapt_pe", "options"),
+        adapters = get_params("trim_cutadapt_pe", "adapters")
+    threads: get_params("trim_cutadapt_pe", 'threads')
     log: "logs/{interim}/mapping/trim/{prefix}{fastq}{gz}.log"
     wrapper:
         f"{SMK_WRAPPER_PREFIX}/bio/cutadapt/pe"
 
 
-rule cutadapt_se:
+rule trim_cutadapt_se:
     """Cutadapt: cut single end sequences"""
-    resources:
-        runtime = lambda wildcards, attempt: attempt * config['trim']['cutadapt']['se']['runtime']
-    params:
-        " ".join([config['trim']['cutadapt']['se']['options'],
-                  config['trim']['cutadapt']['se']['adapters']])
-    input: __RAW__ / "{prefix}_1{fastq}{gz}",
     output:
         fastq = temp("{interim}/mapping/trim/{prefix}{fastq}{gz}"),
         qc = "logs/{interim}/mapping/trim/{prefix}{fastq}{gz}.se.cutadapt_metrics.txt"
-    threads: config['trim']['cutadapt']['se']['threads']
+    input: __RAW__ / "{prefix}_1{fastq}{gz}"
+    resources:
+        runtime = lambda wildcards, attempt: resources("trim_cutadapt_se", "runtime", attempt)
+    params:
+        " ".join([get_params("trim_cutadapt_se", "options"),
+                  get_params("trim_cutadapt_se", "adapters")])
+    threads: get_params("trim_cutadapt_se", "threads")
     log: "logs/{interim}/mapping/trim/{prefix}{fastq}{gz}.log"
     wrapper:
         f"{SMK_WRAPPER_PREFIX}/bio/cutadapt/se"

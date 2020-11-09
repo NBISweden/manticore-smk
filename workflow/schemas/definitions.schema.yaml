@@ -5,11 +5,89 @@ description: Various definitions
 type: object
 
 definitions:
-  fs:
+  options:
+    description: program options represented as string, array or dictionary
+    type: [string, array, object]
+    items:
+      type: string
+    uniqueItems: true
+  runtime:
+    description: rule runtime in minutes
+    type: integer
+  threads:
+    description: number of threads
+    type: integer
+  mem_mb:
+    description: Resource that defines assigned memory in megabases
+    type: integer
+  java_options:
+    description: options to pass to java interpreter
+    type: string
+  java_tmpdir:
+    description: java temporary directory
+    type: string
+
+  resources.default:
+    title: Default resources.
+    description: >
+      Default resources. Any rule that does not specify resources will
+      fall back on these default values.
     type: object
+    default: {}
+    properties:
+      threads:
+        $ref: "#/definitions/threads"
+        default: 1
+      mem_mb:
+        $ref: "#/definitions/mem_mb"
+        default: 8192
+      runtime:
+        $ref: "#/definitions/runtime"
+        default: 120
+      options:
+        $ref: "#/definitions/options"
+        default: ""
+      java_options:
+        $ref: "#/definitions/java_options"
+        default: ""
+      java_tmpdir:
+        $ref: "#/definitions/java_tmpdir"
+        default: "/tmp"
+    additionalProperties: false
+
+  resources.rule:
+    title: Rule configuration
+    description: generic configuration for rules
+    type: object
+    properties:
+      options:
+        $ref: "#/definitions/options"
+      threads:
+        $ref: "#/definitions/threads"
+      mem_mb:
+        $ref: "#/definitions/mem_mb"
+      runtime:
+        $ref: "#/definitions/runtime"
+    additionalProperties: false
+
+  resources.rule.java:
+    title: Java rule configuration
+    description: generic configuration for java rules
+    type: object
+    allOf:
+      - properties:
+          java_options:
+            $ref: "#/definitions/java_options"
+          java_tmpdir:
+            $ref: "#/definitions/java_tmpdir"
+      - $ref: "#/definitions/resources.rule"
+    additionalProperties: false
+
+  fs:
     description: >
         file system layout; defines Path objects and wildcards for
         snakemake rules
+    type: object
     default: {}
     properties:
       external:
@@ -27,92 +105,75 @@ definitions:
       resources:
         type: string
         default: resources
-  rule:
-    type: object
-    description: generic configuration for rules
-    properties:
-      options:
-        type: [string, array, object]
-        default: ""
-        items:
-          type: string
-      runtime:
-        default: 60
-        type: number
-      threads:
-        default: 1
-        type: number
-      mem_mb:
-        description: Resource that defines assigned memory
-        default: 8192
-        type: number
+
   workflow:
-    type: object
+    title: Workflow configuration
     description: >
         Workflow configuration. Define high-level options that apply
         to workflow logic and execution
+    type: object
     default: {}
     properties:
       variantcallers:
-        title: Variant callers
+        description: Variant callers
         type: object
         default: {}
         properties:
           ind:
-            type: array
             description: Variant callers for individuals
-            uniqueItems: true
+            type: array
             default: ['gatkhc']
+            uniqueItems: true
             items:
               type: string
               enum: ['gatkhc', 'freebayes', 'bcftools']
           pool:
-            type: array
             description: Variant callers for pools
+            type: array
             uniqueItems: true
             default: ['popoolation']
             items:
               type: string
               enum: ['popoolation']
       regions:
-        type: object
         title: region definitions
         description: >
             key-value mapping of region name to bed file defining
             regions for region-based analyses. If no regions are
             provided, the default region *all* will be generated using
             the reference file
+        type: object
         default: {}
         patternProperties:
           '^[a-zA-Z\-_0-9]+$':
             properties:
               bed:
-                type: string
                 description: filename for bed file defining regions
+                type: string
                 pattern: .+\.bed
                 examples:
                   - data/metadata/all.bed
                   - data/metadata/autosomes.bed
                   - data/metadata/PAR.bed
               ploidy:
-                type: integer
                 description: >
                     ploidy for region. Will be adjusted by pool size
                     for pool calls
+                type: integer
                 default: 2
               npart:
-                type: integer
                 description: define number of partitions for scatter-gather calls
+                type: integer
                 default: 1
         additionalProperties: false
       trim:
+        description: perform adapter trimming or not
         type: boolean
         default: true
-        description: perform adapter trimming or not
       qc:
+        description: qc programs to run on input and mapped data
         type: array
         default: ['picard', 'fastqc', 'qualimap', 'jellyfish', 'sambamba']
-        description: qc programs to run on input and mapped data
         uniqueItems: true
         items:
           type: string
@@ -123,12 +184,152 @@ definitions:
             - jellyfish
             - sambamba
   db:
+    description: >
+        Configuration for various database resources
     type: object
-    description:
-      Configuration for various database resources
     default: {}
     properties:
       ref:
         description: Reference sequence name; path to sequence file
         type: string
         default: ""
+
+
+
+  ##############################
+  # Resources
+  ##############################
+  resources:
+    title: Resources configuration
+    description: >
+      This schema defines rule schemas for all rules in the workflow.
+      There are also additional placeholders for sex, region and
+      treatment in case particular options/settings have to be applied
+      to specific subsets of the data
+    type: object
+    properties:
+      ##############################
+      # Region, treatment and sex placeholders
+      ##############################
+      region:
+        type: string
+
+      treatment:
+        $ref: "samples.ind.schema.yaml#/definitions/treatment"
+
+      sex:
+        $ref: "samples.ind.schema.yaml#/definitions/sex"
+
+      ##############################
+      # Trim rules
+      ##############################
+      trim_cutadapt_pe:
+        default:
+          adapters: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+        $ref: "trim.schema.yaml#/definitions/resources.rule.cutadapt"
+
+      trim_cutadapt_se:
+        default:
+          adapters: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+        $ref: "trim.schema.yaml#/definitions/resources.rule.cutadapt"
+
+      ##############################
+      # Qc rules
+      ##############################
+      qc_multiqc:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_multiqc"
+
+      qc_fastqc:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_fastqc"
+
+      qc_jellyfish:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_jellyfish"
+
+      qc_jellyfish_count:
+        default:
+          options: -s 100M -C
+        $ref: "qc.schema.yaml#/definitions/qc_jellyfish_count"
+
+      qc_jellyfish_histo:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_jellyfish_histo"
+
+      qc_picard_collect_alignment_summary_metrics:
+        default:
+          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+        $ref: "qc.schema.yaml#/definitions/qc_picard_collect_alignment_summary_metrics"
+
+      qc_picard_collect_insert_size_metrics:
+        default:
+          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+        $ref: "qc.schema.yaml#/definitions/qc_picard_collect_insert_size_metrics"
+
+      qc_picard_mark_duplicates:
+        default:
+          options: "REMOVE_DUPLICATES=true"
+        $ref: "qc.schema.yaml#/definitions/qc_picard_mark_duplicates"
+
+      qc_qualimap_bamqc_se:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_qualimap_bamqc_se"
+
+      qc_qualimap_bamqc_pe:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_qualimap_bamqc_pe"
+
+      qc_sambamba_depth:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_sambamba_depth"
+
+
+      ##############################
+      # Mapping
+      ##############################
+
+      map_samtools_faidx_ref:
+        default: {}
+        $ref: "map.schema.yaml#/definitions/map_samtools_faidx_ref"
+
+      map_samtools_index:
+        default: {}
+        $ref: "map.schema.yaml#/definitions/map_samtools_index"
+
+      map_bwa_index:
+        default: {}
+        $ref: "map.schema.yaml#/definitions/map_bwa_index"
+
+      map_bwa_mem:
+        default: {}
+        $ref: "map.schema.yaml#/definitions/map_bwa_mem"
+
+      map_picard_merge_sam:
+        default: {}
+        $ref: "map.schema.yaml#/definitions/map_picard_merge_sam"
+
+
+      ##############################
+      # rawvc
+      ##############################
+
+      rawvc_samtools_faidx_ref:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_samtools_faidx_ref"
+
+      rawvc_gatkhc_targets:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_samtools_faidx_ref"
+
+      rawvc_picard_create_sequence_dictionary:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_create_sequence_dictionary"
+
+      rawvc_gatk_genomics_db_import:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genomics_db_import"
+
+      rawvc_gatk_genotype_gvcfs:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genotype_gvcfs"

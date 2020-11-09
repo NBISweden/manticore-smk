@@ -5,40 +5,29 @@ description: trim rules configuration
 type: object
 
 definitions:
-  trim:
+  adapters:
+    type: string
+    description: >
+      adapter options; use the -a/-b/-g/-u and
+      -A/-B/-G/-U options. Defaults to TrueSeq
+      adapters. See cutadapt help and
+      https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq
+
+
+  resources.rule.cutadapt:
+    title: Cutadapt rule configuration
+    description: generic configuration for cutadapt
     type: object
-    description: trim configuration
     default: {}
     properties:
-      cutadapt:
-        type: object
-        description: cutadapt configuration
-        default: {}
-        properties:
-          pe:
-            type: object
-            default: {}
-            allOf:
-              - properties:
-                  adapters:
-                    type: string
-                    description: >
-                      adapter options; use the -a/-b/-g/-u and
-                      -A/-B/-G/-U options. Defaults to TrueSeq
-                      adapters. See cutadapt help and
-                      https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq
-                    default: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
-              - $ref: "definitions.schema.yaml#/definitions/rule"
-          se:
-            type: object
-            default: {}
-            allOf:
-              - properties:
-                  adapters:
-                    type: string
-                    description: >
-                      adapter options; use the -a/-b/-g/-u. Defaults
-                      to TrueSeq adapters. See cutadapt help and
-                      https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq
-                    default: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
-              - $ref: "definitions.schema.yaml#/definitions/rule"
+      options:
+        $ref: "definitions.schema.yaml#/definitions/options"
+      threads:
+        $ref: "definitions.schema.yaml#/definitions/threads"
+      mem_mb:
+        $ref: "definitions.schema.yaml#/definitions/mem_mb"
+      runtime:
+        $ref: "definitions.schema.yaml#/definitions/runtime"
+      adapters:
+        $ref: "#/definitions/adapters"
+    additionalProperties: false
