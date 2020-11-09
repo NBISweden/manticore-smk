@@ -178,6 +178,7 @@ def all(wildcards):
     d = {
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
+    d.update(**all_rawvc(wildcards))
     return d
 
 ##############################

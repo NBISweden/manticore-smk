@@ -74,13 +74,19 @@ definitions:
     title: Java rule configuration
     description: generic configuration for java rules
     type: object
-    allOf:
-      - properties:
-          java_options:
-            $ref: "#/definitions/java_options"
-          java_tmpdir:
-            $ref: "#/definitions/java_tmpdir"
-      - $ref: "#/definitions/resources.rule"
+    properties:
+      options:
+        $ref: "#/definitions/options"
+      threads:
+        $ref: "#/definitions/threads"
+      mem_mb:
+        $ref: "#/definitions/mem_mb"
+      runtime:
+        $ref: "#/definitions/runtime"
+      java_options:
+        $ref: "#/definitions/java_options"
+      java_tmpdir:
+        $ref: "#/definitions/java_tmpdir"
     additionalProperties: false
 
   fs:
@@ -147,6 +153,9 @@ definitions:
         patternProperties:
           '^[a-zA-Z\-_0-9]+$':
             properties:
+              description:
+                description: description field
+                type: string
               bed:
                 description: filename for bed file defining regions
                 type: string
@@ -319,8 +328,12 @@ definitions:
         $ref: "rawvc.schema.yaml#/definitions/rawvc_samtools_faidx_ref"
 
       rawvc_gatkhc_targets:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_samtools_faidx_ref"
+        default:
+          annotation: ['QualByDepth', 'FisherStrand',
+            'StrandOddsRatio', 'RMSMappingQuality',
+            'MappingQualityRankSumTest', 'ReadPosRankSumTest',
+            'InbreedingCoeff']
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatkhc_targets"
 
       rawvc_picard_create_sequence_dictionary:
         default: {}
@@ -331,5 +344,13 @@ definitions:
         $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genomics_db_import"
 
       rawvc_gatk_genotype_gvcfs:
-        default: {}
+        default:
+          annotation: ['QualByDepth', 'FisherStrand',
+            'StrandOddsRatio', 'RMSMappingQuality',
+            'MappingQualityRankSumTest', 'ReadPosRankSumTest',
+            'InbreedingCoeff']
         $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genotype_gvcfs"
+
+      rawvc_picard_merge_vcfs_targets:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_merge_vcfs_targets"

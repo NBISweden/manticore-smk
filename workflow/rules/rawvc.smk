@@ -1,5 +1,5 @@
 rule all_rawvc:
-    input: all_rawvc
+    input: unpack(all_rawvc)
 
 
 rule rawvc_pybedtools_make_bed_targets:
@@ -29,10 +29,11 @@ rule rawvc_gatkhc_targets:
         vcf = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}"),
         tbi = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}.tbi")
     input:
-        unpack(gatkhc_targets_input)
+        unpack(rawvc_gatkhc_targets_input)
     wildcard_constraints: mode = "(.g|)"
     params:
-        get_params("rawvc_gatkhc_targets", "options")
+        options = get_params("rawvc_gatkhc_targets", "options"),
+        annotation = get_params("rawvc_gatkhc_targets", "annotation")
     threads: get_params("rawvc_gatkhc_targets", "threads")
     log: "logs/{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"
@@ -51,7 +52,7 @@ rule rawvc_picard_create_sequence_dictionary:
 
 rule rawvc_gatk_genomics_db_import:
     output: temp(directory("{interim}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"))
-    input: unpack(gatk_genomics_db_import_input)
+    input: unpack(rawvc_gatk_genomics_db_import_input)
     params:
         options = get_params("rawvc_gatk_genomics_db_import", "options")
     resources:
@@ -64,9 +65,9 @@ rule rawvc_gatk_genomics_db_import:
 
 rule rawvc_gatk_genotype_gvcfs:
     output:
-        vcf = "{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz",
-        tbi = "{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz.tbi"
-    input: unpack(gatk_genotype_gvcfs_input)
+        vcf = temp("{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
+        tbi = temp("{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
+    input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
         options = get_params("rawvc_gatk_genotype_gvcfs", "options"),
         annotation = get_params("rawvc_gatk_genotype_gvcfs", "annotation")
@@ -74,8 +75,23 @@ rule rawvc_gatk_genotype_gvcfs:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "mem_mb"),
     threads: get_params("rawvc_gatk_genotype_gvcfs", "threads")
-    log: "logs/{interim}/rawvc/gatkhc/{region}.{target}.vcf.bgz.log"
+    log: "logs/{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
+
+
+rule rawvc_picard_merge_vcfs_targets:
+    output:
+        vcf = "{interim}/rawvc/gatkhc.merged/{region}.bcf",
+        tbi = "{interim}/rawvc/gatkhc.merged/{region}.bcf.idx"
+    input: unpack(rawvc_picard_merge_vcfs_targets_input)
+    params:
+        extra = get_params("rawvc_picard_merge_vcfs_targets", "options")
+    resources:
+        runtime = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "mem_mb")
+    threads: get_params("rawvc_picard_merge_vcfs_targets", "threads")
+    log: "logs/{interim}/rawvc/gatkhc.merged/{region}.vcf.bgz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/picard/mergevcfs"
 
 
 localrules: rawvc_pybedtools_make_bed_targets, rawvc_picard_create_sequence_dictionary

@@ -1,0 +1,4 @@
+name: picard mergevcfs
+description: Run picard MergeVcfs.
+authors:
+  - Per Unneberg

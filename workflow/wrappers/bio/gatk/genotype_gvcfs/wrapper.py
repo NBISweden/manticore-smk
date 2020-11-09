@@ -28,6 +28,6 @@ annotation_opt = [f"--annotation {a}" for a in annotation]
 
 shell(
     "gatk --java-options '{java_opts}' GenotypeGVCFs {options} "
-    "{ref} {annotation_opt} --include-non-variant-sites true "
+    "{ref} {targets} {annotation_opt} --include-non-variant-sites true "
     "-O {snakemake.output.vcf} {db} {log}"
 )

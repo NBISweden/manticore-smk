@@ -24,6 +24,9 @@ mode = " -ERC GVCF " if snakemake.wildcards.mode == ".g" else " "
 gatk = "GATK"
 options = snakemake.params.get("options", "")
 java_opts = snakemake.params.get("java_opts", "")
+annotation = snakemake.params.get("annotation", [])
+
+annotation_opt = [f"--annotation {a}" for a in annotation]
 
 bams = snakemake.input.bam
 if isinstance(bams, str):
@@ -32,7 +35,7 @@ bams = list(map("-I {}".format, bams))
 
 shell(
     "gatk --java-options '{java_opts}' HaplotypeCaller {options} "
-    "-R {snakemake.input.ref} {bams} "
+    "-R {snakemake.input.ref} {annotation_opt} {bams} "
     " {mode} {ploidy} "
     "-O {snakemake.output.vcf} {log}"
 )

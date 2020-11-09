@@ -6,6 +6,30 @@ type: object
 
 definitions:
 
+  resources.rule.java.gatk.annotation:
+    description: Specifically tailored gatk rule for annotations
+    type: object
+    default: {}
+    properties:
+      options:
+        $ref: "definitions.schema.yaml#/definitions/options"
+      threads:
+        $ref: "definitions.schema.yaml#/definitions/threads"
+      mem_mb:
+        $ref: "definitions.schema.yaml#/definitions/mem_mb"
+      runtime:
+        $ref: "definitions.schema.yaml#/definitions/runtime"
+      java_options:
+        $ref: "definitions.schema.yaml#/definitions/java_options"
+      java_tmpdir:
+        $ref: "definitions.schema.yaml#/definitions/java_tmpdir"
+      annotation:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+    additionalProperties: false
+
   rawvc_picard_create_sequence_dictionary:
     description: configuration for picard CreateSequenceDictionary
     $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
@@ -16,7 +40,7 @@ definitions:
 
   rawvc_gatkhc_targets:
     description: haplotype caller config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+    $ref: "#/definitions/resources.rule.java.gatk.annotation"
 
   rawvc_gatk_genomics_db_import:
     description: Genomics DB import config
@@ -24,15 +48,8 @@ definitions:
 
   rawvc_gatk_genotype_gvcfs:
     description: GenotypeGVCFs config
-    type: object
-    default: {}
-    properties:
-      annotation:
-        type: array
-        uniqueItems: true
-        items:
-          type: string
-        default: ['QualByDepth', 'FisherStrand',
-        'StrandOddsRatio', 'RMSMappingQuality',
-        'MappingQualityRankSumTest', 'ReadPosRankSumTest',
-        'InbreedingCoeff']
+    $ref: "#/definitions/resources.rule.java.gatk.annotation"
+
+  rawvc_picard_merge_vcfs_targets:
+    description: Picard merge vcfs for targeted regions
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
