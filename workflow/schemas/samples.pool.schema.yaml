@@ -27,7 +27,7 @@ properties:
     default: haploid
   size:
     type: integer
-    description: pool size
+    description: pool size expressed as number of individuals
 
 required:
   - SM

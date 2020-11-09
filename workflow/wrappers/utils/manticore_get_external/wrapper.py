@@ -12,8 +12,8 @@ from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
-source = snakemake.input.uri
-if len(source) == 0:
+source = snakemake.input.get("uri", None)
+if source is None or len(source) == 0:
     source = snakemake.params.uri
 dest = snakemake.output.resource_file
 scheme = snakemake.params.scheme

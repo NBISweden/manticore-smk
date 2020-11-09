@@ -15,7 +15,4 @@ workflow:
       bed: data/external/ref/scaffolds.bed
       npart: 2
       ploidy: 2
-
-# resources:
-#   rawvc_gatk_genotype_gvcfs:
-#     options: --max-genotype-count 1000
+  qc: ['picard', 'fastqc', 'jellyfish', 'sambamba']
