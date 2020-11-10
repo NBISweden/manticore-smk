@@ -20,6 +20,7 @@ scheme = snakemake.params.scheme
 cmd_map = {"": "ln -s", "rsync": "rsync -av", "sftp": "cp", "file": "ln -s"}
 cmd = cmd_map[scheme]
 
-
+outdir = os.path.dirname(dest)
+shell("mkdir -p {outdir}")
 logger.debug(f"Using command {cmd} {source} {dest} {log}")
 shell("{cmd} {source} {dest} {log}")
