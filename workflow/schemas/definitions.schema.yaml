@@ -269,17 +269,17 @@ definitions:
 
       qc_picard_collect_alignment_summary_metrics:
         default:
-          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+          options: "-VALIDATION_STRINGENCY LENIENT -METRIC_ACCUMULATION_LEVEL null -METRIC_ACCUMULATION_LEVEL SAMPLE"
         $ref: "qc.schema.yaml#/definitions/qc_picard_collect_alignment_summary_metrics"
 
       qc_picard_collect_insert_size_metrics:
         default:
-          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+          options: "-VALIDATION_STRINGENCY LENIENT -METRIC_ACCUMULATION_LEVEL null -METRIC_ACCUMULATION_LEVEL SAMPLE"
         $ref: "qc.schema.yaml#/definitions/qc_picard_collect_insert_size_metrics"
 
       qc_picard_mark_duplicates:
         default:
-          options: "REMOVE_DUPLICATES=true"
+          options: "-VALIDATION_STRINGENCY LENIENT -REMOVE_DUPLICATES true"
         $ref: "qc.schema.yaml#/definitions/qc_picard_mark_duplicates"
 
       qc_qualimap_bamqc_se:
