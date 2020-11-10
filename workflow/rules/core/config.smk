@@ -9,8 +9,8 @@ def read_pairs_dataframe():
     return df
 
 def resources(rule, resource, attempt=1, wildcards=None, **kwargs):
-    # TODO: Add prior checks to resorce
-    # resources
+    """Retrieve resources for rule multiplying the value by attempt"""
+    # TODO: Add prior checks to resource
     if config['resources'][rule].get(resource, None):
         val = config['resources'][rule][resource]
     else:
@@ -19,6 +19,7 @@ def resources(rule, resource, attempt=1, wildcards=None, **kwargs):
     return attempt * val
 
 def get_params(rule, resource, wildcards=None, **kwargs):
+    """Retrieve rule parameters"""
     val = config['resources'][rule].get(resource, None)
     if val is not None:
         return val

@@ -203,6 +203,12 @@ definitions:
         description: Reference sequence name; path to sequence file
         type: string
         default: ""
+      repeats:
+        description: Bed file indicating repeat regions
+        type: string
+        pattern: (|.+\.bed$)
+        default: ""
+
 
 
 
@@ -371,3 +377,38 @@ definitions:
       filter_gatk_variant_JEXL_filtration:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_variant_JEXL_filtration"
+
+
+      ##############################
+      # Popoolation
+      ##############################
+
+      popoolation_samtools_filter_mpileup:
+        default:
+          options: -q 20
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_samtools_filter_mpileup"
+
+      popoolation_filter_pileup_by_gtf:
+        default: {}
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_filter_pileup_by_gtf"
+
+      popoolation_subsample_pileup:
+        default: {}
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_subsample_pileup"
+
+      popoolation_variance_sliding:
+        default: {}
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_variance_sliding"
+
+
+      ##############################
+      # Popoolation2
+      ##############################
+
+      popoolation2_samtools_mpileup:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_samtools_mpileup"
+
+      popoolation2_mpileup2sync_jar:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_mpileup2sync_jar"

@@ -1,5 +1,6 @@
 db:
   ref: data/external/ref/scaffolds.fa
+  repeats: data/external/ref/scaffolds-targets.bed
 reads:
   readfile: config/reads.tsv
 samples:

@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: popoolation2 rules configuration
+
+type: object
+
+definitions:
+
+  popoolation2_samtools_mpileup:
+    description: samtools mpileup config
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_mpileup2sync_jar:
+    description: convert mpileup to sync format
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  popoolation2_subsample_pileup:
+    description: subsample pileup config
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_variance_sliding:
+    description: variance sliding config
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"
