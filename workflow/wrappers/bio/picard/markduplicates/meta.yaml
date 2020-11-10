@@ -1,0 +1,4 @@
+name: picard markduplicates
+description: Run picard MarkDuplicates
+authors:
+  - Per Unneberg

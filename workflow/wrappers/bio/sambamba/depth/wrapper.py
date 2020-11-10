@@ -10,7 +10,7 @@ import re
 from snakemake.shell import shell
 from snakemake.utils import logger
 
-log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
 inbam = snakemake.input.bam
 outbed = snakemake.output.bed

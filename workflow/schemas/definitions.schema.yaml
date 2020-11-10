@@ -182,7 +182,7 @@ definitions:
       qc:
         description: qc programs to run on input and mapped data
         type: array
-        default: ['picard', 'fastqc', 'qualimap', 'jellyfish', 'sambamba']
+        default: ['picard', 'fastqc', 'qualimap', 'jellyfish', 'sambamba', 'bcftools']
         uniqueItems: true
         items:
           type: string
@@ -192,6 +192,7 @@ definitions:
             - qualimap
             - jellyfish
             - sambamba
+            - bcftools
   db:
     description: >
         Configuration for various database resources
@@ -293,6 +294,9 @@ definitions:
         default: {}
         $ref: "qc.schema.yaml#/definitions/qc_sambamba_depth"
 
+      qc_bcftools_stats:
+        default: {}
+        $ref: "qc.schema.yaml#/definitions/qc_bcftools_stats"
 
       ##############################
       # Mapping

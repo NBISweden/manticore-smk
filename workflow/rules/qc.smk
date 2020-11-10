@@ -1,7 +1,6 @@
 rule all_qc:
-    input: multiqc = __REPORTS__ / "qc/multiqc.html",
-           fastqc = all_fastqc,
-           jellyfish = all_jellyfish
+    input: __REPORTS__ / "qc/multiqc.html",
+           unpack(all_multiqc)
 
 rule qc_multiqc:
     output: "{reports}/qc/multiqc.html"
@@ -88,7 +87,7 @@ rule qc_picard_mark_duplicates:
     params:
         get_params('qc_picard_mark_duplicates', 'options')
     threads: get_params('qc_picard_mark_duplicates', 'threads')
-    wrapper: f"{SMK_WRAPPER_PREFIX}/bio/picard/markduplicates"
+    wrapper: f"{WRAPPER_PREFIX}/bio/picard/markduplicates"
 
 
 rule qc_qualimap_bamqc_pe:
@@ -152,3 +151,19 @@ rule qc_sambamba_depth:
     threads: get_params("qc_sambamba_depth", "threads")
     log: "logs/{results}/qc/sambamba/{sample}.depth.w{window_size}.bed{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/sambamba/depth"
+
+
+rule qc_bcftools_stats:
+    """Run bcftools stats to generate caller statistics on single files"""
+    output: stats = "{results}/qc/variantstats/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}.stats"
+    input: vcf = "{results}/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}",
+           ref = config["db"]["ref"]
+    wildcard_constraints:
+        stage = "(unfiltered|filter|select)",
+        vartype = "(|.indel|.snp)"
+    resources:
+        runtime = lambda wildcards, attempt: resources("qc_bcftools_stats", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("qc_bcftools_stats", "mem_mb", attempt)
+    threads: 1
+    log: "logs/{results}/qc/bcftools/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}.stats.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/bcftools/stats"

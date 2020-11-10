@@ -57,3 +57,7 @@ definitions:
   qc_sambamba_depth:
     description: sambamba depth configuration
     $ref: "definitions.schema.yaml#/definitions/resources.rule"
+
+  qc_bcftools_stats:
+    description: bcftools stats configuration
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"

@@ -130,7 +130,7 @@ wildcard_constraints:
     pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
     caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),
     group = "(ind|pool)",
-    callset = "(rawvc)"
+    callset = "rawvc"
 
 
 wc = workflow._wildcard_constraints
@@ -184,6 +184,7 @@ def all(wildcards):
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
     d.update(**all_variantfilter(wildcards))
+    d['stats'] = all_bcftools_stats(wildcards)
     return d
 
 ##############################

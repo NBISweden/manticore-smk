@@ -1,0 +1,4 @@
+name: bcftools stats
+description: Run bcftools stats
+authors:
+  - Per Unneberg

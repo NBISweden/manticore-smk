@@ -1,9 +1,9 @@
 def all_rawvc(wildcards):
     regions = list(config['workflow']['regions'].keys())
-    pfx = str(__RESULTS__ / "rawvc/gatkhc/unfiltered/{region}.bcf")
+    pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/unfiltered/{region}.vcf.gz")
     val = expand(pfx, region=regions)
-    idx = [f"{x}.idx" for x in val]
-    return {'rawvc': val, 'rawvc.idx': idx}
+    tbi = [f"{x}.tbi" for x in val]
+    return {'rawvc': val, 'rawvc.tbi': tbi}
 
 
 def rawvc_gatkhc_targets_input(wildcards):
@@ -21,7 +21,7 @@ def rawvc_gatkhc_targets_input(wildcards):
 
 def all_gatkhc_samples(wildcards):
     d = dict(wildcards)
-    fn = "{interim}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.bgz".format(**d)
+    fn = "{interim}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.gz".format(**d)
     return expand(fn, SM=individuals["SM"].tolist())
 
 

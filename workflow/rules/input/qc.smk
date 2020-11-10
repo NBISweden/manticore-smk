@@ -4,6 +4,7 @@ def all_multiqc(wildcards):
         'jellyfish': all_jellyfish(wildcards),
         'picard': all_picard_alignqc(wildcards),
         'qualimap': all_qualimap_bamqc(wildcards),
+        'bcftools': all_bcftools_stats(wildcards),
         'sambamba': all_sambamba_depth(wildcards)  # Should go to report.smk as we need to make separate plot of this
     }
     return val
@@ -81,3 +82,12 @@ def all_sambamba_depth(wildcards):
     fn = str(__RESULTS__/ f"qc/sambamba/{{SM}}.depth.w100.bed.gz")
     results = [fn.format(SM=x) for x in samples]
     return results
+
+
+def all_bcftools_stats(wildcards):
+    if 'bcftools' not in config['workflow']['qc']:
+        return []
+    invcf = all_variantfilter(wildcards)['variantfilter'] + all_rawvc(wildcards)['rawvc']
+    bn = [re.sub(rf"^{str(__RESULTS__)}", str(__RESULTS__ / "qc/variantstats"), x) for x in invcf]
+    stats = [f"{x}.stats" for x in bn]
+    return stats

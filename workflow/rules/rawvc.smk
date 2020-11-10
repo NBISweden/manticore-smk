@@ -26,8 +26,8 @@ rule rawvc_samtools_faidx_ref:
 rule rawvc_gatkhc_targets:
     """Run GATK HaplotypeCaller on target file"""
     output:
-        vcf = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}"),
-        tbi = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}.tbi")
+        vcf = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}"),
+        tbi = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.tbi")
     input:
         unpack(rawvc_gatkhc_targets_input)
     wildcard_constraints: mode = "(.g|)"
@@ -35,7 +35,7 @@ rule rawvc_gatkhc_targets:
         options = get_params("rawvc_gatkhc_targets", "options"),
         annotation = get_params("rawvc_gatkhc_targets", "annotation")
     threads: get_params("rawvc_gatkhc_targets", "threads")
-    log: "logs/{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{bgz}.log"
+    log: "logs/{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"
 
 
@@ -84,8 +84,8 @@ rule rawvc_picard_merge_vcfs_targets:
 
     FIXME: add support here for other callers"""
     output:
-        vcf = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.bcf",
-        tbi = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.bcf.idx"
+        vcf = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz",
+        tbi = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz.tbi"
     input: unpack(rawvc_picard_merge_vcfs_targets_input)
     params:
         extra = get_params("rawvc_picard_merge_vcfs_targets", "options")
@@ -93,8 +93,10 @@ rule rawvc_picard_merge_vcfs_targets:
         runtime = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "mem_mb")
     threads: get_params("rawvc_picard_merge_vcfs_targets", "threads")
-    log: "logs/{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.bgz.log"
+    log: "logs/{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/picard/mergevcfs"
+
+
 
 
 localrules: rawvc_pybedtools_make_bed_targets, rawvc_picard_create_sequence_dictionary
