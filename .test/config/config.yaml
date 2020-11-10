@@ -17,3 +17,8 @@ workflow:
       npart: 2
       ploidy: 2
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
+
+
+resources:
+  popoolation_subsample_pileup:
+    options: --method withoutreplace --fastq-type sanger --target-coverage 1 --max-coverage 10 --min-qual 20

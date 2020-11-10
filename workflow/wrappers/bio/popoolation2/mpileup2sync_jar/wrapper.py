@@ -7,6 +7,7 @@ __license__ = "MIT"
 
 import os
 import re
+import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
@@ -25,13 +26,14 @@ if not os.path.exists(mpileup2sync):
     )
 
 options = snakemake.params.get("options", "")
-pileup = snakemake.input.pileup
-fifo = f"{pileup}.fifo"
+mpileup = snakemake.input.mpileup
+tmp = os.path.basename(tempfile.mkstemp()[1])
+fifo = f"{mpileup}{tmp}.fifo"
 if os.path.exists(fifo):
     os.unlink(fifo)
 
 shell("mkfifo {fifo}")
-shell("zcat {pileup} > {fifo} &")
+shell("zcat {mpileup} > {fifo} &")
 shell(
     "java -ea -Xmx{mem_mb}M "
     "-jar {mpileup2sync} "

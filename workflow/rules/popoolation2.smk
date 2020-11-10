@@ -15,7 +15,7 @@ rule popoolation2_samtools_mpileup:
 rule popoolation2_mpileup2sync_jar:
     """Convert mpileup output to sync format"""
     output: sync = "{prefix}.sync"
-    input: pileup = "{prefix}.mpileup.gz"
+    input: mpileup = "{prefix}.mpileup.gz"
     resources:
         mem_mb = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "mem_mb", attempt),
         runtime = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "runtime", attempt)
@@ -24,3 +24,36 @@ rule popoolation2_mpileup2sync_jar:
     threads: get_params("popoolation2_mpileup2sync_jar", "threads")
     log: "logs/{prefix}.sync.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/mpileup2sync_jar"
+
+
+rule popoolation2_indel_filtering_identify_indel_regions:
+    """Identify indel regions in mpileup file"""
+    output: gtf = "{prefix}.{target}.mpileup{gz}.indels.gtf"
+    input: mpileup = "{prefix}.{target}.mpileup.gz"
+    resources:
+        mem_mb = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "mem_mb", attempt),
+        runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "runtime", attempt)
+    params:
+        java_options = get_params("popoolation2_indel_filtering_identify_indel_regions", "java_options")
+    threads: get_params("popoolation2_indel_filtering_identify_indel_regions", "threads")
+    log: "logs/{prefix}.{target}.mpileup{gz}.indels.gtf.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/indel_filtering_identify_indel_regions"
+
+
+rule popoolation2_gather_parallel_results:
+    """Gather results from parallel analyses"""
+    output: analysis = "{interim_pool}/popoolation2/{region}/{prefix}{repeatmask}.{filters}{analysis}.{suffix}"
+    input: unpack(popoolation2_gather_parallel_results_input)
+    wildcard_constraints:
+        analysis = "(w\d+.s\d+.fst|sync_rc|sync_pwc|w\d+.s\d+.fet|mpileup.gz.indels)",
+        prefix = "(all|male/all|female/all)",
+        filters = "([\.a-z]+\.|)",
+        suffix = "(gz|gtf)"
+    resources:
+        runtime = resources("popoolation2_gather_parallel_results", "runtime")
+    params:
+        options = get_params("popoolation2_gather_parallel_results", "options")
+    log: "logs/{interim_pool}/popoolation2/{region}/{prefix}{repeatmask}.{filters}{analysis}.{suffix}.log"
+    threads: get_params("popoolation2_gather_parallel_results", "threads")
+    shell:
+        "cat {input.analysis} > {output.analysis}"

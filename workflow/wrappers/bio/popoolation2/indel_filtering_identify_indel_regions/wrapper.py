@@ -7,31 +7,40 @@ __license__ = "MIT"
 
 import os
 import re
+import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
-filter_pileup_by_gtf = os.path.join(
-    conda_prefix, "opt/popoolation-code/basic-pipeline/filter-pileup-by-gtf.pl"
+script = os.path.join(
+    conda_prefix, "opt/popoolation2-code/indel_filtering/identify-indel-regions.pl"
 )
 
-if not os.path.exists(filter_pileup_by_gtf):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
+if not os.path.exists(script):
+    logger.info("Popoolation2 not installed: checking out code with subversion")
+    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
     shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation/code/trunk "
-        "{popoolation_code}"
+        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
+        "{popoolation2_code}"
     )
 
 options = snakemake.params.get("options", "")
 
+mpileup = snakemake.input.mpileup
+tmp = os.path.basename(tempfile.mkstemp()[1])
+fifo = f"{mpileup}{tmp}.fifo"
+if os.path.exists(fifo):
+    os.unlink(fifo)
+
+shell("mkfifo {fifo}")
+shell("zcat {mpileup} > {fifo} &")
 shell(
     "perl "
-    "{filter_pileup_by_gtf} "
+    "{script} "
     "{options} "
-    "--input {snakemake.input.pileup} "
-    "--gtf {snakemake.input.gtf} "
-    "--output {snakemake.output.pileup} "
+    "--input {fifo} "
+    "--output {snakemake.output.gtf} "
+    "|| rm -f {fifo}"
 )

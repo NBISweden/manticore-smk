@@ -10,14 +10,12 @@ import re
 from snakemake.shell import shell
 from snakemake.utils import logger
 
-log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
-filter_pileup_by_gtf = os.path.join(
-    conda_prefix, "opt/popoolation-code/basic-pipeline/filter-pileup-by-gtf.pl"
-)
+script = os.path.join(conda_prefix, "opt/popoolation-code/Variance-sliding.pl")
 
-if not os.path.exists(filter_pileup_by_gtf):
+if not os.path.exists(script):
     logger.info("Popoolation not installed: checking out code with subversion")
     popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
     shell(
@@ -26,12 +24,24 @@ if not os.path.exists(filter_pileup_by_gtf):
     )
 
 options = snakemake.params.get("options", "")
+samples = snakemake.params.samples
+config = snakemake.config
+pool_size = samples[samples.SM == snakemake.wildcards.sample]
+pool_size = (
+    pool_size["size"].to_list()[0]
+    * config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]
+)
+outtxt = os.path.splitext(snakemake.output.txt)[0]
 
 shell(
     "perl "
-    "{filter_pileup_by_gtf} "
+    "{script} "
     "{options} "
+    "--measure {snakemake.wildcards.measure} "
+    "--pool-size {pool_size} "
     "--input {snakemake.input.pileup} "
-    "--gtf {snakemake.input.gtf} "
-    "--output {snakemake.output.pileup} "
+    "--output {outtxt} "
+    "--window-size {snakemake.wildcards.window_size} "
+    "--step-size {snakemake.wildcards.step_size} "
+    "{log} && gzip -v {outtxt}"
 )

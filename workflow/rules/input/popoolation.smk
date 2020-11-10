@@ -1,5 +1,5 @@
 def popoolation_filter_pileup_by_gtf_input(wildcards):
-    return "{interim}/pool/popoolation2/{region}/all{repeatmask}.mpileup.gz.indels.gtf".format(**wildcards)
+    return "{interim_pool}/popoolation2/{region}/all{repeatmask}.mpileup.gz.indels.gtf".format(**wildcards)
 
 
 def popoolation_samtools_filter_mpileup_input(wildcards):

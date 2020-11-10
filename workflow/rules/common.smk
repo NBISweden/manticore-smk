@@ -136,6 +136,7 @@ wildcard_constraints:
     sample = wildcards_or(samples),
     sex = wildcards_or(['haploid', 'male', 'female'], True),
     step_size = "[0-9]+",
+    target = "[0-9]+",
     ind_vc = wildcards_or(config['workflow']['variantcallers']['ind']),
     pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
     caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),

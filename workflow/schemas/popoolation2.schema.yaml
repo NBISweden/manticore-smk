@@ -14,10 +14,10 @@ definitions:
     description: convert mpileup to sync format
     $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
 
-  popoolation2_subsample_pileup:
-    description: subsample pileup config
+  popoolation2_indel_filtering_identify_indel_regions:
+    description: Identify and filter indels from mpileup
     $ref: "definitions.schema.yaml#/definitions/resources.rule"
 
-  popoolation2_variance_sliding:
-    description: variance sliding config
+  popoolation2_gather_parallel_results:
+    description: gather parallel results config
     $ref: "definitions.schema.yaml#/definitions/resources.rule"

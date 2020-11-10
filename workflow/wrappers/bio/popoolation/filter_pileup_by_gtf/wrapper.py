@@ -13,11 +13,11 @@ from snakemake.utils import logger
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
-filter_pileup_by_gtf = os.path.join(
+script = os.path.join(
     conda_prefix, "opt/popoolation-code/basic-pipeline/filter-pileup-by-gtf.pl"
 )
 
-if not os.path.exists(filter_pileup_by_gtf):
+if not os.path.exists(script):
     logger.info("Popoolation not installed: checking out code with subversion")
     popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
     shell(
@@ -26,12 +26,14 @@ if not os.path.exists(filter_pileup_by_gtf):
     )
 
 options = snakemake.params.get("options", "")
+pileup = snakemake.output.pileup
 
+# FIXME: output is truncated if zipped input/output
 shell(
     "perl "
-    "{filter_pileup_by_gtf} "
+    "{script} "
     "{options} "
     "--input {snakemake.input.pileup} "
     "--gtf {snakemake.input.gtf} "
-    "--output {snakemake.output.pileup} "
+    "--output {pileup} {log}"
 )
