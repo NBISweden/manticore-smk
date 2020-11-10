@@ -80,7 +80,7 @@ rule qc_picard_collect_insert_size_metrics:
 
 rule qc_picard_mark_duplicates:
     output: metrics = "{interim}/map/bwa/dedup/{sample}{bam}.dup_metrics.txt",
-            bam = "{interim}/map/bwa//dedup/{sample}{bam}"
+            bam = "{interim}/map/bwa/dedup/{sample}{bam}"
     input: "{interim}/map/bwa/{sample}{bam}"
     log: "logs/{interim}/qc/align/{sample}{bam}.dup_metrics.log"
     resources:
