@@ -126,7 +126,12 @@ wildcard_constraints:
     readno = wildcards_or(ext["readno"]),
     region = wildcards_or(config['workflow']['regions'].keys()),
     sample = wildcards_or(samples),
-    ind_vc = wildcards_or(config['workflow']['variantcallers']['ind'])
+    ind_vc = wildcards_or(config['workflow']['variantcallers']['ind']),
+    pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
+    caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),
+    group = "(ind|pool)",
+    callset = "(rawvc)"
+
 
 wc = workflow._wildcard_constraints
 
@@ -178,7 +183,7 @@ def all(wildcards):
     d = {
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
-    d.update(**all_rawvc(wildcards))
+    d.update(**all_variantfilter(wildcards))
     return d
 
 ##############################
@@ -195,3 +200,8 @@ include: "input/mapping.smk"
 # Raw variant calling
 ##############################
 include: "input/rawvc.smk"
+
+##############################
+# Variant filtering with hard filters
+##############################
+include: "input/variantfilter.smk"
