@@ -24,3 +24,10 @@ def get_params(rule, resource, wildcards=None, **kwargs):
         return val
     val = config['resources.default'][resource]
     return val
+
+
+def get_variant_filters(rule, wildcards, **kwargs):
+    vartype = wildcards.vartype
+    filters = config["resources"][rule]["filters"][vartype]
+    d = {f"'GATKStandard({v.split()[0]})'": v for v in filters}
+    return d

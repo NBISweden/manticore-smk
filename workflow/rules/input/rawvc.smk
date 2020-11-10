@@ -2,7 +2,8 @@ def all_rawvc(wildcards):
     regions = list(config['workflow']['regions'].keys())
     pfx = str(__RESULTS__ / "rawvc/gatkhc/unfiltered/{region}.bcf")
     val = expand(pfx, region=regions)
-    return {'rawvc': val}
+    idx = [f"{x}.idx" for x in val]
+    return {'rawvc': val, 'rawvc.idx': idx}
 
 
 def rawvc_gatkhc_targets_input(wildcards):
@@ -45,7 +46,7 @@ def rawvc_gatk_genotype_gvcfs_input(wildcards):
 
 
 def rawvc_picard_merge_vcfs_targets_input(wildcards):
-    pfx = f"{wildcards.interim}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
+    pfx = f"{str(__INTERIM__)}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     infiles = expand(pfx, target=list(range(npart)))
     tbi = [f"{x}.tbi" for x in infiles]

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: rawvc rules configuration
+
+type: object
+
+definitions:
+
+  resources.rule.java.gatk.filter:
+    description: Specifically tailored gatk rule for filters
+    type: object
+    default: {}
+    properties:
+      options:
+        $ref: "definitions.schema.yaml#/definitions/options"
+      threads:
+        $ref: "definitions.schema.yaml#/definitions/threads"
+      mem_mb:
+        $ref: "definitions.schema.yaml#/definitions/mem_mb"
+      runtime:
+        $ref: "definitions.schema.yaml#/definitions/runtime"
+      java_options:
+        $ref: "definitions.schema.yaml#/definitions/java_options"
+      java_tmpdir:
+        $ref: "definitions.schema.yaml#/definitions/java_tmpdir"
+      filters:
+        type: object
+        default: {}
+        properties:
+          snp:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+            default: ["QD < 2.0", "MQ < 40.0", "FS > 60.0", "MQRankSum < -12.5", "ReadPosRankSum < -8.0", "SOR > 3.0"]
+          indel:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+            default: ["QD < 2.0", "ReadPosRankSum < -20.0", "FS > 200.0", "SOR > 10.0"]
+    additionalProperties: false
+
+  filter_gatk_select_variants:
+    description: GATK SelectVariants configuration
+    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  filter_gatk_variant_JEXL_filtration:
+    description: GATK JEXL filtration configuration
+    $ref: "#/definitions/resources.rule.java.gatk.filter"

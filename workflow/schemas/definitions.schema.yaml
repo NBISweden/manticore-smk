@@ -354,3 +354,16 @@ definitions:
       rawvc_picard_merge_vcfs_targets:
         default: {}
         $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_merge_vcfs_targets"
+
+
+      ##############################
+      # Variantfilter
+      ##############################
+
+      filter_gatk_select_variants:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_select_variants"
+
+      filter_gatk_variant_JEXL_filtration:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_variant_JEXL_filtration"
