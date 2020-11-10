@@ -81,8 +81,8 @@ rule rawvc_gatk_genotype_gvcfs:
 
 rule rawvc_picard_merge_vcfs_targets:
     output:
-        vcf = "{interim}/rawvc/gatkhc.merged/{region}.bcf",
-        tbi = "{interim}/rawvc/gatkhc.merged/{region}.bcf.idx"
+        vcf = "{results}/rawvc/gatkhc/unfiltered/{region}.bcf",
+        tbi = "{results}/rawvc/gatkhc/unfiltered/{region}.bcf.idx"
     input: unpack(rawvc_picard_merge_vcfs_targets_input)
     params:
         extra = get_params("rawvc_picard_merge_vcfs_targets", "options")
@@ -90,7 +90,7 @@ rule rawvc_picard_merge_vcfs_targets:
         runtime = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "mem_mb")
     threads: get_params("rawvc_picard_merge_vcfs_targets", "threads")
-    log: "logs/{interim}/rawvc/gatkhc.merged/{region}.vcf.bgz.log"
+    log: "logs/{results}/rawvc/gatkhc/unfiltered/{region}.vcf.bgz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/picard/mergevcfs"
 
 

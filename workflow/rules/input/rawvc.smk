@@ -1,6 +1,6 @@
 def all_rawvc(wildcards):
     regions = list(config['workflow']['regions'].keys())
-    pfx = str(__INTERIM__ / "rawvc/gatkhc.merged/{region}.bcf")
+    pfx = str(__RESULTS__ / "rawvc/gatkhc/unfiltered/{region}.bcf")
     val = expand(pfx, region=regions)
     return {'rawvc': val}
 
