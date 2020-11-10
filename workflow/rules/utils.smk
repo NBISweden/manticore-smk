@@ -21,3 +21,6 @@ rule manticore_get_external:
     log: "logs/manticore_get_external/{resource_file}.log"
     wrapper:
         f"{WRAPPER_PREFIX}/utils/manticore_get_external"
+
+
+localrules: manticore_get_external
