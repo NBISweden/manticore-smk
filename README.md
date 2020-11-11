@@ -4,7 +4,7 @@
 
 [![Build status](https://github.com/NBISweden/manticore-smk/workflows/Tests/badge.svg?branch=main)](https://github.com/NBISweden/manticore-smk/actions?query=workflow%3ATests)
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)]
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 
 
@@ -195,16 +195,16 @@ include, `npart` how many partitions the region will be split into
 upon parallel processing, and the `ploidy`. This can be utilized to
 apply different settings to autosomes versus sex chromosomes:
 
-	workflow:
-	  regions:
-	    autosomes:
-		  bed: data/external/ref/autosomes.bed
-		  npart: 20
-		  ploidy: 2
-	    Y:
-		  bed: data/external/ref/chrY.bed
-		  npart: 4
-		  ploidy: 1
+    workflow:
+      regions:
+        autosomes:
+          bed: data/external/ref/autosomes.bed
+          npart: 20
+          ploidy: 2
+        Y:
+          bed: data/external/ref/chrY.bed
+          npart: 4
+          ploidy: 1
 
 See
 [definitions.schema.yaml](https://github.com/NBISweden/manticore-smk/blob/main/workflow/schemas/definitions.schema.yaml)
@@ -223,13 +223,13 @@ cases, these values are not initialized, in which case resources fall
 back on default values defined in the `resources.default`
 configuration section:
 
-	resources.default:
-	  threads: 1
-	  mem_mb: 8192
-	  runtime: 120
-	  options: ""
-	  java_options: ""
-	  java_tmpdir: "/tmp"
+    resources.default:
+      threads: 1
+      mem_mb: 8192
+      runtime: 120
+      options: ""
+      java_options: ""
+      java_tmpdir: "/tmp"
 
 Consequently, changing settings in `resources.default` will affect all
 resource settings.
@@ -238,11 +238,11 @@ To modify resources for a rule, add the corresponding property in the
 `resources` section under the rule name. For instance, to change
 runtime, memory use, and threads for `map_bwa_mem`, add
 
-	resources:
-	  map_bwa_mem:
-	    threads: 10
-		runtime: 600
-		mem_mb: 16000
+    resources:
+      map_bwa_mem:
+        threads: 10
+        runtime: 600
+        mem_mb: 16000
 
 ### Resource configuration for specific factor levels (WIP)
 
@@ -253,8 +253,8 @@ a factor level can be the `sex` of a sample or a specific `region`.
 Hence, resources can be tailored specifically for these settings by
 using a syntax `resources/region/sex`:
 
-	resources/Y/female:
-	  popoolation2_fisher_test:
+    resources/Y/female:
+      popoolation2_fisher_test:
         options: --suppress-noninformative --min-count 2 --min-coverage 25 --max-coverage 10000 --min-covered-fraction .1
 
 
