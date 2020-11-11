@@ -39,16 +39,37 @@ def bwa_mem_sample(wildcards):
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
+
+def bwa_mem_dedup_sample(wildcards):
+    df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
+    fn = str(__INTERIM__ / "map/bwa/dedup/{SM}.bam")
+    bam = [fn.format(**x) for k, x in df.iterrows()]
+    return bam
+
+
 def bwa_mem_sample_bai(wildcards):
     bam = bwa_mem_sample(wildcards)
     return [f"{x}.bai" for x in bam]
 
 
 def all_bwa_mem_samples(wildcards):
+    """All merged bwa mem targets"""
     df = reads[reads["id"] == 1]
     fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
+
+
+def all_bwa_mem_dedup_samples(wildcards):
+    """All merged and deduplicated bwa mem targets"""
+    df = reads[reads["id"] == 1 & reads["SM"].isin(individuals["SM"])]
+    fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
+    bam = [fn.format(**x) for k, x in df.iterrows()]
+    return bam
+
+
+def all_map_input(wildcards):
+    return list(set(all_bwa_mem_samples(wildcards) + all_bwa_mem_dedup_samples(wildcards)))
 
 
 def picard_merge_sam_input(wildcards):

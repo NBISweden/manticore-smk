@@ -7,11 +7,12 @@ def all_rawvc(wildcards):
 
 
 def rawvc_gatkhc_targets_input(wildcards):
+    """Get targets for raw variant calling for a sample"""
     ref = config['db']['ref']
     fai = f"{ref}.fai"
     targets = os.path.join(
         os.path.dirname(ref), "gatkhc", f"{wildcards.region}.{wildcards.target}.bed")
-    bam = bwa_mem_sample(wildcards)
+    bam = bwa_mem_dedup_sample(wildcards)
     bai = [f"{x}.bai" for x in bam]
     faext = wildcards_or(ext["fa"])
     d = re.sub(faext, ".dict", ref)

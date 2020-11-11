@@ -1,5 +1,6 @@
 rule all_map:
-    input: all_bwa_mem_samples
+    """Target to finish all mapping, including merging and deduplication"""
+    input: all_map_input
 
 rule map_bwa_link_ref:
     output: "{interim}/map/bwa/index/{genome}.fasta"

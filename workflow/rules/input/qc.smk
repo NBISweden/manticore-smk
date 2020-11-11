@@ -56,7 +56,7 @@ def all_picard_alignqc(wildcards):
     if 'picard' not in config['workflow']['qc']:
         return []
     inbam = all_bwa_mem_samples(wildcards)
-    dupbam = [os.path.join(os.path.dirname(x), "dedup", os.path.basename(x)) for x in inbam]
+    dupbam = all_bwa_mem_dedup_samples(wildcards)
     align_metrics = ["{}/qc/align/{}.align_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
     insert_metrics = ["{}/qc/align/{}.insert_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
     dup_metrics = [f"{x}.dup_metrics.txt" for x in dupbam]
