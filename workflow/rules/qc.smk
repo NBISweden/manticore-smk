@@ -83,7 +83,8 @@ rule qc_picard_mark_duplicates:
     input: "{interim}/map/bwa/{sample}{bam}"
     log: "logs/{interim}/qc/align/{sample}{bam}.dup_metrics.log"
     resources:
-        runtime = lambda wildcards, attempt: resources("qc_picard_mark_duplicates", "runtime", attempt)
+        runtime = lambda wildcards, attempt: resources("qc_picard_mark_duplicates", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("qc_picard_mark_duplicates", "mem_mb", attempt)
     params:
         get_params('qc_picard_mark_duplicates', 'options')
     threads: get_params('qc_picard_mark_duplicates', 'threads')

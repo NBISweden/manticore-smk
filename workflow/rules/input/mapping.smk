@@ -1,3 +1,9 @@
+def all_map_input(wildcards):
+    targets = all_fastqc(wildcards) + all_jellyfish(wildcards) + \
+        list(set(all_bwa_mem_samples(wildcards) + all_bwa_mem_dedup_samples(wildcards)))
+    return targets
+
+
 bwa_ext = [".amb", ".ann", ".bwt", ".pac", ".sa"]
 
 def bwa_mem_rg(wildcards):
@@ -66,10 +72,6 @@ def all_bwa_mem_dedup_samples(wildcards):
     fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
-
-
-def all_map_input(wildcards):
-    return list(set(all_bwa_mem_samples(wildcards) + all_bwa_mem_dedup_samples(wildcards)))
 
 
 def picard_merge_sam_input(wildcards):

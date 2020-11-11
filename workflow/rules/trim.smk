@@ -1,6 +1,6 @@
 rule all_trim:
     """Pseudo-rule to trim all input sequences"""
-    input: unpack(all_trim)
+    input: lambda wildcards: all_fastqc(wildcards) + all_jellyfish(wildcards) + all_trim(wildcards)['qc']
 
 
 rule trim_cutadapt_pe:
