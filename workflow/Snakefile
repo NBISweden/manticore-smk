@@ -1,4 +1,5 @@
 include: "rules/common.smk"
+include: "rules/utils.smk"
 include: "rules/qc.smk"
 include: "rules/trim.smk"
 include: "rules/map.smk"
@@ -6,7 +7,7 @@ include: "rules/rawvc.smk"
 include: "rules/variantfilter.smk"
 include: "rules/popoolation.smk"
 include: "rules/popoolation2.smk"
-include: "rules/utils.smk"
+
 
 report: "report/workflow.rst"
 

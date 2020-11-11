@@ -3,6 +3,8 @@ import re
 import os
 import itertools
 import urllib
+import contextlib
+import subprocess as sp
 import pandas as pd
 import numpy as np
 from snakemake.io import _load_configfile
@@ -151,6 +153,20 @@ wc = workflow._wildcard_constraints
 ##################################################
 include: "core/config.smk"
 
+## Store some workflow metadata
+config["__workflow_basedir__"] = workflow.basedir
+config["__workflow_workdir__"] = os.getcwd()
+config["__worfklow_commit__"] = None
+
+try:
+    with cd(workflow.basedir, logger):
+        logger.info(f"cd to {workflow.basedir}")
+        out = sp.check_output(["git", "rev-parse", "--short", "HEAD"])
+        config["__worfklow_commit__"] = out.decode().strip()
+except Exception as e:
+    print(e)
+    raise
+
 ##################################################
 ## Uri parsing functions
 ##################################################
@@ -196,6 +212,7 @@ def all(wildcards):
     }
     d.update(**all_variantfilter(wildcards))
     d['stats'] = all_bcftools_stats(wildcards)
+    d['config'] = "config/manticore.config.yaml"
     return d
 
 ##############################

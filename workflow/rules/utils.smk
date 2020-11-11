@@ -23,4 +23,11 @@ rule manticore_get_external:
         f"{WRAPPER_PREFIX}/utils/manticore_get_external"
 
 
+rule manticore_save_config:
+    """Save manticore configuration"""
+    output: report("config/manticore.config.yaml", caption="../report/config.rst", category="Configuration")
+    log: "logs/manticore/manticore_save_config.log"
+    script: "../scripts/manticore_save_config.py"
+
+
 localrules: manticore_get_external

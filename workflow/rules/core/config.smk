@@ -1,3 +1,5 @@
+import contextlib
+
 def get_app_params(wildcards, rule):
     return config
 
@@ -32,3 +34,18 @@ def get_variant_filters(rule, wildcards, **kwargs):
     filters = config["resources"][rule]["filters"][vartype]
     d = {f"'GATKStandard({v.split()[0]})'": v for v in filters}
     return d
+
+# context manager for cd
+@contextlib.contextmanager
+def cd(path, logger):
+    CWD = os.getcwd()
+    logger.info("Changing directory from {} to {}".format(CWD, path))
+
+    os.chdir(path)
+    try:
+        yield
+    except:
+        logger.warning("Exception caught: ".format(sys.exc_info()[0]))
+    finally:
+        logger.info("Changing directory back to {}".format(CWD))
+        os.chdir(CWD)

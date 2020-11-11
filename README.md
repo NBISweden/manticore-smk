@@ -1,10 +1,7 @@
 # Snakemake workflow: manticore-smk
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.bitbucket.io)
-
-[![Build status](https://github.com/NBISweden/manticore-smk/workflows/Tests/badge.svg?branch=main)](https://github.com/NBISweden/manticore-smk/actions?query=workflow%3ATests)
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Build status](https://github.com/NBISweden/manticore-smk/workflows/Tests/badge.svg?branch=main)](https://github.com/NBISweden/manticore-smk/actions?query=workflow%3ATests) ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 
 
@@ -262,4 +259,7 @@ using a syntax `resources/region/sex`:
 
 Test cases are in the subfolder `.test`. They are automatically
 executed via continuous integration with [Github
-Actions](https://github.com/features/actions).
+Actions](https://github.com/features/actions). To run the tests, cd to
+`.test` and issue
+
+	snakemake --use-conda --conda-frontend mamba --show-failed-logs --cores 2 --conda-cleanup-pkgs cache -s ../workflow/Snakefile --wrapper-prefix file://$(pwd)/../workflow/wrappers
