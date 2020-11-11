@@ -1,0 +1,4 @@
+name: popoolation2 samtools mpileup
+description: Run samtools mpileup for popoolation2
+authors:
+  - Per Unneberg

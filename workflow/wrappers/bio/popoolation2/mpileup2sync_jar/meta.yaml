@@ -1,0 +1,4 @@
+name: popoolation filter pileup by gtf
+description: Run popoolation pileup by gtf
+authors:
+  - Per Unneberg

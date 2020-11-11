@@ -32,6 +32,8 @@ validate(config, schema="../schemas/config.schema.yaml")
 ##############################
 __EXTERNAL__ = Path(config["fs"]["external"])
 __INTERIM__ = Path(config["fs"]["interim"])
+__INTERIM_POOL__ = Path(config["fs"]["interim"]) / "pool"
+__INTERIM_IND__ = Path(config["fs"]["interim"]) / "ind"
 __METADATA__ = Path(config["fs"]["metadata"])
 __RAW__ = Path(config["fs"]["raw"])
 __REPORTS__ = Path("reports")
@@ -67,7 +69,7 @@ def _subset_by_ignore(df, ignore):
         return df
     i = df.index.isin(ignore)
     if any(i.tolist()):
-        logger.info(f"Removing entries {df[i]}")
+        logger.info(f"Ignoring entries in this analysis: {df[i]}")
         df = df[~i]
     return df
 
@@ -92,6 +94,8 @@ BASEDIR = workflow.current_basedir
 wildcard_constraints:
     external = str(__EXTERNAL__),
     interim = str(__INTERIM__),
+    interim_pool = str(__INTERIM_POOL__),
+    interim_ind = str(__INTERIM_IND__),
     metadata = str(__METADATA__),
     raw = str(__RAW__),
     reports = str(__REPORTS__),
@@ -111,9 +115,11 @@ ext = {
     'fastq': [".fq", ".fastq"],
     'gz': [".gz", ".bgz"],
     'gatk_modes': [".g"],
-    'readno': ["_1", "_2"]
+    'readno': ["_1", "_2"],
+    'rm': ['.rm']
 }
 wildcard_constraints:
+    all = "all",
     bam = wildcards_or(ext["bam"]),
     bamfastq = wildcards_or(ext["bam"] + ext["fastq"]),
     bgz = wildcards_or(ext["bgz"], True),
@@ -122,10 +128,15 @@ wildcard_constraints:
     genome = os.path.splitext(os.path.basename(config['db']['ref']))[0],
     gz = wildcards_or(ext["gz"], True),
     kmer = "[0-9]+",
-    partitions = "[0-9]+",
+    ossep = "(|/)",
+    partition = "[0-9]+",
     readno = wildcards_or(ext["readno"]),
     region = wildcards_or(config['workflow']['regions'].keys()),
+    repeatmask = wildcards_or(ext["rm"], True),
     sample = wildcards_or(samples),
+    sex = wildcards_or(['haploid', 'male', 'female'], True),
+    step_size = "[0-9]+",
+    target = "[0-9]+",
     ind_vc = wildcards_or(config['workflow']['variantcallers']['ind']),
     pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
     caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),
@@ -203,6 +214,20 @@ include: "input/mapping.smk"
 include: "input/rawvc.smk"
 
 ##############################
+# WIP: BQSR
+##############################
+
+##############################
 # Variant filtering with hard filters
 ##############################
 include: "input/variantfilter.smk"
+
+##############################
+# WIP: VQSR
+##############################
+
+##############################
+# Popoolation modules
+##############################
+include: "input/popoolation.smk"
+include: "input/popoolation2.smk"

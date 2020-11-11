@@ -1,0 +1,4 @@
+name: popoolation variance sliding
+description: Calculate variance sliding measures in windows
+authors:
+  - Per Unneberg

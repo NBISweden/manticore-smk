@@ -193,6 +193,8 @@ definitions:
             - jellyfish
             - sambamba
             - bcftools
+    additionalProperties: false
+
   db:
     description: >
         Configuration for various database resources
@@ -203,6 +205,13 @@ definitions:
         description: Reference sequence name; path to sequence file
         type: string
         default: ""
+      repeats:
+        description: Bed file indicating repeat regions
+        type: string
+        pattern: (|.+\.bed$)
+        default: ""
+    additionalProperties: false
+
 
 
 
@@ -371,3 +380,48 @@ definitions:
       filter_gatk_variant_JEXL_filtration:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_variant_JEXL_filtration"
+
+
+      ##############################
+      # Popoolation
+      ##############################
+
+      popoolation_samtools_filter_mpileup:
+        default:
+          options: -q 20
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_samtools_filter_mpileup"
+
+      popoolation_filter_pileup_by_gtf:
+        default: {}
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_filter_pileup_by_gtf"
+
+      popoolation_subsample_pileup:
+        default:
+          options:
+            --method withoutreplace --fastq-type sanger --target-coverage 50 --max-coverage 100 --min-qual 20
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_subsample_pileup"
+
+      popoolation_variance_sliding:
+        default: {}
+        $ref: "popoolation.schema.yaml#/definitions/popoolation_variance_sliding"
+
+
+      ##############################
+      # Popoolation2
+      ##############################
+
+      popoolation2_samtools_mpileup:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_samtools_mpileup"
+
+      popoolation2_mpileup2sync_jar:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_mpileup2sync_jar"
+
+      popoolation2_indel_filtering_identify_indel_regions:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_indel_filtering_identify_indel_regions"
+
+      popoolation2_gather_parallel_results:
+        default: {}
+        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_gather_parallel_results"
