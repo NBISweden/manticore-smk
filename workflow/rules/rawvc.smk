@@ -26,8 +26,8 @@ rule rawvc_samtools_faidx_ref:
 rule rawvc_gatkhc_targets:
     """Run GATK HaplotypeCaller on target file"""
     output:
-        vcf = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}"),
-        tbi = temp("{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.tbi")
+        vcf = temp("{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}"),
+        tbi = temp("{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.tbi")
     input:
         unpack(rawvc_gatkhc_targets_input)
     wildcard_constraints: mode = "(.g|)"
@@ -35,7 +35,7 @@ rule rawvc_gatkhc_targets:
         options = get_params("rawvc_gatkhc_targets", "options"),
         annotation = get_params("rawvc_gatkhc_targets", "annotation")
     threads: get_params("rawvc_gatkhc_targets", "threads")
-    log: "logs/{interim}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
+    log: "logs/{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"
 
 
@@ -51,7 +51,7 @@ rule rawvc_picard_create_sequence_dictionary:
 
 
 rule rawvc_gatk_genomics_db_import:
-    output: temp(directory("{interim}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"))
+    output: temp(directory("{interim}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"))
     input: unpack(rawvc_gatk_genomics_db_import_input)
     params:
         options = get_params("rawvc_gatk_genomics_db_import", "options")
@@ -59,14 +59,14 @@ rule rawvc_gatk_genomics_db_import:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "mem_mb"),
     threads: get_params("rawvc_gatk_genomics_db_import", "threads")
-    log: "logs/{interim}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
+    log: "logs/{interim}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genomics_db_import"
 
 
 rule rawvc_gatk_genotype_gvcfs:
     output:
-        vcf = temp("{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
-        tbi = temp("{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
+        vcf = temp("{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
+        tbi = temp("{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
     input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
         options = get_params("rawvc_gatk_genotype_gvcfs", "options"),
@@ -75,7 +75,7 @@ rule rawvc_gatk_genotype_gvcfs:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "mem_mb"),
     threads: get_params("rawvc_gatk_genotype_gvcfs", "threads")
-    log: "logs/{interim}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
+    log: "logs/{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
 
 
