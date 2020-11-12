@@ -79,24 +79,21 @@ rule rawvc_gatk_genotype_gvcfs:
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
 
 
-rule rawvc_picard_merge_vcfs_targets:
-    """Merge target vcf results.
-
-    FIXME: add support here for other callers"""
+rule rawvc_bcftools_concat_vcfs_targets:
+    """Concatenate target vcf results with bcftools"""
     output:
-        vcf = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz",
-        tbi = "{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz.tbi"
-    input: unpack(rawvc_picard_merge_vcfs_targets_input)
+        vcf = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz",
+        tbi = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.tbi",
+        stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{region}.vcf.gz.stats",
+    input: unpack(rawvc_bcftools_concat_vcfs_targets_input)
     params:
-        extra = get_params("rawvc_picard_merge_vcfs_targets", "options")
+        extra = get_params("rawvc_bcftools_concat_vcfs_targets", "options")
     resources:
-        runtime = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("rawvc_picard_merge_vcfs_targets", "mem_mb")
-    threads: get_params("rawvc_picard_merge_vcfs_targets", "threads")
-    log: "logs/{results}/{group}/rawvc/gatkhc/unfiltered/{region}.vcf.gz.log"
-    wrapper: f"{WRAPPER_PREFIX}/bio/picard/mergevcfs"
-
-
+        runtime = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "mem_mb")
+    threads: get_params("rawvc_bcftools_concat_vcfs_targets", "threads")
+    log: "logs/{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/bcftools/concat"
 
 
 localrules: rawvc_pybedtools_make_bed_targets, rawvc_picard_create_sequence_dictionary

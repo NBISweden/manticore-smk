@@ -53,3 +53,7 @@ definitions:
   rawvc_picard_merge_vcfs_targets:
     description: Picard merge vcfs for targeted regions
     $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
+
+  rawvc_bcftools_concat_vcfs_targets:
+    description: bcftools concat vcfs for targeted regions
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"

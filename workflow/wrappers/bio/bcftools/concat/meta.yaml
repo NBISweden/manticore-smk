@@ -1,0 +1,4 @@
+name: bcftools concat
+description: Run bcftools concat
+authors:
+  - Per Unneberg

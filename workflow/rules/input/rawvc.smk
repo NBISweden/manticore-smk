@@ -46,9 +46,21 @@ def rawvc_gatk_genotype_gvcfs_input(wildcards):
     return {'ref': ref, 'db': db, 'dict': d, 'targets': targets}
 
 
-def rawvc_picard_merge_vcfs_targets_input(wildcards):
+def _rawvc_vcfs_targets_input(wildcards):
+    """Generic function to generate vcf targets to be merged"""
     pfx = f"{str(__INTERIM__)}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     infiles = expand(pfx, target=list(range(npart)))
     tbi = [f"{x}.tbi" for x in infiles]
     return {'vcfs': infiles, 'tbi': tbi}
+
+
+
+def rawvc_picard_merge_vcfs_targets_input(wildcards):
+    """Input merge targets for picard. Deprecated in favor of bcftools concat"""
+    return _rawvc_vcfs_targets_input(wildcards)
+
+
+def rawvc_bcftools_concat_vcfs_targets_input(wildcards):
+    """Input merge targets for bcftools concat"""
+    return _rawvc_vcfs_targets_input(wildcards)

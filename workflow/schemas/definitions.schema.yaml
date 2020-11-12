@@ -368,6 +368,9 @@ definitions:
         default: {}
         $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_merge_vcfs_targets"
 
+      rawvc_bcftools_concat_vcfs_targets:
+        default: {}
+        $ref: "rawvc.schema.yaml#/definitions/rawvc_bcftools_concat_vcfs_targets"
 
       ##############################
       # Variantfilter
