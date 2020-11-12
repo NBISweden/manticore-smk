@@ -121,17 +121,23 @@ ext = {
     'rm': ['.rm']
 }
 wildcard_constraints:
+    aligner = wildcards_or(["bwa"]),
     all = "all",
     bam = wildcards_or(ext["bam"]),
     bamfastq = wildcards_or(ext["bam"] + ext["fastq"]),
     bgz = wildcards_or(ext["bgz"], True),
+    caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),
+    callset = "rawvc",
     fa = wildcards_or(ext["fa"]),
     fastq = wildcards_or(ext["fastq"]),
     genome = os.path.splitext(os.path.basename(config['db']['ref']))[0],
+    group = "(ind|pool)",
     gz = wildcards_or(ext["gz"], True),
+    ind_vc = wildcards_or(config['workflow']['variantcallers']['ind']),
     kmer = "[0-9]+",
     ossep = "(|/)",
     partition = "[0-9]+",
+    pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
     readno = wildcards_or(ext["readno"]),
     region = wildcards_or(config['workflow']['regions'].keys()),
     repeatmask = wildcards_or(ext["rm"], True),
@@ -139,12 +145,6 @@ wildcard_constraints:
     sex = wildcards_or(['haploid', 'male', 'female'], True),
     step_size = "[0-9]+",
     target = "[0-9]+",
-    ind_vc = wildcards_or(config['workflow']['variantcallers']['ind']),
-    pool_vc = wildcards_or(config['workflow']['variantcallers']['pool']),
-    caller = wildcards_or(config['workflow']['variantcallers']['ind'] + config['workflow']['variantcallers']['pool']),
-    group = "(ind|pool)",
-    callset = "rawvc"
-
 
 wc = workflow._wildcard_constraints
 
