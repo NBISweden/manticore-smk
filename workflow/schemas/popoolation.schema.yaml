@@ -20,4 +20,18 @@ definitions:
 
   popoolation_variance_sliding:
     description: variance sliding config
+    type: object
+    allOf:
+      - properties:
+          measure:
+            type: array
+            default: ['pi', 'D', 'theta']
+            uniqueItems: true
+            items:
+              type: string
+              enum: ['pi', 'D', 'theta']
+      - $ref: "definitions.schema.yaml#/definitions/resources.rule.window"
+
+  popoolation_gather_parallel_results:
+    description: gather parallel results config
     $ref: "definitions.schema.yaml#/definitions/resources.rule"

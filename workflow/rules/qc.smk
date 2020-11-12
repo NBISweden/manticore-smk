@@ -78,10 +78,10 @@ rule qc_picard_collect_insert_size_metrics:
 
 
 rule qc_picard_mark_duplicates:
-    output: metrics = "{interim}/map/bwa/dedup/{sample}{bam}.dup_metrics.txt",
-            bam = "{interim}/map/bwa/dedup/{sample}{bam}"
-    input: "{interim}/map/bwa/{sample}{bam}"
-    log: "logs/{interim}/qc/align/{sample}{bam}.dup_metrics.log"
+    output: metrics = "{interim}/map/{aligner}/dedup/{sample}{bam}.dup_metrics.txt",
+            bam = "{interim}/map/{aligner}/dedup/{sample}{bam}"
+    input: "{interim}/map/{aligner}/{sample}{bam}"
+    log: "logs/{interim}/qc/align/{aligner}/{sample}{bam}.dup_metrics.log"
     resources:
         runtime = lambda wildcards, attempt: resources("qc_picard_mark_duplicates", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("qc_picard_mark_duplicates", "mem_mb", attempt)
@@ -160,7 +160,7 @@ rule qc_sambamba_depth:
 
 rule qc_bcftools_stats:
     """Run bcftools stats to generate caller statistics on single files"""
-    output: stats = "{results}/qc/variantstats/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}.stats"
+    output: stats = "{results}/qc/variants/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}.stats"
     input: vcf = "{results}/{group}/{callset}/{caller}/{stage}/{region}{vartype}.vcf{gz}",
            ref = config["db"]["ref"]
     wildcard_constraints:
