@@ -108,6 +108,8 @@ rule qc_qualimap_bamqc_pe:
         insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
         insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
     input: bam = bwa_mem_sample
+    params:
+        options = get_params("qc_qualimap_bamqc_pe", "options")
     resources:
         runtime = lambda wildcards, attempt: resources("qc_qualimap_bamqc_pe", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("qc_qualimap_bamqc_pe", "mem_mb", attempt)
@@ -133,6 +135,8 @@ rule qc_qualimap_bamqc_se:
         insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
         insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
     input: bam = bwa_mem_sample
+    params:
+        options = get_params("qc_qualimap_bamqc_se", "options")
     resources:
         runtime = lambda wildcards, attempt: resources("qc_qualimap_bamqc_se", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("qc_qualimap_bamqc_se", "mem_mb", attempt)

@@ -13,12 +13,15 @@ from snakemake.utils import logger
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 bam = snakemake.input.bam
+options = snakemake.params.get("options", "")
 outdir = os.path.dirname(snakemake.output.genome_results)
 mem_mb = snakemake.resources.mem_mb
 threads = snakemake.threads
 
 shell(
     "unset DISPLAY; "
-    "qualimap bamqc -bam {bam} -nt {threads} qualimap --java-mem-size={mem_mb}M -outdir {outdir}"
+    "qualimap --java-mem-size={mem_mb}M "
+    "bamqc {options} -bam {bam} "
+    "-nt {threads} -outdir {outdir}"
     " {log}"
 )
