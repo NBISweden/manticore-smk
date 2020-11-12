@@ -1,6 +1,6 @@
 def all_map_input(wildcards):
     targets = all_fastqc(wildcards) + all_jellyfish(wildcards) + \
-        list(set(all_bwa_mem_samples(wildcards) + all_bwa_mem_dedup_samples(wildcards)))
+        list(set(all_map_sample_targets(wildcards) + all_map_sample_dedup_targets(wildcards)))
     return targets
 
 
@@ -34,47 +34,58 @@ def bwa_mem_index_ext(wildcards):
     return expand("{index}{ext}", index=index, ext=bwa_ext)
 
 
-def bwa_mem_input(wildcards):
+def map_sample_unit_input(wildcards):
+    """Retrieve input to a mapping job for a given sample and unit"""
     df = reads[(reads["SM"] == wildcards.sample) & (reads["unit"] == wildcards.unit)]
     return sorted(df['reads.trimmed'].to_list())
 
 
-def bwa_mem_sample(wildcards):
+def map_sample_target(wildcards):
+    """Retrieve mapping sample target name for a given alignment program"""
     df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
-    fn = str(__INTERIM__ / "map/bwa/{SM}.bam")
+    fn = str(__INTERIM__ / f"map/bwa/{{SM}}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
 
-def bwa_mem_dedup_sample(wildcards):
+def map_sample_target_bai(wildcards):
+    """Retrieve mapping sample index target name for a given alignment program"""
+    bam = map_sample_target(wildcards)
+    return [f"{x}.bai" for x in bam]
+
+
+def map_dedup_sample_target(wildcards):
     df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
     fn = str(__INTERIM__ / "map/bwa/dedup/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
-
-def bwa_mem_sample_bai(wildcards):
-    bam = bwa_mem_sample(wildcards)
-    return [f"{x}.bai" for x in bam]
-
-
-def all_bwa_mem_samples(wildcards):
-    """All merged bwa mem targets"""
+def all_map_sample_targets(wildcards):
+    """All merged map sample targets for a given alignment program """
     df = reads[reads["id"] == 1]
     fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
 
-def all_bwa_mem_dedup_samples(wildcards):
-    """All merged and deduplicated bwa mem targets"""
+def all_map_sample_dedup_targets(wildcards):
+    """All merged and deduplicated map sample targets for a given alignment program.
+
+    Does not apply to pools.
+    """
     df = reads[reads["id"] == 1 & reads["SM"].isin(individuals["SM"])]
     fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]
     return bam
 
 
-def picard_merge_sam_input(wildcards):
+def map_picard_merge_sam_input(wildcards):
+    """Generate picard merge input file targets
+
+    The map_picard_merge_sam rule merges mapped units to a
+    sample-level bam file.
+
+    """
     df = reads[(reads["SM"] == wildcards.sample) & (reads["id"] == 1)]
     fn = str(__INTERIM__/ "map/bwa/{SM}/{unit}.bam")
     bam = [fn.format(**x) for k, x in df.iterrows()]

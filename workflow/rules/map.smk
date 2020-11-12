@@ -49,7 +49,7 @@ rule map_bwa_mem:
     output: temp("{interim}/map/bwa/{sample}/{unit}.bam")
     input:
         index = bwa_mem_index_ext,
-        reads = bwa_mem_input
+        reads = map_sample_unit_input
     resources:
         runtime = lambda wilcards, attempt: resources("map_bwa_mem", "runtime", attempt)
     log: "logs/{interim}/map/bwa/{sample}/{unit}.log"
@@ -65,7 +65,7 @@ rule map_bwa_mem:
 
 rule map_picard_merge_sam:
     output: "{interim}/map/bwa/{sample}.bam"
-    input: picard_merge_sam_input
+    input: map_picard_merge_sam_input
     resources:
         runtime = lambda wildcards, attempt: resources("map_picard_merge_sam", "runtime", attempt)
     log: "logs/{interim}/map/bwa/{sample}.log"

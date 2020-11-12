@@ -55,8 +55,8 @@ def all_jellyfish(wildcards):
 def all_picard_alignqc(wildcards):
     if 'picard' not in config['workflow']['qc']:
         return []
-    inbam = all_bwa_mem_samples(wildcards)
-    dupbam = all_bwa_mem_dedup_samples(wildcards)
+    inbam = all_map_sample_targets(wildcards)
+    dupbam = all_map_sample_dedup_targets(wildcards)
     align_metrics = ["{}/qc/align/{}.align_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
     insert_metrics = ["{}/qc/align/{}.insert_metrics.txt".format(str(__RESULTS__), x) for x in inbam]
     dup_metrics = [f"{x}.dup_metrics.txt" for x in dupbam]
@@ -66,7 +66,7 @@ def all_picard_alignqc(wildcards):
 def all_qualimap_bamqc(wildcards):
     if 'qualimap' not in config['workflow']['qc']:
         return []
-    inbam = all_bwa_mem_samples(wildcards)
+    inbam = all_map_sample_targets(wildcards)
     bamdf = {os.path.splitext(os.path.basename(x))[0]:os.path.basename(x) for x in inbam}
     df = {x["SM"]:x["pe"] for k, x in read_pairs_dataframe().iterrows()}
     fn = str(__RESULTS__/ "qc/qualimap/{bam}.{pe}.qualimap/genome_results.txt")
@@ -77,7 +77,7 @@ def all_qualimap_bamqc(wildcards):
 def all_sambamba_depth(wildcards):
     if 'sambamba' not in config['workflow']['qc']:
         return []
-    inbam = all_bwa_mem_samples(wildcards)
+    inbam = all_map_sample_targets(wildcards)
     bampfx = [re.sub(wc["bam"], "", x) for x in inbam]
     fn = str(__RESULTS__/ f"qc/sambamba/{{SM}}.depth.w100.bed.gz")
     results = [fn.format(SM=x) for x in samples]

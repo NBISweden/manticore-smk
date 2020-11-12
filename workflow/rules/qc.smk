@@ -107,7 +107,7 @@ rule qc_qualimap_bamqc_pe:
         mapping_quality_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
         insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
         insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.pe.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
-    input: bam = bwa_mem_sample
+    input: bam = map_sample_target
     params:
         options = get_params("qc_qualimap_bamqc_pe", "options")
     resources:
@@ -134,7 +134,7 @@ rule qc_qualimap_bamqc_se:
         mapping_quality_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/mapping_quality_histogram.txt",
         insert_size_across_reference = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_across_reference.txt",
         insert_size_histogram = "{results}/qc/qualimap/{sample}{bam}.se.qualimap/raw_data_qualimapReport/insert_size_histogram.txt"
-    input: bam = bwa_mem_sample
+    input: bam = map_sample_target
     params:
         options = get_params("qc_qualimap_bamqc_se", "options")
     resources:
@@ -147,8 +147,8 @@ rule qc_qualimap_bamqc_se:
 
 rule qc_sambamba_depth:
     output: bed = "{results}/qc/sambamba/{sample}.depth.w{window_size}.bed{gz}"
-    input: bam = bwa_mem_sample,
-           bai = bwa_mem_sample_bai
+    input: bam = map_sample_target,
+           bai = map_sample_target_bai
     resources:
         runtime = lambda wildcards, attempt: resources("qc_sambamba_depth", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("qc_sambamba_depth", "mem_mb", attempt)
