@@ -11,6 +11,7 @@ from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+zlog = snakemake.log_fmt_shell(stdout=False, stderr=True, append=True)
 
 options = snakemake.params.get("options", {})
 filter_options = options.get("filter_options", "")
@@ -25,7 +26,7 @@ shell(
     "-L {targets} "
     "{filter_options} "
     "{snakemake.input.bam} "
-    " -b | samtools mpileup {mpileup_options} - "
+    " -b | samtools mpileup {mpileup_options} - {log}"
     "{gzip} "
-    "> {snakemake.output.pileup}"
+    "> {snakemake.output.pileup} {zlog}"
 )

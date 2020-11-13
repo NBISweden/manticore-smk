@@ -11,6 +11,7 @@ from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+zlog = snakemake.log_fmt_shell(stdout=False, stderr=True, append=True)
 
 options = snakemake.params.get("options", "")
 targets = snakemake.input.targets
@@ -21,8 +22,8 @@ gzip = "" if gz == "" else "| gzip -v "
 shell(
     "samtools mpileup "
     "-l {targets} "
-    "-B {snakemake.input.bam} "
+    "-B {snakemake.input.bam} {log}"
     "{gzip} > "
     "{snakemake.output.pileup}"
-    "{options} "
+    "{options} {zlog}"
 )

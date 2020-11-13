@@ -11,6 +11,7 @@ from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+zlog = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
 script = os.path.join(conda_prefix, "opt/popoolation-code/Variance-sliding.pl")
@@ -43,5 +44,5 @@ shell(
     "--output {outtxt} "
     "--window-size {snakemake.wildcards.window_size} "
     "--step-size {snakemake.wildcards.step_size} "
-    "{log} && gzip -v {outtxt}"
+    "{log} && gzip -v {outtxt} {zlog}"
 )

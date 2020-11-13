@@ -11,6 +11,7 @@ from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+zlog = snakemake.log_fmt_shell(stdout=False, stderr=True, append=True)
 
 inbam = snakemake.input.bam
 outbed = snakemake.output.bed
@@ -24,6 +25,6 @@ if re.search("(.gz|.gzip)$", snakemake.output.bed):
 window_size = snakemake.params.window_size
 
 shell(
-    "sambamba depth window -t {threads} {extra} -w {window_size} {inbam}"
-    " {gzip} > {outbed} {log}"
+    "sambamba depth window -t {threads} {extra} -w {window_size} {inbam} {log}"
+    " {gzip} > {outbed} {zlog}"
 )
