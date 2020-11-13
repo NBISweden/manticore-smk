@@ -1,3 +1,13 @@
+rule all_popoolation:
+    """Run popoolation analyses"""
+    input: all_popoolation_input
+
+
+rule all_popoolation_raw:
+    """Generate raw popoolation data"""
+    input: all_popoolation_raw_input
+
+
 rule popoolation_pybedtools_make_bed_targets:
     output:
         bed = temp("{prefix}/{pool_vc}/{region}.{partition}.bed")
@@ -21,14 +31,14 @@ rule popoolation_bedtools_repeatmask:
 
 rule popoolation_samtools_filter_mpileup:
     """Generate filtered samtools mpileup file for a target region for popoolation"""
-    output: pileup = temp("{interim_pool}/popoolation/qfilt/{sample}.{region}{repeatmask}.{target}.pileup{gz}")
+    output: pileup = "{results_pool}/raw/popoolation/{sample}.{region}{repeatmask}.{target}.pileup{gz}"
     input: unpack(popoolation_samtools_filter_mpileup_input)
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation_samtools_filter_mpileup", "runtime", attempt),
     params:
         get_params("popoolation_samtools_filter_mpileup", "options")
     threads: lambda wildcards: resources("popoolation_samtools_filter_mpileup", "threads")
-    log: "logs/{interim_pool}/popoolation/qfilt/{sample}.{region}{repeatmask}.{target}.pileup{gz}.log"
+    log: "logs/{results_pool}/raw/popoolation/{sample}.{region}{repeatmask}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/samtools_filter_mpileup"
 
 
@@ -77,6 +87,24 @@ rule popoolation_variance_sliding:
     threads: lambda wildcards: resources("popoolation_variance_sliding", "threads")
     log: "{interim_pool}/popoolation/qfilt/{sample}.{region}{repeatmask}.{filters}.w{window_size}.s{step_size}.{target}.{measure}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/variance_sliding"
+
+
+rule popoolation_gather_parallel_results:
+    """Gather results from popoolation parallel analyses"""
+    output: analysis = "{interim_pool}/popoolation/qfilt/{sample}.{region}{repeatmask}.{filters}.w{window_size}.s{step_size}.{measure}.txt.gz"
+    input: unpack(popoolation_gather_parallel_results_input)
+    wildcard_constraints:
+        measure = "(pi|theta|D)",
+        filters = "([\.a-z]+\.|)",
+    resources:
+        runtime = resources("popoolation_gather_parallel_results", "runtime")
+    params:
+        options = get_params("popoolation_gather_parallel_results", "options")
+    log: "logs/{interim_pool}/popoolation/qfilt/{sample}{region}{repeatmask}.{filters}.w{window_size}.s{step_size}.{measure}.txt.gz.log"
+    threads: get_params("popoolation_gather_parallel_results", "threads")
+    shell:
+        "cat {input.analysis} > {output.analysis}"
+
 
 
 localrules: popoolation_bedtools_repeatmask

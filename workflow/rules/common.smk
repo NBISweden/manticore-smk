@@ -41,6 +41,8 @@ __RAW__ = Path(config["fs"]["raw"])
 __REPORTS__ = Path("reports")
 __RESOURCES__ = Path(config["fs"]["resources"])
 __RESULTS__ = Path("results")
+__RESULTS_POOL__ = Path("results") / "pool"
+__RESULTS_IND__ = Path("results") / "ind"
 
 def _read_tsv(infile, index, schemafile):
     if infile is None:
@@ -84,7 +86,7 @@ reads = reads[reads.index.isin(samples, "SM")]
 # Add "reads.trimmed" column to indicate reads that go into mapping
 reads["reads.trimmed"] = reads["reads"]
 if config["workflow"]["trim"] and len(reads) > 0:
-    reads["reads.trimmed"] = reads["reads"].str.replace(str(__RAW__), str(__INTERIM__ / "mapping/trim"))
+    reads["reads.trimmed"] = reads["reads"].str.replace(str(__RAW__), str(__INTERIM__ / "map/trim"))
 
 # Save current base dir for later validation in functions
 BASEDIR = workflow.current_basedir
@@ -210,8 +212,8 @@ def all(wildcards):
     d = {
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
-    d.update(**all_variantfilter(wildcards))
-    d['stats'] = all_bcftools_stats(wildcards)
+    d.update(**all_rawvc(wildcards))
+    #d['stats'] = all_bcftools_stats(wildcards)
     d['config'] = "config/manticore.config.yaml"
     return d
 
@@ -223,7 +225,7 @@ include: "input/qc.smk"
 ##############################
 # Mapping
 ##############################
-include: "input/mapping.smk"
+include: "input/map.smk"
 
 ##############################
 # Raw variant calling
