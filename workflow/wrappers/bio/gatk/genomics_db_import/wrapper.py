@@ -25,6 +25,9 @@ output = snakemake.output
 vcfs = snakemake.input.vcf
 vcfs = list(map("-V {}".format, vcfs))
 
+if "mem_mb" in snakemake.resources.keys():
+    java_opts += " -Xmx{}M".format(str(snakemake.resources["mem_mb"]))
+
 shell(
     "gatk --java-options '{java_opts}' GenomicsDBImport {options} "
     "-R {snakemake.input.ref} {targets} {vcfs} "

@@ -26,6 +26,9 @@ db = "-V gendb://{}".format(snakemake.input.db)
 annotation_opt = [f"--annotation {a}" for a in annotation]
 
 
+if "mem_mb" in snakemake.resources.keys():
+    java_opts += " -Xmx{}M".format(str(snakemake.resources["mem_mb"]))
+
 shell(
     "gatk --java-options '{java_opts}' GenotypeGVCFs {options} "
     "{ref} {targets} {annotation_opt} --include-non-variant-sites true "

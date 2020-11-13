@@ -33,6 +33,9 @@ if isinstance(bams, str):
     bams = [bams]
 bams = list(map("-I {}".format, bams))
 
+if "mem_mb" in snakemake.resources.keys():
+    java_opts += " -Xmx{}M".format(str(snakemake.resources["mem_mb"]))
+
 shell(
     "gatk --java-options '{java_opts}' HaplotypeCaller {options} "
     "-R {snakemake.input.ref} {annotation_opt} {bams} "
