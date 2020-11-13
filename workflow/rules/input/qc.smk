@@ -17,7 +17,7 @@ def all_trim(wildcards):
     df = read_pairs_dataframe()
     ext = rf"(_1)({wc['fastq']}{wc['gz']})$"
     df["metrics"] = df["reads"].str.replace(
-        str(__RAW__), f"logs/{str(__INTERIM__)}/mapping/trim")
+        str(__RAW__), f"logs/{str(__INTERIM__)}/map/trim")
     df["metrics"] = df["metrics"].str.replace(
             ext, "\\2.{pe}.cutadapt_metrics.txt")
     qc = [x.format(pe=pe) for x, pe in zip(df["metrics"], df["pe"])]
@@ -36,7 +36,7 @@ def all_fastqc(wildcards):
 def jellyfish_count(wildcards):
     df = reads[reads["SM"] == wildcards.sample]
     if wildcards.trimmed == ".trimmed":
-        seq = df['reads'].str.replace(str(__RAW__), str(__INTERIM__ / "mapping/trim")).tolist()
+        seq = df['reads'].str.replace(str(__RAW__), str(__INTERIM__ / "map/trim")).tolist()
     else:
         seq = df['reads'].tolist()
     return {'seq': seq}
