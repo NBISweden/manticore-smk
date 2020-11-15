@@ -144,7 +144,7 @@ wildcard_constraints:
     region = wildcards_or(config['workflow']['regions'].keys()),
     repeatmask = wildcards_or(ext["rm"], True),
     sample = wildcards_or(samples),
-    sex = wildcards_or(['haploid', 'male', 'female'], True),
+    sex = wildcards_or(['all', 'haploid', 'male', 'female'], True),
     step_size = "[0-9]+",
     target = "[0-9]+",
 
@@ -213,6 +213,8 @@ def all(wildcards):
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
     d.update(**all_rawvc(wildcards))
+    d.update(**all_popoolation_input(wildcards))
+    d.update(**all_popoolation2_input(wildcards))
     #d['stats'] = all_bcftools_stats(wildcards)
     d['config'] = "config/manticore.config.yaml"
     return d

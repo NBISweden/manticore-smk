@@ -84,7 +84,7 @@ rule rawvc_bcftools_concat_vcfs_targets:
     output:
         vcf = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz",
         tbi = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.tbi",
-        stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{region}.vcf.gz.stats",
+        stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{region}.vcf.gz.stats"
     input: unpack(rawvc_bcftools_concat_vcfs_targets_input)
     params:
         extra = get_params("rawvc_bcftools_concat_vcfs_targets", "options")

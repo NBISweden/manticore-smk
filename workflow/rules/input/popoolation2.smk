@@ -1,8 +1,8 @@
 def all_popoolation2_input(wildcards):
     """Collact all popoolation2 targets"""
-    if len(pools) == 0:
-        return []
     val = {}
+    if len(pools) == 0:
+        return val
     val.update(**all_popoolation2_raw_input(wildcards))
     return val
 
@@ -10,7 +10,7 @@ def all_popoolation2_input(wildcards):
 def all_popoolation2_raw_input(wildcards):
     """Generate all raw popoolation2 targets"""
     if len(pools) == 0:
-        return []
+        return {}
     pfx = str(__RESULTS_POOL__ / "raw/popoolation2/{sex}.{region}.{partition}.sync.gz")
     val = {'popoolation2.raw': []}
     for region in config["workflow"]["regions"].keys():

@@ -1,8 +1,8 @@
 def all_popoolation_input(wildcards):
     """Collect all popoolation targets"""
-    if len(pools) == 0:
-        return []
     val = {}
+    if len(pools) == 0:
+        return val
     val.update(**all_popoolation_raw_input(wildcards))
     return val
 
@@ -10,7 +10,7 @@ def all_popoolation_input(wildcards):
 def all_popoolation_raw_input(wildcards):
     """Generate popoolation raw pileup files"""
     if len(pools) == 0:
-        return []
+        return {}
     pfx = str(__RESULTS_POOL__ / "raw/popoolation/{SM}.{region}.{partition}.pileup.gz")
     val = {'popoolation.raw': []}
     for region in config["workflow"]["regions"].keys():
