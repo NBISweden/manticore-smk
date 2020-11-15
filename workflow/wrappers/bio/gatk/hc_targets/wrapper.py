@@ -17,8 +17,9 @@ targets = snakemake.input.get("targets", "")
 targets = f" -L {targets}" if targets else ""
 
 wc = snakemake.wildcards
-sex = snakemake.wildcards.get("sex", "all")
-ploidy = f"-ploidy {config['workflow']['regions'][wc.region]['ploidy'][sex]}"
+sex = snakemake.params.get("sex", "all")
+ploidy = snakemake.params.get("ploidy", 2)
+ploidy = f"-ploidy {ploidy}"
 
 mode = " -ERC GVCF " if snakemake.wildcards.mode == ".g" else " "
 

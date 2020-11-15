@@ -33,7 +33,8 @@ rule rawvc_gatkhc_targets:
     wildcard_constraints: mode = "(.g|)"
     params:
         options = get_params("rawvc_gatkhc_targets", "options"),
-        annotation = get_params("rawvc_gatkhc_targets", "annotation")
+        annotation = get_params("rawvc_gatkhc_targets", "annotation"),
+        ploidy = lambda wildcards: get_ploidy(wildcards.sample, wildcards.region)
     threads: get_params("rawvc_gatkhc_targets", "threads")
     log: "logs/{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"

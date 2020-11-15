@@ -32,4 +32,5 @@ properties:
 required:
   - SM
   - population
+  - sex
   - size
