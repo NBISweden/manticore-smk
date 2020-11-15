@@ -12,6 +12,7 @@ from snakemake.shell import shell
 from snakemake.utils import logger
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+zlog = snakemake.log_fmt_shell(stdout=False, stderr=True, append=True)
 mem_mb = snakemake.resources.get("mem_mb", 1000)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
@@ -27,10 +28,13 @@ if not os.path.exists(mpileup2sync):
 
 options = snakemake.params.get("options", "")
 mpileup = snakemake.input.mpileup
+gzip = "" if snakemake.wildcards.gz == "" else "| gzip -v "
+
 tmp = os.path.basename(tempfile.mkstemp()[1])
 fifo = f"{mpileup}{tmp}.fifo"
 if os.path.exists(fifo):
     os.unlink(fifo)
+
 
 shell("mkfifo {fifo}")
 shell("zcat {mpileup} > {fifo} &")
@@ -38,8 +42,9 @@ shell(
     "java -ea -Xmx{mem_mb}M "
     "-jar {mpileup2sync} "
     "--input {fifo} "
-    "--output {snakemake.output.sync} "
+    "--output /dev/stdout "
     "{options} "
     "--threads {snakemake.threads} {log} "
+    "{gzip} > {snakemake.output.sync} {zlog}"
     "|| rm -f {fifo}"
 )

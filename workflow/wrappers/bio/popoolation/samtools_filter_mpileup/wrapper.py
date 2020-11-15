@@ -18,15 +18,14 @@ filter_options = options.get("filter_options", "")
 mpileup_options = options.get("mpileup_options", "")
 
 targets = snakemake.input.targets
-gz = snakemake.wildcards.gz
-gzip = "" if gz == "" else "| gzip -v "
+gzip = "" if snakemake.wildcards.gz == "" else "| gzip -v "
 
 shell(
     "samtools view "
     "-L {targets} "
     "{filter_options} "
     "{snakemake.input.bam} "
-    " -b | samtools mpileup {mpileup_options} - {log}"
+    " -b | samtools mpileup -a {mpileup_options} - {log}"
     "{gzip} "
     "> {snakemake.output.pileup} {zlog}"
 )
