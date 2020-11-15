@@ -15,7 +15,8 @@ workflow:
     scaffolds:
       bed: data/external/ref/scaffolds.bed
       npart: 2
-      ploidy: 2
+      ploidy:
+        all: 2
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
 
 

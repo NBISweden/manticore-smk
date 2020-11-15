@@ -229,8 +229,22 @@ definitions:
                 description: >
                     ploidy for region. Will be adjusted by pool size
                     for pool calls
-                type: integer
-                default: 2
+                type: object
+                default:
+                  all: 2
+                properties:
+                  all:
+                    type: integer
+                    description: ploidy if same for all sexes
+                  female:
+                    type: integer
+                    description: ploidy for females
+                  male:
+                    type: integer
+                    description: ploidy for males
+                  haploid:
+                    type: integer
+                    description: ploidy for haploids
               npart:
                 description: define number of partitions for scatter-gather calls
                 type: integer

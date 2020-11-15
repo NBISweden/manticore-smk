@@ -27,10 +27,11 @@ if not os.path.exists(script):
 options = snakemake.params.get("options", "")
 samples = snakemake.params.samples
 config = snakemake.config
+sex = snakemake.wildcards.get("sex", "all")
 pool_size = samples[samples.SM == snakemake.wildcards.sample]
 pool_size = (
     pool_size["size"].to_list()[0]
-    * config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]
+    * config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
 )
 outtxt = os.path.splitext(snakemake.output.txt)[0]
 
