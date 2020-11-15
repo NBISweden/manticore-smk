@@ -2,17 +2,20 @@ def all_popoolation_input(wildcards):
     """Collect all popoolation targets"""
     if len(pools) == 0:
         return []
+    val = {}
+    val.update(**all_popoolation_raw_input(wildcards))
+    return val
+
 
 def all_popoolation_raw_input(wildcards):
     """Generate popoolation raw pileup files"""
     if len(pools) == 0:
         return []
     pfx = str(__RESULTS_POOL__ / "raw/popoolation/{SM}.{region}.{partition}.pileup.gz")
-    val = []
+    val = {'popoolation.raw': []}
     for region in config["workflow"]["regions"].keys():
-        print(region)
         npart = config["workflow"]["regions"][region]["npart"]
-        val.extend(expand(pfx, SM=pools.SM, region=region, partition=list(range(npart))))
+        val['popoolation.raw'].extend(expand(pfx, SM=pools.SM, region=region, partition=list(range(npart))))
     return val
 
 
