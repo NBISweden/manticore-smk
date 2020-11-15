@@ -19,7 +19,7 @@ rule rawvc_samtools_faidx_ref:
     log: "logs/db/ref/samtools_faidx.log"
     params:
         get_params("rawvc_samtools_faidx_ref", "options")
-    resources: runtime = lambda wilcards, attempt: resources("rawvc_samtools_faidx_ref", "runtime")
+    resources: runtime = lambda wildcards, attempt: resources("rawvc_samtools_faidx_ref", "runtime")
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/samtools/faidx"
 
 
@@ -31,6 +31,9 @@ rule rawvc_gatkhc_targets:
     input:
         unpack(rawvc_gatkhc_targets_input)
     wildcard_constraints: mode = "(.g|)"
+    resources:
+        runtime = lambda wildcards, attempt: resources("rawvc_gatkhc_targets", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("rawvc_gatkhc_targets", "mem_mb")
     params:
         options = get_params("rawvc_gatkhc_targets", "options"),
         annotation = get_params("rawvc_gatkhc_targets", "annotation"),

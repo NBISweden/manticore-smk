@@ -34,7 +34,7 @@ def get_ploidy(sample, region, **kwargs):
     try:
         ploidy = config["workflow"]["regions"][region]["ploidy"][sex]
     except KeyError as e:
-        logger.warn(e)
+        logger.warning(f"KeyError '{e}' for '{sample}' and '{region}'")
         logger.info(f"using default ploidy: {ploidy}")
     return ploidy
 
