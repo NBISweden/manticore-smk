@@ -1,11 +1,11 @@
 rule all_popoolation:
     """Run popoolation analyses"""
-    input: all_popoolation_input
+    input: unpack(all_popoolation_input)
 
 
 rule all_popoolation_raw:
     """Generate raw popoolation data"""
-    input: all_popoolation_raw_input
+    input: unpack(all_popoolation_raw_input)
 
 
 rule popoolation_pybedtools_make_bed_targets:

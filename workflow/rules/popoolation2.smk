@@ -1,3 +1,13 @@
+rule all_popoolation2:
+    """Run popoolation2 analyses"""
+    input: unpack(all_popoolation2_input)
+
+
+rule all_popoolation2_raw:
+    """Generate raw popoolation2 data"""
+    input: unpack(all_popoolation2_raw_input)
+
+
 # Rules
 rule popoolation2_samtools_mpileup:
     """Run samtools mpileup for popoolation2"""
