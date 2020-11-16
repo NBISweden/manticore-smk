@@ -30,7 +30,6 @@ def get_ploidy(sample, region, **kwargs):
         sex = individuals.at[sample, "sex"]
     elif sample in pools.SM:
         sex = pools.at[sample, "sex"]
-    sex= "all"
     try:
         ploidy = config["workflow"]["regions"][region]["ploidy"][sex]
     except KeyError as e:
