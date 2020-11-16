@@ -473,7 +473,7 @@ definitions:
 
       popoolation_samtools_filter_mpileup:
         default:
-          options: -q 20
+          filter_options: -q 20
         $ref: "popoolation.schema.yaml#/definitions/popoolation_samtools_filter_mpileup"
 
       popoolation_filter_pileup_by_gtf:

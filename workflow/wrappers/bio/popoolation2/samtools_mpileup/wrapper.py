@@ -21,9 +21,10 @@ gzip = "" if gz == "" else "| gzip -v "
 
 shell(
     "samtools mpileup "
-    "-l {targets} "
+    "{options} "
+    "-l {targets} -a "
     "-B {snakemake.input.bam} {log}"
     "{gzip} > "
-    "{snakemake.output.pileup}"
-    "{options} {zlog}"
+    "{snakemake.output.pileup} "
+    "{zlog}"
 )
