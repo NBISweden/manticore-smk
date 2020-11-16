@@ -40,7 +40,7 @@ if "mem_mb" in snakemake.resources.keys():
 
 shell(
     "gatk --java-options '{java_opts}' HaplotypeCaller {options} "
-    "-R {snakemake.input.ref} {annotation_opt} {bams} "
+    "-R {snakemake.input.ref} {targets} {annotation_opt} {bams} "
     " {mode} {ploidy} "
     "-O {snakemake.output.vcf} {log}"
 )
