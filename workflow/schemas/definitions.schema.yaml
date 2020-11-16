@@ -43,6 +43,25 @@ definitions:
     minItems: 1
     items:
       type: integer
+  ploidy:
+    description: >
+        ploidy for region. Will be adjusted by pool size
+          for pool calls
+    type: object
+    properties:
+      common:
+        type: integer
+        description: ploidy common to all sexes
+      female:
+        type: integer
+        description: ploidy for females
+      male:
+        type: integer
+        description: ploidy for males
+      haploid:
+        type: integer
+        description: ploidy for haploids
+    additionalProperties: false
 
   ##############################
   # Default resources
@@ -226,25 +245,9 @@ definitions:
                   - data/metadata/autosomes.bed
                   - data/metadata/PAR.bed
               ploidy:
-                description: >
-                    ploidy for region. Will be adjusted by pool size
-                    for pool calls
-                type: object
+                $ref: "#/definitions/ploidy"
                 default:
-                  all: 2
-                properties:
-                  all:
-                    type: integer
-                    description: ploidy if same for all sexes
-                  female:
-                    type: integer
-                    description: ploidy for females
-                  male:
-                    type: integer
-                    description: ploidy for males
-                  haploid:
-                    type: integer
-                    description: ploidy for haploids
+                  common: 2
               npart:
                 description: define number of partitions for scatter-gather calls
                 type: integer

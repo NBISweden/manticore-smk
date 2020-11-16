@@ -95,6 +95,22 @@ BASEDIR = workflow.current_basedir
 ##############################
 ## Wildcard constraints
 ##############################
+
+##### load schema definitions #####
+def load_schema(schema):
+    import inspect
+    import yaml
+    if not os.path.isabs(schema):
+        frame = inspect.currentframe().f_back
+    if "workflow" in frame.f_globals:
+        workflow = frame.f_globals["workflow"]
+        schema = os.path.join(workflow.current_basedir, schema)
+    with open(schema) as fh:
+        data = yaml.safe_load(fh)
+    return data
+
+definitions = load_schema("../schemas/definitions.schema.yaml")
+
 wildcard_constraints:
     external = str(__EXTERNAL__),
     interim = str(__INTERIM__),
@@ -144,7 +160,7 @@ wildcard_constraints:
     region = wildcards_or(config['workflow']['regions'].keys()),
     repeatmask = wildcards_or(ext["rm"], True),
     sample = wildcards_or(samples),
-    sex = wildcards_or(['all', 'haploid', 'male', 'female'], True),
+    sex = wildcards_or(list(definitions["definitions"]["ploidy"]["properties"].keys())),
     step_size = "[0-9]+",
     target = "[0-9]+",
 

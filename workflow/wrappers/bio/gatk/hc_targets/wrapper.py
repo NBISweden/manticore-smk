@@ -17,7 +17,7 @@ targets = snakemake.input.get("targets", "")
 targets = f" -L {targets}" if targets else ""
 
 wc = snakemake.wildcards
-sex = snakemake.params.get("sex", "all")
+sex = snakemake.params.get("sex", "common")
 ploidy = snakemake.params.get("ploidy", 2)
 ploidy = f"-ploidy {ploidy}"
 

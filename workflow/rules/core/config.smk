@@ -24,7 +24,7 @@ def resources(rule, resource, attempt=1, wildcards=None, **kwargs):
 
 def get_ploidy(sample, region, **kwargs):
     """Retrieve ploidy for a given sample and region"""
-    sex = "all"
+    sex = "common"
     ploidy = 2
     if sample in individuals.SM:
         sex = individuals.at[sample, "sex"]

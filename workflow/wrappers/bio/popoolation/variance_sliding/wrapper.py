@@ -27,7 +27,7 @@ if not os.path.exists(script):
 options = snakemake.params.get("options", "")
 samples = snakemake.params.samples
 config = snakemake.config
-sex = snakemake.wildcards.get("sex", "all")
+sex = snakemake.wildcards.get("sex", "common")
 pool_size = samples[samples.SM == snakemake.wildcards.sample]
 pool_size = (
     pool_size["size"].to_list()[0]

@@ -24,7 +24,7 @@ def all_popoolation2_raw_input(wildcards):
 def popoolation2_samtools_mpileup_input(wildcards):
     fn = str(__INTERIM__ / "map/bwa/{sample}.bam")
     df = pools
-    if wildcards.sex != "all":
+    if wildcards.sex != "common":
         df = pools[pools.sex.isin([wildcards.sex])]
     bam = expand(fn, sample = df.SM.tolist())
     bai = [f"{x}.bai" for x in bam]
