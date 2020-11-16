@@ -24,18 +24,16 @@ def resources(rule, resource, attempt=1, wildcards=None, **kwargs):
 
 def get_ploidy(sample, region, **kwargs):
     """Retrieve ploidy for a given sample and region"""
-    sex = "common"
-    ploidy = 2
+    d = config["workflow"]["regions"][region]["ploidy"]
+    ploidy = d.get("common", 2)
     if sample in individuals.SM:
         sex = individuals.at[sample, "sex"]
     elif sample in pools.SM:
         sex = pools.at[sample, "sex"]
-    try:
+    if sex in config["workflow"]["regions"][region]["ploidy"].keys():
         ploidy = config["workflow"]["regions"][region]["ploidy"][sex]
-    except KeyError as e:
-        logger.warning(f"KeyError '{e}' for '{sample}' and '{region}'")
-        logger.info(f"using default ploidy: {ploidy}")
     return ploidy
+
 
 def get_params(rule, resource, wildcards=None, **kwargs):
     """Retrieve rule parameters"""
