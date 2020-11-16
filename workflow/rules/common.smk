@@ -55,6 +55,11 @@ def _read_tsv(infile, index, schemafile):
         df = df.replace({np.nan: None})
     df.index.names = index
     validate(df, schema=schemafile)
+    ## Check for duplicate rows
+    if any(df.duplicated()):
+        logger.error(f"duplicated rows in {infile}:")
+        logger.error(f"  {df[df.duplicated()]}")
+        sys.exit(1)
     return df
 
 individuals = _read_tsv(config["samples"]["individual"], ["SM"],
