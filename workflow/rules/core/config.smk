@@ -1,5 +1,9 @@
 import contextlib
 
+class PloidyException(Exception):
+    pass
+
+
 def get_app_params(wildcards, rule):
     return config
 
@@ -26,12 +30,16 @@ def get_ploidy(sample, region, **kwargs):
     """Retrieve ploidy for a given sample and region"""
     d = config["workflow"]["regions"][region]["ploidy"]
     ploidy = d.get("common", 2)
-    if sample in individuals.SM:
-        sex = individuals.at[sample, "sex"]
-    elif sample in pools.SM:
-        sex = pools.at[sample, "sex"]
-    if sex in config["workflow"]["regions"][region]["ploidy"].keys():
-        ploidy = config["workflow"]["regions"][region]["ploidy"][sex]
+    try:
+        if sample in individuals.SM:
+            sex = individuals.at[sample, "sex"]
+        elif sample in pools.SM:
+            sex = pools.at[sample, "sex"]
+        if sex in d.keys():
+            ploidy = d[sex]
+    except PloidyException as e:
+        logger.info(e)
+        logger.info(f"falling back on common ploidy: {ploidy}")
     return ploidy
 
 
