@@ -10,7 +10,7 @@ rule all_popoolation_raw:
 
 rule popoolation_pybedtools_make_bed_targets:
     output:
-        bed = temp("{prefix}/{pool_vc}/{region}.{partition}.bed")
+        bed = "{prefix}/{pool_vc}/{region}.{partition}.bed"
     input: bed = "{prefix}/{region}.bed"
     params:
         npart = lambda wildcards: config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
