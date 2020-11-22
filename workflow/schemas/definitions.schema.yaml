@@ -561,6 +561,9 @@ definitions:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_variant_JEXL_filtration"
 
+      filter_gatk_jexl_filter_variants:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_jexl_filter_variants"
 
       ##############################
       # Popoolation
