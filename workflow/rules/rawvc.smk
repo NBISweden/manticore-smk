@@ -55,7 +55,7 @@ rule rawvc_picard_create_sequence_dictionary:
 
 
 rule rawvc_gatk_genomics_db_import:
-    output: temp(directory("{interim}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"))
+    output: directory("{results}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db")
     input: unpack(rawvc_gatk_genomics_db_import_input)
     params:
         options = get_params("rawvc_gatk_genomics_db_import", "options")
@@ -63,14 +63,14 @@ rule rawvc_gatk_genomics_db_import:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "mem_mb"),
     threads: get_params("rawvc_gatk_genomics_db_import", "threads")
-    log: "logs/{interim}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
+    log: "logs/{results}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genomics_db_import"
 
 
 rule rawvc_gatk_genotype_gvcfs:
     output:
-        vcf = temp("{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
-        tbi = temp("{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
+        vcf = temp("{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
+        tbi = temp("{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
     input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
         options = get_params("rawvc_gatk_genotype_gvcfs", "options"),
@@ -79,7 +79,7 @@ rule rawvc_gatk_genotype_gvcfs:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "runtime"),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "mem_mb"),
     threads: get_params("rawvc_gatk_genotype_gvcfs", "threads")
-    log: "logs/{interim}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
+    log: "logs/{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
 
 

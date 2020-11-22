@@ -22,7 +22,7 @@ def rawvc_gatkhc_targets_input(wildcards):
 
 def all_gatkhc_samples(wildcards):
     d = dict(wildcards)
-    fn = "{interim}/{group}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.gz".format(**d)
+    fn = str(__INTERIM__ / "{group}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.gz").format(**d)
     return expand(fn, SM=individuals["SM"].tolist())
 
 
@@ -37,8 +37,9 @@ def rawvc_gatk_genomics_db_import_input(wildcards):
 
 
 def rawvc_gatk_genotype_gvcfs_input(wildcards):
+    """Retrieve genomics db databases from raw variant calling"""
     ref = config['db']['ref']
-    db = f"{wildcards.interim}/{wildcards.group}/rawvc/gatkhc/genomicsdb/{wildcards.region}.{wildcards.target}.db"
+    db = f"{wildcards.results}/{wildcards.group}/rawvc/gatkhc/genomicsdb/{wildcards.region}.{wildcards.target}.db"
     faext = wildcards_or(ext["fa"])
     d = re.sub(faext, ".dict", ref)
     targets = os.path.join(
@@ -48,7 +49,7 @@ def rawvc_gatk_genotype_gvcfs_input(wildcards):
 
 def _rawvc_vcfs_targets_input(wildcards):
     """Generic function to generate vcf targets to be merged"""
-    pfx = f"{str(__INTERIM__)}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
+    pfx = f"{str(__RESULTS__)}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     infiles = expand(pfx, target=list(range(npart)))
     tbi = [f"{x}.tbi" for x in infiles]
