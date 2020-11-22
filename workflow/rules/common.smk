@@ -235,7 +235,7 @@ def all(wildcards):
     d = {
         'multiqc': [str(__REPORTS__ / "qc/multiqc.html")],
     }
-    d.update(**all_rawvc(wildcards))
+    d.update(**all_rawvc_input(wildcards))
     d.update(**all_popoolation_input(wildcards))
     d.update(**all_popoolation2_input(wildcards))
     #d['stats'] = all_bcftools_stats(wildcards)

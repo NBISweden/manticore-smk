@@ -1,5 +1,5 @@
 rule all_rawvc:
-    input: unpack(all_rawvc)
+    input: unpack(all_rawvc_input)
 
 
 rule rawvc_pybedtools_make_bed_targets:
@@ -69,8 +69,8 @@ rule rawvc_gatk_genomics_db_import:
 
 rule rawvc_gatk_genotype_gvcfs:
     output:
-        vcf = temp("{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz"),
-        tbi = temp("{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi")
+        vcf = "{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz",
+        tbi = "{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi"
     input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
         options = get_params("rawvc_gatk_genotype_gvcfs", "options"),

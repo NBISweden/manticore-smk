@@ -1,4 +1,4 @@
-def all_rawvc(wildcards):
+def all_rawvc_input(wildcards):
     regions = list(config['workflow']['regions'].keys())
     pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{region}.vcf.gz")
     val = expand(pfx, region=regions)
