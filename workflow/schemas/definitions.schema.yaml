@@ -161,6 +161,98 @@ definitions:
 
 
   ##############################
+  # Statistic, plot and filter
+  ##############################
+  statistic:
+    type: object
+    description: population genomic statistic to run on input data
+    properties:
+      statistic:
+        type: [string, array]
+        description: statistic
+        items:
+          enum: ['TajD', 'F_ST', 'pi']
+      engine:
+        type: string
+        description: what program/engine to use
+        enum: ['scikit-allel', 'popoolation', 'popoolation2', 'vcftools']
+      options:
+        type: string
+        description: options for engine
+      mask:
+        type: string
+        description: mask to be applied to statistic
+      plot:
+        type: object
+        properties:
+          script:
+            description: what script to use
+            type: string
+          facets:
+            description: faceting; try applying some grammar of graphics
+            type: string
+
+  plot:
+    type: object
+    description: plot statistics
+    properties:
+      script:
+        type: string
+        description: name of script
+      type:
+        type: string
+        description:  plot type; many of these rely
+        enum: ['pca', 'coverage']
+      options:
+        type: string
+        description: options
+
+  filter:
+    type: object
+    description: filters to apply to input data; for individuals always vcf? For pool, either pileup or sync files
+    properties:
+      description:
+        type: string
+        description: description of filter
+      filter:
+        type: string
+        description: filter name
+        enum: ['bcftools_view', 'gatk_select_variants', 'gatk_jexl_filter_variants']
+      options:
+        type: [string, array]
+        description: filter options
+    required: ['description', 'filter', 'options']
+    additionalProperties: false
+
+  ##############################
+  # filters
+  ##############################
+  filters:
+    type: object
+    description: filters to be run on a data object
+    patternProperties:
+      "[a-zA-Z0-9_-]":
+        $ref: "#/definitions/filter"
+    additionalProperties: false
+
+  statistics:
+    type: object
+    description: calculate statistics on data object
+    patternProperties:
+      "[a-zA-Z0-9_-]":
+        $ref: "#/definitions/statistic"
+    additionalProperties: false
+
+  plots:
+    type: object
+    description: plot object where keys correspond to specific plots of data
+    patternProperties:
+      "[a-zA-Z0-9_-]":
+        $ref: "#/definitions/plot"
+    additionalProperties: false
+
+
+  ##############################
   # File system layout
   ##############################
 

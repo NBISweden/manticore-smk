@@ -23,3 +23,34 @@ workflow:
 resources:
   popoolation_subsample_pileup:
     options: --method withoutreplace --fastq-type sanger --target-coverage 1 --max-coverage 10 --min-qual 20
+
+
+analysis/gatk_best_practice_snp:
+  filters:
+    gatk_select_snp:
+      description: GATK select snp
+      filter: gatk_select_variants
+      options: --select-type-to-include SNP
+    gatk_filter:
+      description: GATK filter snps
+      filter: gatk_jexl_filter_variants
+      options: ["QD < 2.0", "MQ < 40.0", "FS > 60.0", "MQRankSum < -12.5", "ReadPosRankSum < -8.0", "SOR > 3.0"]
+  plots:
+    pca:
+      script: manticore-plotvcf.py
+      type: pca
+
+  # statistics:
+  #   unmasked:
+  #     statistic: ['TajD', 'F_ST', 'pi']
+  #     engine: scikit-allel
+  #     plot:
+  #       script: manticore-manhattan.py
+  #   repeatmasked:
+  #     statistic: ['TajD', 'F_ST', 'pi']
+  #     engine: scikit-allel
+  #     mask: data/external/ref/scaffolds-targets.bed
+  # plots:
+  #   pca:
+  #     script: manticore-pca.py
+  #     type: pca

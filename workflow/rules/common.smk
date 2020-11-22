@@ -97,6 +97,11 @@ if config["workflow"]["trim"] and len(reads) > 0:
 BASEDIR = workflow.current_basedir
 
 
+##################################################
+# Core configuration
+##################################################
+include: "core/config.smk"
+
 ##############################
 ## Wildcard constraints
 ##############################
@@ -146,6 +151,7 @@ ext = {
 wildcard_constraints:
     aligner = wildcards_or(["bwa"]),
     all = "all",
+    analysis = wildcards_or(get_analysisnames()),
     bam = wildcards_or(ext["bam"]),
     bamfastq = wildcards_or(ext["bam"] + ext["fastq"]),
     bgz = wildcards_or(ext["bgz"], True),
@@ -153,6 +159,7 @@ wildcard_constraints:
     callset = "rawvc",
     fa = wildcards_or(ext["fa"]),
     fastq = wildcards_or(ext["fastq"]),
+    filtername = wildcards_or(get_filternames()),
     genome = os.path.splitext(os.path.basename(config['db']['ref']))[0],
     group = "(ind|pool)",
     gz = wildcards_or(ext["gz"], True),
@@ -170,11 +177,6 @@ wildcard_constraints:
     target = "[0-9]+",
 
 wc = workflow._wildcard_constraints
-
-##################################################
-# Core configuration
-##################################################
-include: "core/config.smk"
 
 ## Store some workflow metadata
 config["__workflow_basedir__"] = workflow.basedir

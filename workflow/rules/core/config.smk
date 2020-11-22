@@ -59,6 +59,37 @@ def get_variant_filters(rule, wildcards, **kwargs):
     return d
 
 
+
+def get_filternames():
+    """Retrieve a list of all filternames defined in config file"""
+    filters = []
+    for key in config.keys():
+        if not key.startswith("analysis/"):
+            continue
+        filters.extend(config[key]["filters"])
+    return filters
+
+
+def get_analysisnames():
+    """Retrieve a list of all analysis names defined in config file"""
+    analyses = []
+    for key in config.keys():
+        if not key.startswith("analysis/"):
+            continue
+        analyses.append(key.lstrip("analysis/"))
+    return analyses
+
+
+def get_filter_options(wildcards, gatk=False):
+    """Get filter options."""
+    analysis = f"analysis/{wildcards.analysis}"
+    filters = config[analysis]["filters"]
+    val = filters[wildcards.filtername]["options"]
+    if gatk:
+        val = {f"'GATKStandard({v.split()[0]})'": v for v in val}
+    return val
+
+
 # context manager for cd
 @contextlib.contextmanager
 def cd(path, logger):
