@@ -4,7 +4,7 @@ rule all_variantfilter:
     input: unpack(all_variantfilter)
 
 
-rule filter_gatk_select_variants:
+rule filter_gatk_select_variants_obsolete:
     """Run GATK SelectVariants to select SNPs"""
     output: vcf = "{results}/{group}/{callset}/{caller}/select/{region}.{vartype}.vcf.gz",
             tbi = "{results}/{group}/{callset}/{caller}/select/{region}.{vartype}.vcf.gz.tbi"
@@ -24,7 +24,7 @@ rule filter_gatk_select_variants:
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/gatk/selectvariants"
 
 
-rule filter_gatk_variant_JEXL_filtration:
+rule filter_gatk_variant_JEXL_filtration_obsolete:
     """Run GATK VariantFiltration using hard filters
 
     Perform hard filtering using JEXL expressions

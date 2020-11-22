@@ -5,6 +5,8 @@ include: "rules/trim.smk"
 include: "rules/map.smk"
 include: "rules/rawvc.smk"
 include: "rules/variantfilter.smk"
+include: "rules/filters.smk"
+include: "rules/plots.smk"
 include: "rules/popoolation.smk"
 include: "rules/popoolation2.smk"
 

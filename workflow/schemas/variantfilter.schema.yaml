@@ -48,3 +48,7 @@ definitions:
   filter_gatk_variant_JEXL_filtration:
     description: GATK JEXL filtration configuration
     $ref: "#/definitions/resources.rule.java.gatk.filter"
+
+  filter_gatk_jexl_filter_variants:
+    description: GATK JEXL filtration configuration
+    $ref: "#/definitions/resources.rule.java.gatk.filter"

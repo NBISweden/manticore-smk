@@ -265,6 +265,11 @@ include: "input/rawvc.smk"
 include: "input/variantfilter.smk"
 
 ##############################
+# filters
+##############################
+include: "input/filters.smk"
+
+##############################
 # WIP: VQSR
 ##############################
 
