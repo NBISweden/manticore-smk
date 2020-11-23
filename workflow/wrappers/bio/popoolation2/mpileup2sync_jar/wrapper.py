@@ -46,5 +46,6 @@ shell(
     "{options} "
     "--threads {snakemake.threads} {log} "
     "{gzip} > {snakemake.output.sync} {zlog}"
-    "|| rm -f {fifo}"
 )
+if os.path.exists(fifo):
+    os.unlink(fifo)

@@ -7,6 +7,7 @@ __license__ = "MIT"
 
 import os
 import re
+import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
@@ -35,15 +36,25 @@ pool_size = (
 )
 outtxt = os.path.splitext(snakemake.output.txt)[0]
 
+tmp = os.path.basename(tempfile.mkstemp()[1])
+pileup = snakemake.input.pileup
+fifo = f"{pileup}{tmp}.fifo"
+if os.path.exists(fifo):
+    os.unlink(fifo)
+
+shell("mkfifo {fifo}")
+shell("zcat {pileup} > {fifo} &")
 shell(
     "perl "
     "{script} "
     "{options} "
     "--measure {snakemake.wildcards.measure} "
     "--pool-size {pool_size} "
-    "--input {snakemake.input.pileup} "
+    "--input {fifo} "
     "--output {outtxt} "
     "--window-size {snakemake.wildcards.window_size} "
     "--step-size {snakemake.wildcards.step_size} "
     "{log} && gzip -v {outtxt} {zlog}"
 )
+if os.path.exists(fifo):
+    os.unlink(fifo)

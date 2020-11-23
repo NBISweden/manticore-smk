@@ -38,15 +38,15 @@ rule popoolation2_mpileup2sync_jar:
 
 rule popoolation2_indel_filtering_identify_indel_regions:
     """Identify indel regions in mpileup file"""
-    output: gtf = "{prefix}.{target}.mpileup{gz}.indels.gtf"
-    input: mpileup = "{prefix}.{target}.mpileup.gz"
+    output: gtf = "{results_pool}/raw/popoolation.indels/{sex}.{region}.{target}.mpileup{gz}.indels.gtf"
+    input: mpileup = __INTERIM_POOL__ / "raw/popoolation2/{sex}.{region}.{target}.mpileup{gz}"
     resources:
         mem_mb = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "mem_mb", attempt),
         runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "runtime", attempt)
     params:
         java_options = get_params("popoolation2_indel_filtering_identify_indel_regions", "java_options")
     threads: get_params("popoolation2_indel_filtering_identify_indel_regions", "threads")
-    log: "logs/{prefix}.{target}.mpileup{gz}.indels.gtf.log"
+    log: "logs/{results_pool}/raw/popoolation.indels/{sex}.{region}.{target}.mpileup{gz}.indels.gtf.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/indel_filtering_identify_indel_regions"
 
 

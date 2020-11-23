@@ -11,7 +11,7 @@ import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
-log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
 script = os.path.join(
@@ -42,5 +42,7 @@ shell(
     "{options} "
     "--input {fifo} "
     "--output {snakemake.output.gtf} "
-    "|| rm -f {fifo}"
+    "{log}"
 )
+if os.path.exists(fifo):
+    os.unlink(fifo)

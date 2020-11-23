@@ -171,7 +171,8 @@ definitions:
         type: [string, array]
         description: statistic
         items:
-          enum: ['TajD', 'F_ST', 'pi']
+          enum: ['TajD', 'F_ST', 'pi',
+            'theta', 'D']
       engine:
         type: string
         description: what program/engine to use
@@ -217,7 +218,7 @@ definitions:
       filter:
         type: string
         description: filter name
-        enum: ['bcftools_view', 'gatk_select_variants', 'gatk_jexl_filter_variants']
+        enum: ['bcftools_view', 'gatk_select_variants', 'gatk_jexl_filter_variants', 'popoolation_filter_pileup_by_gtf', 'popoolation_subsample_pileup']
       options:
         type: [string, array]
         description: filter options
