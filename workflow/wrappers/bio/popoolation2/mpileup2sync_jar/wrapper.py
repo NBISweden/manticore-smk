@@ -7,6 +7,7 @@ __license__ = "MIT"
 
 import os
 import re
+import sys
 import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
@@ -39,13 +40,13 @@ if os.path.exists(fifo):
 shell("mkfifo {fifo}")
 shell("zcat {mpileup} > {fifo} &")
 shell(
-    "java -ea -Xmx{mem_mb}M "
+    "java   -Xmx{mem_mb}M "
     "-jar {mpileup2sync} "
     "--input {fifo} "
     "--output /dev/stdout "
     "{options} "
-    "--threads {snakemake.threads} {log} "
-    "{gzip} > {snakemake.output.sync} {zlog}"
+    "--threads {snakemake.threads}  {log} "
+    "{gzip} > {snakemake.output.sync} {zlog} || rm -f {fifo}"
 )
 if os.path.exists(fifo):
     os.unlink(fifo)
