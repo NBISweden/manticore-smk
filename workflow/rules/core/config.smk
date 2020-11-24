@@ -84,17 +84,20 @@ def get_filter_options(wildcards, gatk=False):
     """Get filter options."""
     analysis = f"analysis/{wildcards.analysis}"
     filters = config[analysis]["filters"]
-    val = filters[wildcards.filtername]["options"]
+    val = filters[wildcards.filtername].get("options", "")
     if gatk:
         val = {f"'GATKStandard({v.split()[0]})'": v for v in val}
     return val
 
 
-def get_stat_options(wildcards):
+def get_stat_options(wildcards, rulename=None):
     """Get stat engine options"""
+    options = ""
+    if rulename is not None:
+        options = get_params(rulename, "options")
     analysis = f"analysis/{wildcards.analysis}"
     statistics = config[analysis]["statistics"]
-    val = statistics[wildcards.statname]["options"]
+    val = statistics[wildcards.statname].get("options", options)
     return val
 
 

@@ -167,6 +167,9 @@ definitions:
     type: object
     description: population genomic statistic to run on input data
     properties:
+      description:
+        type: string
+        description: description of statistic
       statistic:
         type: [string, array]
         description: statistic
@@ -204,6 +207,8 @@ definitions:
           facets:
             description: faceting; try applying some grammar of graphics
             type: string
+    required: ['description', 'statistic', 'engine']
+    additionalProperties: false
 
   plot:
     type: object
@@ -234,7 +239,7 @@ definitions:
       options:
         type: [string, array]
         description: filter options
-    required: ['description', 'filter', 'options']
+    required: ['description', 'filter']
     additionalProperties: false
 
   ##############################

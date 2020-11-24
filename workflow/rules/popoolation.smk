@@ -88,7 +88,7 @@ rule popoolation_variance_sliding:
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation_variance_sliding", "runtime", attempt)
     params:
-        options = lambda wildcards: get_stat_options(wildcards),
+        options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation_variance_sliding"),
         samples = pools
     threads: lambda wildcards: resources("popoolation_variance_sliding", "threads")
     log: "logs/{results}/pool/analysis/{analysis}/{statname}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.{target}.txt.gz"

@@ -20,7 +20,14 @@ workflow:
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
 
 
+resources:
+  popoolation_variance_sliding:
+    options: --min-count 2 --min-coverage 6
+
 analysis/gatk_best_practice_snp:
+  description: >-
+      GATK best practice analysis for snps. Hard filters are applied
+      to get a high-quality call set.
   filters:
     gatk_select_snp:
       description: GATK select snp
@@ -36,6 +43,9 @@ analysis/gatk_best_practice_snp:
       type: pca
 
 analysis/popoolation_best_practice:
+  description: >-
+      popoolation best practice. Filter pileups by indels and
+      subsample data to target a given coverage.
   samples:
     - CHS
   filters:
@@ -49,8 +59,8 @@ analysis/popoolation_best_practice:
       options: --method withoutreplace --fastq-type sanger --target-coverage 2 --max-coverage 10 --min-qual 20
   statistics:
     variance_sliding:
+      description: Popoolation variance sliding analysis
       statistic: ['pi', 'theta']
       window_size: [10000, 50000]
       step_size: [10000, 50000]
       engine: popoolation
-      options: --min-count 2 --min-coverage 6
