@@ -101,9 +101,30 @@ patternProperties:
       input:
         type: [string, array, 'null']
         default: null
+        description: >-
+            WIP: alternative input directory
         items:
           type: string
           uniqueItems: true
+      regions:
+        type: array
+        description: >-
+            restrict analyses to listed regions
+        items:
+          type: string
+          uniqueItems: true
+      sex:
+        type: string
+        description: >-
+            restrict analyses to listed sex
+        items:
+          type: string
+          uniqueItems: true
+          enum: ['male', 'female', 'common', 'haploid']
+      samples:
+        type: array
+        description: >-
+            restrict analyses to listed samples
       filters:
         description: >-
           The filters property lists what filters to apply to input

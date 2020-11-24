@@ -90,6 +90,55 @@ def get_filter_options(wildcards, gatk=False):
     return val
 
 
+def get_stat_options(wildcards):
+    """Get stat engine options"""
+    analysis = f"analysis/{wildcards.analysis}"
+    statistics = config[analysis]["statistics"]
+    val = statistics[wildcards.statname]["options"]
+    return val
+
+
+def analysis_subset_regions(key):
+    """Subset regions for a given analysis"""
+    allregions = list(config["workflow"]["regions"].keys())
+    regions = config[key].get("regions", allregions)
+    try:
+        assert set(regions) <= set(allregions)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some regions undefined: '{regions}'")
+        raise
+    return regions
+
+
+def analysis_subset_samples(key, df):
+    """Subset samples for a given analysis based on samples and sex keys"""
+    allsamples = df["SM"].tolist()
+    samplelist = config[key].get("samples", allsamples)
+    sex = config[key].get("sex", None)
+    try:
+        assert set(samplelist) <= set(allsamples)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some samples undefined: '{samplelist}'")
+        raise
+    df = df[df["SM"].isin(samplelist)]
+    if sex is not None:
+        df = df[df["sex"].isin([sex])]
+    return df
+
+
+def analysis_get_window_config(key, stat):
+    window_size = stat.get("window_size", [10000])
+    step_size = stat.get("step_size", window_size)
+    try:
+        assert len(step_size) == len(window_size)
+    except AssertionError:
+        logger.error(f"config section '{k}:statistics:{key}' window size and step size must be of equal lengths")
+        raise
+    return window_size, step_size
+
+
+
+
 # context manager for cd
 @contextlib.contextmanager
 def cd(path, logger):

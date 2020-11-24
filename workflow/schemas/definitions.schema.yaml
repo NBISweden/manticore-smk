@@ -180,6 +180,18 @@ definitions:
       options:
         type: string
         description: options for engine
+      window_size:
+        type: array
+        description: window size
+        items:
+          type: integer
+          uniqueItems: true
+      step_size:
+        type: array
+        description: step size
+        items:
+          type: integer
+          uniqueItems: true
       mask:
         type: string
         description: mask to be applied to statistic

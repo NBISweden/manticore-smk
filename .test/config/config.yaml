@@ -20,11 +20,6 @@ workflow:
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
 
 
-resources:
-  popoolation_subsample_pileup:
-    options: --method withoutreplace --fastq-type sanger --target-coverage 1 --max-coverage 10 --min-qual 20
-
-
 analysis/gatk_best_practice_snp:
   filters:
     gatk_select_snp:
@@ -40,22 +35,9 @@ analysis/gatk_best_practice_snp:
       script: manticore-plotvcf.py
       type: pca
 
-  # statistics:
-  #   unmasked:
-  #     statistic: ['TajD', 'F_ST', 'pi']
-  #     engine: scikit-allel
-  #     plot:
-  #       script: manticore-manhattan.py
-  #   repeatmasked:
-  #     statistic: ['TajD', 'F_ST', 'pi']
-  #     engine: scikit-allel
-  #     mask: data/external/ref/scaffolds-targets.bed
-  # plots:
-  #   pca:
-  #     script: manticore-pca.py
-  #     type: pca
-
 analysis/popoolation_best_practice:
+  samples:
+    - CHS
   filters:
     filter_pileup_by_indels:
       description: filter pileup by indel gtf
@@ -67,5 +49,8 @@ analysis/popoolation_best_practice:
       options: --method withoutreplace --fastq-type sanger --target-coverage 2 --max-coverage 10 --min-qual 20
   statistics:
     variance_sliding:
-      statistic: ['pi', 'theta', 'D']
+      statistic: ['pi', 'theta']
+      window_size: [10000, 50000]
+      step_size: [10000, 50000]
       engine: popoolation
+      options: --min-count 2 --min-coverage 6
