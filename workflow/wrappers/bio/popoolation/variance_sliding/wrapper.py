@@ -28,12 +28,13 @@ if not os.path.exists(script):
 options = snakemake.params.get("options", "")
 samples = snakemake.params.samples
 config = snakemake.config
-sex = snakemake.wildcards.get("sex", "common")
-pool_size = samples[samples.SM == snakemake.wildcards.sample]
-pool_size = (
-    pool_size["size"].to_list()[0]
-    * config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
-)
+sex = samples.at[snakemake.wildcards.sample, "sex"]
+size = samples.at[snakemake.wildcards.sample, "size"]
+if sex not in config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]:
+    sex = "common"
+ploidy = config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
+pool_size = size * ploidy
+
 outtxt = os.path.splitext(snakemake.output.txt)[0]
 
 tmp = os.path.basename(tempfile.mkstemp()[1])
