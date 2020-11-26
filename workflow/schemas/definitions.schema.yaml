@@ -645,6 +645,10 @@ definitions:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_jexl_filter_variants"
 
+      filter_bcftools_concat_vcfs:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_bcftools_concat_vcfs"
+
       ##############################
       # Popoolation
       ##############################

@@ -52,3 +52,7 @@ definitions:
   filter_gatk_jexl_filter_variants:
     description: GATK JEXL filtration configuration
     $ref: "#/definitions/resources.rule.java.gatk.filter"
+
+  filter_bcftools_concat_vcfs:
+    description: GATK JEXL filtration configuration
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"
