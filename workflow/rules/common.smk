@@ -211,6 +211,7 @@ def all(wildcards):
     d.update(**all_rawvc_input(wildcards))
     d.update(**all_popoolation_input(wildcards))
     d.update(**all_popoolation2_input(wildcards))
+    d.update(**all_analysisset_input(wildcards))
     #d['stats'] = all_bcftools_stats(wildcards)
     d['config'] = "config/manticore.config.yaml"
     return d
@@ -253,3 +254,8 @@ include: "input/filters.smk"
 ##############################
 include: "input/popoolation.smk"
 include: "input/popoolation2.smk"
+
+##############################
+# Analysis sets
+##############################
+include: "input/analysisset.smk"
