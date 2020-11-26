@@ -408,6 +408,68 @@ definitions:
     additionalProperties: false
 
   ##############################
+  # Analysis set
+  #
+  # Analysis set configuration
+  ##############################
+  analysis:
+    description: >-
+        Analysis set configuration
+    properties:
+      description:
+        type: string
+        description: >-
+            Description of analysis set
+      input:
+        type: [string, array, 'null']
+        default: null
+        description: >-
+            WIP: alternative input directory
+        items:
+          type: string
+          uniqueItems: true
+      regions:
+        type: array
+        description: >-
+            restrict analyses to listed regions
+        items:
+          type: string
+          uniqueItems: true
+      sex:
+        type: string
+        description: >-
+            restrict analyses to listed sex
+        items:
+          type: string
+          uniqueItems: true
+          enum: ['male', 'female', 'common', 'haploid']
+      samples:
+        type: array
+        description: >-
+            restrict analyses to listed samples
+      filters:
+        description: >-
+          The filters property lists what filters to apply to input
+          data. They are applied sequentially, in the case that multiple
+          filters are defined.
+        default: {}
+        $ref: "#/definitions/filters"
+      statistics:
+        description: >-
+          The statistics property lists what statistics to apply to
+          the filtered data
+        default: {}
+        $ref: "#/definitions/statistics"
+      plots:
+        description: >-
+          The plots property lists plots to apply to statistics
+        default: {}
+        $ref: "#/definitions/plots"
+    required: ['input', 'description']
+    additionalProperties: false
+
+
+  ##############################
   # Resources; defines property for the vast majority of workflow
   # rules. This section is reused in its entirety in
   # config.schema.yaml in the patternProperties property listing

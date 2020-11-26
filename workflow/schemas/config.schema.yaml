@@ -83,12 +83,13 @@ properties:
 patternProperties:
   '^resources/[a-zA-Z\.\-_0-9/\{\}]+':
     type: object
-    $ref: "#/definitions/resources"
+    $ref: "definitions.schema.yaml#/definitions/resources"
     description: >-
         resources configuration for specific regions, treatments and
         other factors
   '^analysis/[0-9a-zA-Z-_]+':
     type: object
+    $ref: "definitions.schema.yaml#/definitions/analysis"
     default:
       input: null
     description: >-
@@ -97,57 +98,5 @@ patternProperties:
         variant calls. There are three properties filters, statistics,
         and plots that define different data operations. The output
         directories are numbered according to occurence.
-    properties:
-      description:
-        type: string
-        description: >-
-            Description of analysis set
-      input:
-        type: [string, array, 'null']
-        default: null
-        description: >-
-            WIP: alternative input directory
-        items:
-          type: string
-          uniqueItems: true
-      regions:
-        type: array
-        description: >-
-            restrict analyses to listed regions
-        items:
-          type: string
-          uniqueItems: true
-      sex:
-        type: string
-        description: >-
-            restrict analyses to listed sex
-        items:
-          type: string
-          uniqueItems: true
-          enum: ['male', 'female', 'common', 'haploid']
-      samples:
-        type: array
-        description: >-
-            restrict analyses to listed samples
-      filters:
-        description: >-
-          The filters property lists what filters to apply to input
-          data. They are applied sequentially, in the case that multiple
-          filters are defined.
-        default: {}
-        $ref: "definitions.schema.yaml#/definitions/filters"
-      statistics:
-        description: >-
-          The statistics property lists what statistics to apply to
-          the filtered data
-        default: {}
-        $ref: "definitions.schema.yaml#/definitions/statistics"
-      plots:
-        description: >-
-          The plots property lists plots to apply to statistics
-        default: {}
-        $ref: "definitions.schema.yaml#/definitions/plots"
-    required: ['input', 'description']
-    additionalProperties: false
 
 additionalProperties: false
