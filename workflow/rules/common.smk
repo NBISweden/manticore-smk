@@ -182,12 +182,15 @@ wc = workflow._wildcard_constraints
 config["__workflow_basedir__"] = workflow.basedir
 config["__workflow_workdir__"] = os.getcwd()
 config["__worfklow_commit__"] = None
+config["__worfklow_commit_link__"] = None
 
 try:
     with cd(workflow.basedir, logger):
         logger.info(f"cd to {workflow.basedir}")
-        out = sp.check_output(["git", "rev-parse", "--short", "HEAD"])
-        config["__worfklow_commit__"] = out.decode().strip()
+        commit = sp.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+        commit_short = sp.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+        config["__workflow_commit__"] = commit_short
+        config["__workflow_commit_link__"] = f"https://github.com/NBISweden/manticore-smk/commit/{commit}"
 except Exception as e:
     print(e)
     raise

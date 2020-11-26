@@ -3,7 +3,7 @@ manticore-smk workflow results
 
 manticore-smk_ is a Snakemake workflow for non model organism variant
 calling and population genomics analyses. This analysis is based on
-commit version {{ snakemake.config["__workflow_commit__"] }}.
+commit version {{ snakemake.config["__workflow_commit__"] }}_.
 
 The analysis can be rerun with the following command:
 
@@ -153,7 +153,6 @@ Analyses of pooled samples
 
 
 
-
-
 .. _manticore-smk: https://github.com/NBISweden/manticore-smk
 .. _multiqc.html: file://{{ snakemake.config["__workflow_workdir__"] }}/reports/qc/multiqc.html
+.. _{{ snakemake.config["__workflow_commit__"] }}: {{ snakemake.config["__workflow_commit_link__"] }}
