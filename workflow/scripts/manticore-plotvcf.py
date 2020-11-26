@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import shutil
 import argparse
 import random
 import numpy as np
@@ -10,6 +11,7 @@ import zarr
 import numcodecs
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 
 sns.set_style("white")
 sns.set_style("ticks")
@@ -98,11 +100,12 @@ if __name__ == "__main__":
     )
 
     callset = zarr.open_group(zarr_path, mode="r")
-    print(callset.tree(expand=True))
     g = allel.GenotypeChunkedArray(callset["calldata/GT"])
     n = min(len(g), args.subsample_size)
     gn = g.to_n_alt()
 
     coords, model = do_pca(gn, n, ncomp=2)
-    fig = fig_pca(coords, model, "FOo", sample_population)
+    fig = fig_pca(coords, model, "PCA of first four components", sample_population)
     fig.savefig(output)
+
+    shutil.rmtree(zarr_path)
