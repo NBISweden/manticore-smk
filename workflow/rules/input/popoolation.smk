@@ -24,13 +24,14 @@ def all_popoolation_analysis_input(wildcards):
     """Generate popoolation stats and plot results for an analysis"""
     if len(pools) == 0:
         return {}
+    val = {}
     for k in config.keys():
         if not k.startswith("analysis/"):
             continue
         regions = analysis_subset_regions(k)
         df = analysis_subset_samples(k, pools)
         popkey = f"popoolation.{k}"
-        val = {popkey: []}
+        val[popkey] = []
         pfx = __RESULTS_POOL__ / f"{k}/{{stat}}/{{sample}}.{{region}}.w{{{{window_size}}}}.s{{{{step_size}}}}.{{measure}}.txt.gz"
         statistics = config[k].get("statistics", [])
         if len(statistics) == 0:
