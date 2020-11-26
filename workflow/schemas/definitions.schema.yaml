@@ -204,8 +204,8 @@ definitions:
           script:
             description: what script to use
             type: string
-          facets:
-            description: faceting; try applying some grammar of graphics
+          options:
+            description: options; includes faceting
             type: string
     required: ['description', 'statistic', 'engine']
     additionalProperties: false
@@ -246,7 +246,13 @@ definitions:
       filter:
         type: string
         description: filter name
-        enum: ['bcftools_view', 'gatk_select_variants', 'gatk_jexl_filter_variants', 'popoolation_filter_pileup_by_gtf', 'popoolation_subsample_pileup']
+        enum:
+          - bcftools_view
+          - bcftools_concat
+          - gatk_select_variants
+          - gatk_jexl_filter_variants
+          - popoolation_filter_pileup_by_gtf
+          - popoolation_subsample_pileup
       options:
         type: [string, array]
         description: filter options
@@ -439,6 +445,13 @@ definitions:
         items:
           type: string
           uniqueItems: true
+      group:
+        type: string
+        description:
+          Apply only on a given group
+        enum:
+          - ind
+          - pool
       regions:
         type: array
         description: >-

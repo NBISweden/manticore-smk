@@ -1,4 +1,7 @@
 def all_rawvc_input(wildcards):
+    val = {}
+    if len(individuals) == 0:
+        return val
     regions = list(config['workflow']['regions'].keys())
     pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{region}.vcf.gz")
     val = expand(pfx, region=regions)
@@ -49,11 +52,11 @@ def rawvc_gatk_genotype_gvcfs_input(wildcards):
 
 def _rawvc_vcfs_targets_input(wildcards):
     """Generic function to generate vcf targets to be merged"""
-    pfx = f"{str(__RESULTS__)}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
+    pfx = f"{wildcards.results}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     infiles = expand(pfx, target=list(range(npart)))
     tbi = [f"{x}.tbi" for x in infiles]
-    return {'vcfs': infiles, 'tbi': tbi}
+    return {'vcf': infiles, 'tbi': tbi}
 
 
 

@@ -28,6 +28,7 @@ analysis/gatk_best_practice_snp:
   description: >-
       GATK best practice analysis for snps. Hard filters are applied
       to get a high-quality call set.
+  group: ind
   filters:
     gatk_select_snp:
       description: GATK select snp
@@ -37,8 +38,12 @@ analysis/gatk_best_practice_snp:
       description: GATK filter snps
       filter: gatk_jexl_filter_variants
       options: ["QD < 2.0", "MQ < 40.0", "FS > 60.0", "MQRankSum < -12.5", "ReadPosRankSum < -8.0", "SOR > 3.0"]
+    concat:
+      description: bcftools concatenate inputs
+      filter: bcftools_concat
   plots:
     pca:
+      description: PCA plot of filtered snps
       script: manticore-plotvcf.py
       type: pca
 
@@ -46,6 +51,7 @@ analysis/popoolation_best_practice:
   description: >-
       popoolation best practice. Filter pileups by indels and
       subsample data to target a given coverage.
+  group: pool
   samples:
     - CHS
   filters:

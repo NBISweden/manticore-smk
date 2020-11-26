@@ -140,7 +140,9 @@ def analysis_subset_samples(key, df):
 
 
 def analysis_get_window_config(key, stat):
-    window_size = stat.get("window_size", [10000])
+    if "window_size" not in stat.keys():
+        return None, None
+    window_size = stat.get("window_size", None)
     step_size = stat.get("step_size", window_size)
     try:
         assert len(step_size) == len(window_size)

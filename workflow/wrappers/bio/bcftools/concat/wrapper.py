@@ -13,7 +13,7 @@ ref = snakemake.input.ref
 
 shell(
     "bcftools concat {options} -O z "
-    "{snakemake.input.vcfs} {log} | "
+    "{snakemake.input.vcf} {log} | "
     "bcftools sort -O z {log} | "
     "tee {snakemake.output.vcf} | "
     "bcftools stats -F {ref} - > {snakemake.output.stats}"
