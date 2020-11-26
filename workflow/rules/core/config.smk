@@ -101,6 +101,16 @@ def get_stat_options(wildcards, rulename=None):
     return val
 
 
+def get_plot_options(wildcards, rulename=None):
+    """Get stat engine options"""
+    options = ""
+    if rulename is not None:
+        options = get_params(rulename, "options")
+    analysis = f"analysis/{wildcards.analysis}"
+    plots = config[analysis]["plots"]
+    val = plots[wildcards.label].get("options", options)
+    return val
+
 def analysis_subset_regions(key):
     """Subset regions for a given analysis"""
     allregions = list(config["workflow"]["regions"].keys())

@@ -214,16 +214,27 @@ definitions:
     type: object
     description: plot statistics
     properties:
+      description:
+        type: string
+        description: description of plot
       script:
         type: string
         description: name of script
       type:
         type: string
-        description:  plot type; many of these rely
+        description:  plot type
         enum: ['pca', 'coverage']
+      ext:
+        type: array
+        items:
+          type: string
+          enum: ['png', 'jpg', 'pdf']
+          uniqueItems: true
       options:
         type: string
-        description: options
+        description: options, e.g. faceting
+    required: ['description', 'script', 'type']
+    additionalProperties: false
 
   filter:
     type: object
