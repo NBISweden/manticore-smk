@@ -89,7 +89,8 @@ rule rawvc_bcftools_concat_vcfs_targets:
         vcf = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz",
         tbi = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.tbi",
         stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{region}.vcf.gz.stats"
-    input: unpack(rawvc_bcftools_concat_vcfs_targets_input)
+    input: unpack(rawvc_bcftools_concat_vcfs_targets_input),
+           ref = config["db"]["ref"]
     params:
         extra = get_params("rawvc_bcftools_concat_vcfs_targets", "options")
     resources:
