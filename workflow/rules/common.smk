@@ -15,11 +15,10 @@ from snakemake.utils import logger, validate
 SMK_WRAPPER_VERSION = "0.67.0"
 SMK_WRAPPER_PREFIX_RAW = "https://github.com/snakemake/snakemake-wrappers/raw"
 SMK_WRAPPER_PREFIX = f"{SMK_WRAPPER_PREFIX_RAW}/{SMK_WRAPPER_VERSION}"
-WRAPPER_PREFIX = workflow.wrapper_prefix
+WRAPPER_PREFIX = workflow.wrapper_prefix.rstrip("/")
 if WRAPPER_PREFIX == SMK_WRAPPER_PREFIX_RAW:
     # Change main to version number once we start sem-versioning
-    WRAPPER_PREFIX = "https://raw.githubusercontent.com/nbis/manticore-smk/main/workflow/wrappers"
-
+    WRAPPER_PREFIX = "https://raw.githubusercontent.com/NBISweden/manticore-smk/main/workflow/wrappers"
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
