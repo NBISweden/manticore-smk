@@ -23,8 +23,9 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
     if gather:
         target = ".{target}"# if target == "" else f".{target}"
     sample = f"{wildcards.sample}." if "sample" in wildcards.keys() else ""
+    sex = f"{wildcards.sex}." if "sex" in wildcards.keys() else ""
     if count == 1:
-        fmt = f"{{root}}/{raw_application}/{sample}{wildcards.region}{target}{{ext}}"
+        fmt = f"{{root}}/{raw_application}/{sex}{sample}{wildcards.region}{target}{{ext}}"
         return fmt
     nfilters = len(config[analysis]["filters"])
     ## Look at last step if count is none (for stats and plots)
@@ -34,7 +35,7 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
     num = str(count-1).zfill(2)
     previous_step = list(config[analysis]["filters"].keys())[count - 2]
     previous_filter = config[analysis]["filters"][previous_step]["filter"]
-    fmt = f"{{root}}/{analysis}/{num}_{previous_step}_{previous_filter}/{sample}{wildcards.region}{target}{{ext}}"
+    fmt = f"{{root}}/{analysis}/{num}_{previous_step}_{previous_filter}/{sex}{sample}{wildcards.region}{target}{{ext}}"
     return fmt
 
 
@@ -70,7 +71,7 @@ def manticore_plotvcf_input(wildcards):
 
 
 def get_popoolation_filter_input(wildcards, **kwargs):
-    """Get input for popoolation based rules"""
+    """Get input for popoolation based filtering rules"""
     fmt = get_previous_filtering_step(wildcards, "popoolation")
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     root = f"{wildcards.results}/{wildcards.group}"
@@ -81,4 +82,10 @@ def get_popoolation_filter_input(wildcards, **kwargs):
 
 def get_popoolation2_filter_input(wildcards, **kwargs):
     """Retrieve partitioned input for popoolation2 filters"""
-    pass
+    fmt = get_previous_filtering_step(wildcards, "popoolation2")
+    npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
+    root = f"{wildcards.results}/{wildcards.group}"
+    val = {
+        'sync': expand(fmt, root=root, ext=".sync.gz", target=list(range(npart))),
+    }
+    return val

@@ -21,3 +21,27 @@ definitions:
   popoolation2_gather_parallel_results:
     description: gather parallel results config
     $ref: "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_indel_filtering_filter_sync_by_gtf:
+    description: filter indels
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_indel_filtering_remove_indels:
+    default: {}
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_subsample_synchronized:
+    default: {}
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule"
+
+  popoolation2_fst_sliding:
+    default: {}
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule.window"
+
+  popoolation2_fisher_test:
+    default: {}
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule.window"
+
+  popoolation2_snp_frequency_diff:
+    default: {}
+    $ref:  "definitions.schema.yaml#/definitions/resources.rule"

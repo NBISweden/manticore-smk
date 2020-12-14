@@ -90,6 +90,13 @@ def get_filter_options(wildcards, gatk=False):
     return val
 
 
+def get_filter_input(wildcards):
+    """Get filter input."""
+    analysis = f"analysis/{wildcards.analysis}"
+    filters = config[analysis]["filters"]
+    return filters[wildcards.filtername].get("input", {})
+
+
 def get_stat_options(wildcards, rulename=None):
     """Get stat engine options"""
     options = ""

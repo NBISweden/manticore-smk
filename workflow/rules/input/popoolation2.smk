@@ -39,3 +39,11 @@ def popoolation2_gather_parallel_results_input(wildcards):
     analysis = expand("{{interim_pool}}/popoolation2/{{region}}/{{prefix}}{{repeatmask}}.{{filters}}{partition}.{{analysis}}.{{suffix}}",
                       partition = list(range(npart)), **wildcards)
     return {'analysis': analysis}
+
+
+def popoolation2_filter_pileup_by_gtf_input(wildcards):
+    """Generate indels input file from popoolation2, all samples"""
+    d = get_filter_input(wildcards)
+    if "gtf" in d.keys():
+        return d["gtf"]
+    return "{results}/pool/raw/popoolation2.indels/common.{region}.{target}.mpileup.gz.indels.gtf".format(**wildcards)

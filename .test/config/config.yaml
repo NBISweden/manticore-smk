@@ -70,3 +70,39 @@ analysis/popoolation_best_practice:
       window_size: [10000, 50000]
       step_size: [10000, 50000]
       engine: popoolation
+
+analysis/popoolation2_best_practice:
+  description: >-
+    popoolation2 bestpractice. Filter sync files by indels.
+  group: pool
+  filters:
+    filter_indels:
+      description: Filter sync files by indel
+      filter: popoolation2_indel_filtering_filter_sync_by_gtf
+      options: ""
+    remove_indels:
+      description: FIXME lookup motivation for this step. Based on perl one-liner
+      filter: popoolation2_indel_filtering_remove_indels
+      options: ""
+    subsample_synchronized:
+      description: subsample synchronized file
+      filter: popoolation2_subsample_synchronized
+      options: --max-coverage 8 --target-coverage 1 --method withoutreplace
+  # statistics:
+  #   # FIXME: should be possible to group all windowed statistics
+  #   fst_sliding:
+  #     description: Popoolation2 fst sliding window analyses
+  #     statistic: ["fst"]
+  #     window_size: [10000, 50000]
+  #     step_size: [10000, 50000]
+  #     engine: popoolation2.window
+  #   fisher_test:
+  #     description: Popoolation2 fisher test sliding window analyses
+  #     statistic: ["fisher"]
+  #     window_size: [10000, 50000]
+  #     step_size: [10000, 50000]
+  #     engine: popoolation2.window
+  #   snp_frequency_diff:
+  #     description: Popoolation2 snp frequency diff
+  #     statistic: ["snp_freq_diff"]
+  #     engine: popoolation2

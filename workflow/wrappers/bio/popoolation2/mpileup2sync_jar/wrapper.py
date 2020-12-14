@@ -33,6 +33,7 @@ gzip = "" if snakemake.wildcards.gz == "" else "| gzip -v "
 
 tmp = os.path.basename(tempfile.mkstemp()[1])
 fifo = f"{mpileup}{tmp}.fifo"
+
 if os.path.exists(fifo):
     os.unlink(fifo)
 
@@ -46,7 +47,8 @@ shell(
     "--output /dev/stdout "
     "{options} "
     "--threads {snakemake.threads}  {log} "
-    "{gzip} > {snakemake.output.sync} {zlog} || rm -f {fifo}"
+    "{gzip} > {snakemake.output.sync} {zlog}"
 )
+
 if os.path.exists(fifo):
     os.unlink(fifo)

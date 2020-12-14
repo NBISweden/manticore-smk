@@ -28,7 +28,7 @@ def popoolation_gather_parallel_results_input(wildcards):
 
 
 def popoolation_filter_pileup_by_gtf_input(wildcards):
-    """Generate indels input file from popoolation2, all samples"""
+    """Generate gtf input file from popoolation2, all samples"""
     return "{results}/pool/raw/popoolation.indels/common.{region}.{target}.mpileup.gz.indels.gtf".format(**wildcards)
 
 
