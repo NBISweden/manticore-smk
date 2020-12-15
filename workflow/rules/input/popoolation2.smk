@@ -35,7 +35,6 @@ def popoolation2_samtools_mpileup_input(wildcards):
 
 
 def popoolation2_gather_parallel_results_input(wildcards):
-    print(wildcards)
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     analysis = expand("{{results}}/{{group}}/analysis/{{analysis}}/{{statname}}/{{sex}}.{{region}}{{tag}}.{partition}.{{suffix}}",
                       partition = list(range(npart)), **wildcards)

@@ -9,7 +9,7 @@ rule qc_multiqc:
         runtime = lambda wildcards, attempt: resources("qc_multiqc", "runtime", attempt)
     params: get_params("qc_multiqc", "options")
     log: "logs/{reports}/qc/multiqc.log"
-    wrapper: f"{SMK_WRAPPER_PREFIX}/bio/multiqc"
+    wrapper: f"{WRAPPER_PREFIX}/bio/multiqc"
 
 
 rule qc_fastqc:
