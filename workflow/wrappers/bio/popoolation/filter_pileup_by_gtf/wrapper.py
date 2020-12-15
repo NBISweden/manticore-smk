@@ -7,10 +7,11 @@ __license__ = "MIT"
 
 import os
 import re
+import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
-log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
 script = os.path.join(
@@ -26,14 +27,25 @@ if not os.path.exists(script):
     )
 
 options = snakemake.params.get("options", "")
-pileup = snakemake.output.pileup
+pileup = snakemake.input.pileup
+outfile = re.sub(".gz$", "", str(snakemake.output.pileup))
+tmp = os.path.basename(tempfile.mkstemp()[1])
+fifo = f"{pileup}{tmp}.fifo"
+if os.path.exists(fifo):
+    os.unlink(fifo)
 
-# FIXME: output is truncated if zipped input/output
+shell("mkfifo {fifo}")
+shell("zcat {pileup} > {fifo} &")
+
 shell(
     "perl "
     "{script} "
     "{options} "
-    "--input {snakemake.input.pileup} "
+    "--input {fifo} "
     "--gtf {snakemake.input.gtf} "
-    "--output {pileup} {log}"
+    "--output {outfile} {log}"
 )
+shell("gzip -v {outfile} {log}")
+
+if os.path.exists(fifo):
+    os.unlink(fifo)
