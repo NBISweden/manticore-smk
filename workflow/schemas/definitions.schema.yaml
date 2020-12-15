@@ -175,7 +175,7 @@ definitions:
         description: statistic
         items:
           enum: ['TajD', 'F_ST', 'pi',
-            'theta', 'D', 'fst', 'fisher', 'snp_freq_diff']
+            'theta', 'D', 'fst', 'fet', 'rc', 'pwc']
       engine:
         type: string
         description: what program/engine to use

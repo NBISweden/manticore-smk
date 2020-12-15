@@ -104,7 +104,7 @@ rule popoolation2_subsample_synchronized:
 
 rule popoolation2_fst_sliding:
     """Calculate Fst values using a sliding window approach"""
-    output: fst = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.gz"
+    output: fst = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.txt.gz"
     input: unpack(get_popoolation2_filter_input)
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_fst_sliding", "runtime", attempt)
@@ -118,7 +118,7 @@ rule popoolation2_fst_sliding:
 
 rule popoolation2_fisher_test:
     """Run Fisher exact test to estimate the significance of allele frequency differences"""
-    output: fet = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.gz"
+    output: fet = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.txt.gz"
     input: unpack(get_popoolation2_filter_input)
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_fisher_test", "runtime", attempt)
@@ -133,8 +133,8 @@ rule popoolation2_fisher_test:
 rule popoolation2_snp_frequency_diff:
     """Calculate allele frequency differences"""
     output:
-        rc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc{gz}",
-        pwc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_pwc{gz}"
+        rc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc.txt{gz}",
+        pwc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_pwc.txt{gz}"
     input: unpack(get_popoolation2_filter_input)
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_snp_frequency_diff", "runtime", attempt)
@@ -142,75 +142,23 @@ rule popoolation2_snp_frequency_diff:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_snp_frequency_diff"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
     threads: lambda wildcards: resources("popoolation2_snp_frequency_diff", "threads")
-    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc{gz}.log"
+    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc.txt{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/snp_frequency_diff"
 
 
-## Is this obsolete?
+
 rule popoolation2_gather_parallel_results:
     """Gather results from parallel analyses"""
-    output: analysis = "{interim_pool}/popoolation2/{region}/{prefix}{repeatmask}.{filters}{analysis}.{suffix}"
+    output: analysis = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}{tag}.{suffix}"
     input: unpack(popoolation2_gather_parallel_results_input)
     wildcard_constraints:
-        analysis = "(w\d+.s\d+.fst|sync_rc|sync_pwc|w\d+.s\d+.fet|mpileup.gz.indels)",
-        prefix = "(all|male/all|female/all)",
-        filters = "([\.a-z]+\.|)",
-        suffix = "(gz|gtf)"
+        suffix = "(fet.txt.gz|fst.txt.gz|sync_rc.txt.gz|sync_pwc.txt.gz)",
+        tag = "(|\.w\d+\.s\d+)"
     resources:
         runtime = resources("popoolation2_gather_parallel_results", "runtime")
     params:
         options = get_params("popoolation2_gather_parallel_results", "options")
-    log: "logs/{interim_pool}/popoolation2/{region}/{prefix}{repeatmask}.{filters}{analysis}.{suffix}.log"
+    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}{tag}.{suffix}.log"
     threads: get_params("popoolation2_gather_parallel_results", "threads")
     shell:
         "cat {input.analysis} > {output.analysis}"
-
-
-
-
-# * rule popoolation2_samtools_mpileup
-
-# samtools mpileup -l data/metadata/regions/W-non-PAR.popoolation2.2.rm.bed -B data/interim/pool/black/P1878_102/P1878_102.merge.bam data/interim/pool/blue/P1878_104/P1878_104.merge.bam data/interim/pool/red/P1878_106/P1878_106.merge.bam | gzip -v - > data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gz
-
-
-# * rule popoolation2_indel_filtering_identify_indel_regions
-
-
-# if [ -e data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo ]; then rm -f data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo; fi; mkfifo data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo; zcat data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gz > data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo & perl opt/popoolation2-code/indel_filtering/identify-indel-regions.pl --min-count 1% --indel-window 5 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gz.indels.gtf; rm -f data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gztmppllxrmp5.fifo
-
-
-
-
-# * rule popoolation2_indel_filtering_filter_sync_by_gtf
-
-# perl opt/popoolation2-code/indel_filtering/filter-sync-by-gtf.pl  --gtf data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.mpileup.gz.indels.gtf --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.2.sync --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.2.sync
-
-
-
-# rule popoolation2_indel_filtering_remove_indels
-
-# perl -pe '$_=~s/(\d+:\d+:\d+:\d+:0:)\d+(?)/${1}0/g' data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.2.sync > data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.2.sync
-
-
-
-# rule popoolation2_subsample_synchronized
-
-# perl opt/popoolation2-code/subsample-synchronized.pl --method withoutreplace --target-coverage 25 --max-coverage 70 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.2.sync --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync
-
-
-### Remaining
-# ### Stats
-
-# rule popoolation2_fst_sliding
-
-# perl opt/popoolation2-code/fst-sliding.pl --suppress-noninformative --min-count 2 --min-coverage 25 --max-coverage 10000 --min-covered-fraction .1 --pool-size 25 --window-size 100000 --step-size 100000 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.w100000.s100000.fst; gzip -f -v data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.w100000.s100000.fst
-
-
-
-# rule popoolation2_fisher_test
-
-# perl opt/popoolation2-code/fisher-test.pl --suppress-noninformative --min-count 2 --min-coverage 25 --max-coverage 10000 --min-covered-fraction .1 --window-size 10000 --step-size 10000 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.w10000.s10000.fet; gzip -f -v data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.w10000.s10000.fet
-
-# rule popoolation2_snp_frequency_diff
-
-# perl opt/popoolation2-code/snp-frequency-diff.pl --min-count 2 --min-coverage 25 --max-coverage 10000 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync --output-prefix data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync; gzip -f -v data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync_rc data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync_pwc;

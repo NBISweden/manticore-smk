@@ -28,17 +28,17 @@ if not os.path.exists(snp_frequency_diff):
 
 options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
-rc_out = os.path.splitext(snakemake.output.rc)[0]
-pwc_out = os.path.splitext(snakemake.output.pwc)[0]
-outprefix = re.sub("_rc$", "", rc_out)
+rc_out = re.sub(".gz$", "", snakemake.output.rc)
+pwc_out = re.sub(".gz$", "", snakemake.output.pwc)
+outprefix = re.sub("_rc.txt$", "", rc_out)
 
 shell("gzip -fkdv {sync} {log}")
-syncplain = os.path.splitext(str(sync))[0]
+syncplain = re.sub(".gz$", "", sync)
 shell(
     "perl {snp_frequency_diff} {options} "
     "--input {syncplain} "
     "--output-prefix {outprefix} {log}"
 )
-shell("gzip -vf {rc_out} {log}")
-shell("gzip -vf {pwc_out} {log}")
+shell("gzip -vcf {rc_out} {log} > {snakemake.output.rc}")
+shell("gzip -vcf {pwc_out} {log} > {snakemake.output.pwc}")
 shell("rm -f {syncplain}")

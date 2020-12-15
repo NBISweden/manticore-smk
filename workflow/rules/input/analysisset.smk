@@ -1,7 +1,7 @@
 ## This is hacky!
 engine2output_mapping = {
     'popoolation': "{results}/{group}{analysis}/{{name}}/{{sample}}.{{region}}.w{{{{window_size}}}}.s{{{{step_size}}}}.{{statistic}}.txt.gz",
-    'popoolation2': "{results}/{group}{analysis}/{{name}}/{{sex}}.{{region}}.{{statistic}}.txt.gz",
+    'popoolation2': "{results}/{group}{analysis}/{{name}}/{{sex}}.{{region}}.sync_{{statistic}}.txt.gz",
     'popoolation2.window': "{results}/{group}{analysis}/{{name}}/{{sex}}.{{region}}.w{{{{window_size}}}}.s{{{{step_size}}}}.{{statistic}}.txt.gz",
 }
 

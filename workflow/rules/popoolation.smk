@@ -94,7 +94,6 @@ rule popoolation_variance_sliding:
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/variance_sliding"
 
 
-## Is this obsolete?
 rule popoolation_gather_parallel_results:
     """Gather results from popoolation parallel analyses"""
     output:

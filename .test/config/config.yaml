@@ -99,12 +99,12 @@ analysis/popoolation2_best_practice:
       options: --max-coverage 5
     fisher_test:
       description: Popoolation2 fisher test sliding window analyses
-      statistic: ["fisher"]
+      statistic: ["fet"]
       window_size: [10000, 50000]
       step_size: [10000, 50000]
       engine: popoolation2.window
     snp_frequency_diff:
       description: Popoolation2 snp frequency diff
-      statistic: ["snp_freq_diff"]
+      statistic: ["rc", "pwc"]
       engine: popoolation2
       options: --max-coverage 5
