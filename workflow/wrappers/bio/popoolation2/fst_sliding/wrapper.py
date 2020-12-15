@@ -7,31 +7,50 @@ __license__ = "MIT"
 
 import os
 import re
+import tempfile
 from snakemake.shell import shell
 from snakemake.utils import logger
 
-log = snakemake.log_fmt_shell(stdout=False, stderr=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
 
 conda_prefix = os.getenv("CONDA_PREFIX")
-filter_pileup_by_gtf = os.path.join(
-    conda_prefix, "opt/popoolation-code/basic-pipeline/filter-pileup-by-gtf.pl"
-)
+fst_sliding = os.path.join(conda_prefix, "opt/popoolation2-code/fst-sliding.pl")
 
-if not os.path.exists(filter_pileup_by_gtf):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
+if not os.path.exists(fst_sliding):
+    logger.info("Popoolation2 not installed: checking out code with subversion")
+    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
     shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation/code/trunk "
-        "{popoolation_code}"
+        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
+        "{popoolation2_code}"
     )
 
 options = snakemake.params.get("options", "")
+sync = snakemake.input.sync
+outfile = os.path.splitext(snakemake.output.fst)[0]
 
+
+samples = snakemake.params.samples
+config = snakemake.config
+sex = snakemake.wildcards.sex
+if sex not in config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]:
+    sex = "common"
+ploidy = config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
+pool_size = samples["size"].tolist()
+if len(set(pool_size)) == 1:
+    pool_size = pool_size[0] * ploidy
+else:
+    pool_size = ":".join([x * ploidy for x in pool_size])
+
+## NB: fifos won't work because the script reads the input twice to get the max coverage
+shell("gzip -fkdv {sync} {log}")
+syncplain = os.path.splitext(str(sync))[0]
 shell(
-    "perl "
-    "{filter_pileup_by_gtf} "
-    "{options} "
-    "--input {snakemake.input.pileup} "
-    "--gtf {snakemake.input.gtf} "
-    "--output {snakemake.output.pileup} "
+    "perl {fst_sliding} {options} "
+    "--window-size {snakemake.wildcards.window_size} "
+    "--step-size {snakemake.wildcards.step_size} "
+    "--pool-size {pool_size} "
+    "--input {syncplain} "
+    "--output {outfile} {log}"
 )
+shell("gzip -vf {outfile} {log}")
+shell("rm -f {syncplain}")

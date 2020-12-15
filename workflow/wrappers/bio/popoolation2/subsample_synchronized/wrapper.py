@@ -34,8 +34,6 @@ outfile = os.path.splitext(snakemake.output.sync)[0]
 shell("gzip -fkdv {sync} {log}")
 syncplain = os.path.splitext(str(sync))[0]
 
-shell(
-    "perl {subsample_sync} {options} " "--input {syncplain} " "--output {outfile} {log}"
-)
+shell("perl {subsample_sync} {options} --input {syncplain} --output {outfile} {log}")
 shell("gzip -v {outfile} {log}")
 shell("rm -f {syncplain}")

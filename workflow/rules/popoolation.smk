@@ -83,8 +83,7 @@ rule popoolation_variance_sliding:
     output: txt = temp("{results}/{group}/analysis/{analysis}/{statname}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.{target}.txt.gz")
     input: unpack(get_popoolation_filter_input)
     wildcard_constraints:
-        measure = "(pi|theta|D)",
-        filters = "([\.a-z]+|)"
+        measure = "(pi|theta|D)"
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation_variance_sliding", "runtime", attempt)
     params:
@@ -95,6 +94,7 @@ rule popoolation_variance_sliding:
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/variance_sliding"
 
 
+## Is this obsolete?
 rule popoolation_gather_parallel_results:
     """Gather results from popoolation parallel analyses"""
     output:

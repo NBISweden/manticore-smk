@@ -1,7 +1,9 @@
 channels:
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - perl
+  - perl-text-nsp
   - subversion
   - svn

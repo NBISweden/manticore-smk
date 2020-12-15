@@ -88,21 +88,23 @@ analysis/popoolation2_best_practice:
       description: subsample synchronized file
       filter: popoolation2_subsample_synchronized
       options: --max-coverage 8 --target-coverage 1 --method withoutreplace
-  # statistics:
-  #   # FIXME: should be possible to group all windowed statistics
-  #   fst_sliding:
-  #     description: Popoolation2 fst sliding window analyses
-  #     statistic: ["fst"]
-  #     window_size: [10000, 50000]
-  #     step_size: [10000, 50000]
-  #     engine: popoolation2.window
-  #   fisher_test:
-  #     description: Popoolation2 fisher test sliding window analyses
-  #     statistic: ["fisher"]
-  #     window_size: [10000, 50000]
-  #     step_size: [10000, 50000]
-  #     engine: popoolation2.window
-  #   snp_frequency_diff:
-  #     description: Popoolation2 snp frequency diff
-  #     statistic: ["snp_freq_diff"]
-  #     engine: popoolation2
+  statistics:
+    # FIXME: should be possible to group all windowed statistics
+    fst_sliding:
+      description: Popoolation2 fst sliding window analyses
+      statistic: ["fst"]
+      window_size: [10000, 50000]
+      step_size: [10000, 50000]
+      engine: popoolation2.window
+      options: --max-coverage 5
+    fisher_test:
+      description: Popoolation2 fisher test sliding window analyses
+      statistic: ["fisher"]
+      window_size: [10000, 50000]
+      step_size: [10000, 50000]
+      engine: popoolation2.window
+    snp_frequency_diff:
+      description: Popoolation2 snp frequency diff
+      statistic: ["snp_freq_diff"]
+      engine: popoolation2
+      options: --max-coverage 5

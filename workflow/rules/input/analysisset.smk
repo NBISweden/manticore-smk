@@ -10,12 +10,7 @@ plot2output_mapping = {
     'manticore-plotvcf.py': "{results}/{group}{analysis}/plots/{{label}}/plot.{{plottype}}.{{region}}.{{ext}}"
 }
 
-
-
-
-
 def all_analysisset_input(wildcards):
-
     def _update_wildcards(analysis, group):
         d = {}
         if isinstance(wildcards, snakemake.io.Wildcards):
@@ -24,6 +19,8 @@ def all_analysisset_input(wildcards):
             d.update(**{'analysis': analysis})
         if "results" not in wildcards:
             d.update(**{'results': __RESULTS__})
+        if "sex" not in wildcards:
+            d.update(**{'sex': 'common'})
         if "group" not in wildcards:
             if group is None:
                 group = ""
@@ -51,6 +48,7 @@ def all_analysisset_input(wildcards):
         wc = _update_wildcards(k, group)
         regions = analysis_subset_regions(k)
         df = analysis_subset_samples(k, df)
+        sex = analysis_subset_sex(k, df)
         val[k] = []
         statistics = config[k].get("statistics", [])
         plots = config[k].get("plots", [])
@@ -60,7 +58,12 @@ def all_analysisset_input(wildcards):
         for key, stat in statistics.items():
             pfx = engine2output_mapping[stat['engine']]
             pfx = pfx.format(**wc)
-            res = expand(pfx, sample=df["SM"], name=key, region=regions, statistic=stat['statistic'])
+            kw = {}
+            if "{sample}" in pfx:
+                kw["sample"] = df["SM"]
+            if "{sex}" in pfx:
+                kw["sex"] = "common"
+            res = expand(pfx, name=key, region=regions, statistic=stat['statistic'], **kw)
             window_size, step_size = analysis_get_window_config(key, stat)
             if window_size is not None:
                 res = expand(res, zip, window_size=window_size, step_size=step_size)

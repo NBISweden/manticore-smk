@@ -130,6 +130,18 @@ def analysis_subset_regions(key):
     return regions
 
 
+def analysis_subset_sex(key, df):
+    """Subset sex for a given analysis"""
+    allsex = df["sex"].tolist() + ["common"]
+    sex = [config[key].get("sex", "common")]
+    try:
+        assert set(sex) <= set(allsex)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some sexes undefined: '{sex}'")
+        raise
+    return sex
+
+
 def analysis_subset_samples(key, df):
     """Subset samples for a given analysis based on samples and sex keys"""
     allsamples = df["SM"].tolist()

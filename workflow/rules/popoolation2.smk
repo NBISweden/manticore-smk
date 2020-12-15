@@ -101,6 +101,52 @@ rule popoolation2_subsample_synchronized:
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{filtertype}/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/subsample_synchronized"
 
+
+rule popoolation2_fst_sliding:
+    """Calculate Fst values using a sliding window approach"""
+    output: fst = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.gz"
+    input: unpack(get_popoolation2_filter_input)
+    resources:
+        runtime = lambda wildcards, attempt: resources("popoolation2_fst_sliding", "runtime", attempt)
+    params:
+        options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_fst_sliding"),
+        samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
+    threads: lambda wildcards: resources("popoolation2_fst_sliding", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/fst_sliding"
+
+
+rule popoolation2_fisher_test:
+    """Run Fisher exact test to estimate the significance of allele frequency differences"""
+    output: fet = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.gz"
+    input: unpack(get_popoolation2_filter_input)
+    resources:
+        runtime = lambda wildcards, attempt: resources("popoolation2_fisher_test", "runtime", attempt)
+    params:
+        options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_fisher_test"),
+        samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
+    threads: lambda wildcards: resources("popoolation2_fisher_test", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/fisher_test"
+
+
+rule popoolation2_snp_frequency_diff:
+    """Calculate allele frequency differences"""
+    output:
+        rc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc{gz}",
+        pwc = "{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_pwc{gz}"
+    input: unpack(get_popoolation2_filter_input)
+    resources:
+        runtime = lambda wildcards, attempt: resources("popoolation2_snp_frequency_diff", "runtime", attempt)
+    params:
+        options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_snp_frequency_diff"),
+        samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
+    threads: lambda wildcards: resources("popoolation2_snp_frequency_diff", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{statname}/{sex}.{region}.{target}.sync_rc{gz}.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/snp_frequency_diff"
+
+
+## Is this obsolete?
 rule popoolation2_gather_parallel_results:
     """Gather results from parallel analyses"""
     output: analysis = "{interim_pool}/popoolation2/{region}/{prefix}{repeatmask}.{filters}{analysis}.{suffix}"
@@ -146,12 +192,13 @@ rule popoolation2_gather_parallel_results:
 # perl -pe '$_=~s/(\d+:\d+:\d+:\d+:0:)\d+(?)/${1}0/g' data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.2.sync > data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.2.sync
 
 
-### Remaining
+
 # rule popoolation2_subsample_synchronized
 
 # perl opt/popoolation2-code/subsample-synchronized.pl --method withoutreplace --target-coverage 25 --max-coverage 70 --input data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.2.sync --output data/interim/pool/popoolation2/W-non-PAR/female/all.rm.masked.clean.ds.2.sync
 
 
+### Remaining
 # ### Stats
 
 # rule popoolation2_fst_sliding
