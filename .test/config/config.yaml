@@ -103,6 +103,7 @@ analysis/popoolation2_best_practice:
       window_size: [10000, 50000]
       step_size: [10000, 50000]
       engine: popoolation2.window
+      options: --max-coverage 5
     snp_frequency_diff:
       description: Popoolation2 snp frequency diff
       statistic: ["rc", "pwc"]
