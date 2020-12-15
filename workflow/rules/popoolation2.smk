@@ -24,15 +24,15 @@ rule popoolation2_samtools_mpileup:
 
 rule popoolation2_mpileup2sync_jar:
     """Convert mpileup output to sync format"""
-    output: sync = "{results_pool}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}"
-    input: mpileup = __INTERIM_POOL__ / "raw/popoolation2/{sex}.{region}.{target}.mpileup.gz"
+    output: sync = "{results}/{group}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}"
+    input: mpileup = __INTERIM__ / "{group}/raw/popoolation2/{sex}.{region}.{target}.mpileup.gz"
     resources:
         mem_mb = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "mem_mb", attempt),
         runtime = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "runtime", attempt)
     params:
         java_options = get_params("popoolation2_mpileup2sync_jar", "java_options")
     threads: get_params("popoolation2_mpileup2sync_jar", "threads")
-    log: "logs/{results_pool}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}.log"
+    log: "logs/{results}/{group}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/mpileup2sync_jar"
 
 
