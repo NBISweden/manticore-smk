@@ -87,7 +87,7 @@ def all_sambamba_depth(wildcards):
 def all_bcftools_stats(wildcards):
     if 'bcftools' not in config['workflow']['qc']:
         return []
-    invcf = all_rawvc_input(wildcards)['rawvc'] # + all_variantfilter(wildcards)['variantfilter']
+    invcf = all_rawvc_input(wildcards)['rawvc']
     bn = [re.sub(rf"^{str(__RESULTS__)}", str(__RESULTS__ / "qc/variants"), x) for x in invcf]
     stats = [f"{x}.stats" for x in bn]
     return stats

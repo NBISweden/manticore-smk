@@ -235,11 +235,6 @@ include: "input/rawvc.smk"
 ##############################
 
 ##############################
-# Variant filtering with hard filters
-##############################
-include: "input/variantfilter.smk"
-
-##############################
 # filters
 ##############################
 include: "input/filters.smk"
