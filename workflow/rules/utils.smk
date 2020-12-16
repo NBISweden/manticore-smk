@@ -30,4 +30,11 @@ rule manticore_save_config:
     script: "../scripts/manticore_save_config.py"
 
 
-localrules: manticore_get_external
+rule manticore_save_readme:
+    """Save manticore readme"""
+    output: report("README.md", caption="../report/readme.rst", category="Documentation")
+    log: "logs/manticore_save_readme.log"
+    script: "../scripts/manticore_save_readme.py"
+
+
+localrules: manticore_get_external, manticore_save_config, manticore_save_readme
