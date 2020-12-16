@@ -154,5 +154,5 @@ Analyses of pooled samples
 
 
 .. _manticore-smk: https://github.com/NBISweden/manticore-smk
-.. _multiqc.html: file://{{ snakemake.config["__workflow_workdir__"] }}/reports/qc/multiqc.html
+.. _multiqc.html: ./qc/multiqc.html
 .. _{{ snakemake.config["__workflow_commit__"] }}: {{ snakemake.config["__workflow_commit_link__"] }}

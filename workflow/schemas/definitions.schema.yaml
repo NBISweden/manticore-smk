@@ -453,7 +453,7 @@ definitions:
           uniqueItems: true
       group:
         type: string
-        description:
+        description: >-
           Apply only on a given group
         enum:
           - ind
