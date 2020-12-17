@@ -2,6 +2,7 @@ rule all_qc:
     input: __REPORTS__ / "qc/multiqc.html",
            unpack(all_multiqc)
 
+
 rule qc_multiqc:
     output: "{reports}/qc/multiqc.html"
     input: unpack(all_multiqc)
