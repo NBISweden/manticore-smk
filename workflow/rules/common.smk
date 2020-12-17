@@ -24,8 +24,15 @@ if WRAPPER_PREFIX == SMK_WRAPPER_PREFIX_RAW:
 # with --use-conda --use-singularity
 container: "docker://continuumio/miniconda3"
 
+
+##################################################
+# Core configuration
+##################################################
+include: "core/config.smk"
+
 ##### load config and sample sheets #####
 configfile: "config/config.yaml"
+preprocess_config(config)
 validate(config, schema="../schemas/config.schema.yaml")
 
 ##############################
@@ -95,11 +102,6 @@ if config["workflow"]["trim"] and len(reads) > 0:
 # Save current base dir for later validation in functions
 BASEDIR = workflow.current_basedir
 
-
-##################################################
-# Core configuration
-##################################################
-include: "core/config.smk"
 
 ##############################
 ## Wildcard constraints

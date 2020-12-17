@@ -1,7 +1,28 @@
+from collections import OrderedDict
 import contextlib
 
 class PloidyException(Exception):
     pass
+
+
+def preprocess_config(config):
+    """Update filter defaults"""
+    def _update_section(k, section):
+        values = config[k].get(section, [])
+        updated = []
+        for v in values:
+            assert len(v.keys()) == 1, f"more than one key defined in filter: {v}"
+            key = list(v.keys())[0]
+            if v[key] is None:
+                v[key] = OrderedDict({})
+            updated.append(v)
+        config[k][section] = updated
+
+    for k in config.keys():
+        if not k.startswith("analysis/"):
+            continue
+        _update_section(k, "filters")
+        #_update_section(k, "statistics")
 
 
 def get_app_params(wildcards, rule):
