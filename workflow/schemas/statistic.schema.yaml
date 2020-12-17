@@ -18,22 +18,31 @@ definitions:
         type: [string, array]
         description: statistic
         items:
-          enum: ['TajD', 'F_ST', 'pi',
-            'theta', 'D', 'fst', 'fet', 'rc', 'pwc']
-      engine:
+          uniqueItems: true
+          enum:
+            - TajD
+            - pi
+            - theta
+            - D
+            - fst
+            - fet
+            - rc
+            - pwc
+      tool:
         type: string
-        description: what program/engine to use
-        enum: ['scikit-allel', 'popoolation', 'popoolation2', 'popoolation2.window', 'vcftools']
+        description: >-
+          what program/backend to use. Note that no attempt is made to
+          match statistics to a specific tool
+        enum: ['scikit-allel', 'popoolation', 'popoolation2', 'vcftools']
       options:
-        description: options for engine
-        $ref: "defitions.schema.yaml#/definitions/options"
-      window_size:
-        $ref: "definitions.schema.yaml#/definitions/step_size"
-      step_size:
-        $ref: "definitions.schema.yaml#/definitions/step_size"
-      mask:
+        description: tool options
+        $ref: "definitions.schema.yaml#/definitions/options"
+      mask: # Should be added to list of inputs
         type: string
         description: mask to be applied to statistic
+      # Very work in progress: could include in plot section but here
+      # it would make sense to take the output(s) of a statistic and
+      # make plots (e.g. windowed plots)
       plot:
         type: object
         properties:
@@ -43,16 +52,27 @@ definitions:
           options:
             description: options; includes faceting
             type: string
-    required: ['description', 'statistic', 'engine']
-    additionalProperties: false
+    required: ["statistic"]
 
+  statistic.windowed:
+    type: object
+    description: >-
+        windowed statistic
+    allOf:
+      - properties:
+          window_size:
+            $ref: "definitions.schema.yaml#/definitions/window_size"
+          step_size:
+            $ref: "definitions.schema.yaml#/definitions/step_size"
+      - $ref: "#/definitions/statistic"
+    required: ["window_size"]
 
   plainStatistic:
     type: object
     description: >-
       plain statistic
     properties:
-      statistic:
+      plain_statistic:
         type: object
         $ref: "#/definitions/statistic"
     additionalProperties: false
@@ -64,7 +84,7 @@ definitions:
     properties:
       windowed_statistic:
         type: object
-        $ref: "#/definitions/statistic"
+        $ref: "#/definitions/statistic.windowed"
     additionalProperties: false
 
   analysisstatistics:

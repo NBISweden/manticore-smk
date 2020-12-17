@@ -175,8 +175,11 @@ wildcard_constraints:
     repeatmask = wildcards_or(ext["rm"], True),
     sample = wildcards_or(samples),
     sex = wildcards_or(list(definitions["definitions"]["ploidy"]["properties"].keys())),
+    statnum = "[0-9]{2}",
+    statname = "(windowed_statistic|plain_statistic)",
     step_size = "[0-9]+",
     target = "[0-9]+",
+    tool = wildcards_or(definitions["definitions"]["tool"]["enum"])
 
 wc = workflow._wildcard_constraints
 
