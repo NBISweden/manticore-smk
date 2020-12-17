@@ -1,3 +1,70 @@
+rule filter_vcf_select:
+    """Run filter select step on vcf file"""
+    output:
+        vcf = temp("{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz"),
+        tbi = temp("{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.tbi"),
+        cmd = "{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.sh"
+    input:
+        unpack(filter_vcf_input),
+        ref = config['db']['ref']
+    wildcard_constraints:
+        filtername = "select"
+    params:
+        options = lambda wildcards: get_filter_options(wildcards),
+        java_opts = lambda wildcards: get_params("filter_vcf_select", "java_options")
+    resources:
+        runtime = lambda wildcards, attempt: resources("filter_vcf_select", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_select", "mem_mb"),
+    threads: get_params("filter_vcf_select", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_select"
+
+
+rule filter_vcf_filter:
+    """Run filter step on vcf file"""
+    output:
+        vcf = temp("{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz"),
+        tbi = temp("{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.tbi"),
+        cmd = "{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.sh"
+    input:
+        unpack(filter_vcf_input),
+        ref = config['db']['ref']
+    wildcard_constraints:
+        filtername = "filter"
+    params:
+        filters = lambda wildcards: get_filter_options(wildcards, key="filters"),
+        options = lambda wildcards: get_filter_options(wildcards),
+        java_opts = lambda wildcards: get_params("filter_vcf_filter", "java_options")
+    resources:
+        runtime = lambda wildcards, attempt: resources("filter_vcf_filter", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_filter", "mem_mb"),
+    threads: get_params("filter_vcf_filter", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_filter"
+
+
+rule filter_vcf_concat:
+    """Concatenate/merge vcf files"""
+    output:
+        vcf = "{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz",
+        tbi = "{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz.tbi",
+        cmd = "{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz.sh",
+        stats = "{results}/qc/variants/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz.stats"
+    input:
+        unpack(filter_vcf_input),
+        ref = config['db']['ref']
+    wildcard_constraints:
+        filtername = "concat"
+    params:
+        options = lambda wildcards: get_filter_options(wildcards),
+        java_opts = lambda wildcards: get_params("filter_vcf_concat", "java_options")
+    resources:
+        runtime = lambda wildcards, attempt: resources("filter_vcf_concat", "runtime"),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_concat", "mem_mb"),
+    threads: get_params("filter_vcf_concat", "threads")
+    log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz.log"
+    wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_concat"
+
 rule filter_gatk_select_variants:
     """Run analysis filter"""
     output:

@@ -1,0 +1,4 @@
+name: filter concat vcfs
+description: concatenate vcf files
+authors:
+  - Per Unneberg

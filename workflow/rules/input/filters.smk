@@ -14,6 +14,8 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
         # Currently unsure how this would be specified
         return input
     analysis = f"analysis/{wildcards.analysis}"
+    tool = config[analysis].get("tool", None)
+    filters = config[analysis]["filters"]
     raw = "rawvc" if wildcards.group == "ind" else "raw"
     raw_application = f"{raw}/{application}"
     count = None
@@ -27,15 +29,19 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
     if count == 1:
         fmt = f"{{root}}/{raw_application}/{sex}{sample}{wildcards.region}{target}{{ext}}"
         return fmt
-    nfilters = len(config[analysis]["filters"])
+    nfilters = len(filters)
     ## Look at last step if count is none (for stats and plots)
     if count is None:
         count = nfilters + 1
     ## Look at previous filtering step
+    previous_filter = filters[count - 2]
+    previous_filtername = list(previous_filter.keys())[0]
+    previous_tool = previous_filter[previous_filtername].get("tool", tool)
+    if tool is None:
+        logger.error(f"No tool defined for {k}; check configuration file")
+        sys.exit(1)
     num = str(count-1).zfill(2)
-    previous_step = list(config[analysis]["filters"].keys())[count - 2]
-    previous_filter = config[analysis]["filters"][previous_step]["filter"]
-    fmt = f"{{root}}/{analysis}/{num}_{previous_step}_{previous_filter}/{sex}{sample}{wildcards.region}{target}{{ext}}"
+    fmt = f"{{root}}/{analysis}/{num}_{previous_filtername}_{previous_tool}/{sex}{sample}{wildcards.region}{target}{{ext}}"
     return fmt
 
 
@@ -48,6 +54,13 @@ def _get_vcf_tbi_input(wildcards, gather=False):
         'tbi': expand(fmt, root=root, ext=".vcf.gz.tbi", target=list(range(npart)))
     }
     return val
+
+def filter_vcf_input(wildcards):
+    """Get input for filter vcf generic rules"""
+    gather = False
+    if wildcards.filtername == "concat":
+        gather = True
+    return _get_vcf_tbi_input(wildcards, gather)
 
 
 def filter_bcftools_concat_vcfs_input(wildcards):

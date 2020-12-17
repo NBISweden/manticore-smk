@@ -1,0 +1,4 @@
+name: filter vcfs
+description: filter variants based on various statistics and annotations
+authors:
+  - Per Unneberg

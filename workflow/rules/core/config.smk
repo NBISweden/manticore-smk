@@ -100,31 +100,32 @@ def get_analysisnames():
     return analyses
 
 
-def get_filter_options(wildcards, gatk=False):
+def get_filter_options(wildcards, key="options"):
     """Get filter options."""
     analysis = f"analysis/{wildcards.analysis}"
-    filters = config[analysis]["filters"]
-    val = filters[wildcards.filtername].get("options", "")
-    if gatk:
-        val = {f"'GATKStandard({v.split()[0]})'": v for v in val}
+    index = int(wildcards.filternum.lstrip("0")) - 1
+    currentfilter = config[analysis]["filters"][index][wildcards.filtername]
+    val = currentfilter.get(key, "")
     return val
 
 
 def get_filter_input(wildcards):
     """Get filter input."""
     analysis = f"analysis/{wildcards.analysis}"
-    filters = config[analysis]["filters"]
-    return filters[wildcards.filtername].get("input", {})
+    index = int(wildcards.filternum.lstrip("0")) - 1
+    currentfilter = config[analysis]["filters"][index][wildcards.filtername]
+    return currentfilter.get("input", {})
 
 
-def get_stat_options(wildcards, rulename=None):
-    """Get stat engine options"""
+def get_stat_options(wildcards, rulename=None, key="options"):
+    """Get stat tool options"""
     options = ""
     if rulename is not None:
         options = get_params(rulename, "options")
     analysis = f"analysis/{wildcards.analysis}"
-    statistics = config[analysis]["statistics"]
-    val = statistics[wildcards.statname].get("options", options)
+    index = int(wildcards.statnum.lstrip("0")) - 1
+    statistics = config[analysis]["statistics"][index][wildcards.statname]
+    val = statistics.get(key, options)
     return val
 
 

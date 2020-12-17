@@ -1,0 +1,4 @@
+name: filter select vcfs
+description: select variants from vcf file
+authors:
+  - Per Unneberg

@@ -501,6 +501,26 @@ definitions:
       # Variantfilter
       ##############################
 
+      filter_vcf_select:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_select"
+
+      filter_vcf_filter:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_filter"
+
+      filter_vcf_convert:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_convert"
+
+      filter_vcf_concat:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_concat"
+
+      filter_vcf_mask:
+        default: {}
+        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_mask"
+
       filter_gatk_select_variants:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_select_variants"

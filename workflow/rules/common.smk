@@ -160,6 +160,7 @@ wildcard_constraints:
     callset = "rawvc",
     fa = wildcards_or(ext["fa"]),
     fastq = wildcards_or(ext["fastq"]),
+    filternum = "[0-9]{2}",
     filtername = wildcards_or(get_filternames()),
     genome = os.path.splitext(os.path.basename(config['db']['ref']))[0],
     group = "(ind|pool)",
