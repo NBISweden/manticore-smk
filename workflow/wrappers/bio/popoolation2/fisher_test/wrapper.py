@@ -25,7 +25,7 @@ if not os.path.exists(fisher_test):
 # Add Text/NSP/Measures/2D/Fisher/twotailed.pm to search path
 siteperl = f"{conda_prefix}/lib/perl5/site_perl"
 for v in os.listdir(siteperl):
-    os.environ["PERL5LIB"] = f"{siteperl}/{v}:{os.environ['PERL5LIB']}"
+    os.environ["PERL5LIB"] = f"{siteperl}/{v}:{os.environ.get('PERL5LIB', '')}"
 
 options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
