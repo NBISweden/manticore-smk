@@ -19,6 +19,8 @@ workflow:
         common: 2
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
 
+resources.default:
+  java_options: -Xmx1024M
 
 resources:
   popoolation_variance_sliding:
@@ -26,86 +28,51 @@ resources:
 
 analysis/gatk_best_practice_snp:
   description: >-
-      GATK best practice analysis for snps. Hard filters are applied
-      to get a high-quality call set.
+    GATK best practice analysis for snps. Hard filters are applied
+    to get a high-quality call set.
   group: ind
+  tool: gatk
   filters:
-    gatk_select_snp:
-      description: GATK select snp
-      filter: gatk_select_variants
-      options: --select-type-to-include SNP
-    gatk_filter:
-      description: GATK filter snps
-      filter: gatk_jexl_filter_variants
-      options: ["QD < 2.0", "MQ < 40.0", "FS > 60.0", "MQRankSum < -12.5", "ReadPosRankSum < -8.0", "SOR > 3.0"]
-    concat:
-      description: bcftools concatenate inputs
-      filter: bcftools_concat
-  plots:
-    pca:
-      description: PCA plot of filtered snps
-      script: manticore-plotvcf.py
-      type: pca
+    - select:
+        options: --select-type-to-include SNP
+    - filter:
+        filters: ["QD < 2.0", "MQ < 40.0", "FS > 60.0", "MQRankSum < -12.5", "ReadPosRankSum < -8.0", "SOR > 3.0"]
+    - concat:
+        tool: bcftools
+
 
 analysis/popoolation_best_practice:
   description: >-
-      popoolation best practice. Filter pileups by indels and
-      subsample data to target a given coverage.
+    Popoolation best practice analysis of individual pools.
   group: pool
-  samples:
-    - CHS
+  tool: popoolation
   filters:
-    filter_pileup_by_indels:
-      description: filter pileup by indel gtf
-      filter: popoolation_filter_pileup_by_gtf
-      options: ""
-    subsample_pileup:
-      description: subsample pileup by coverage
-      filter: popoolation_subsample_pileup
-      options: --method withoutreplace --fastq-type sanger --target-coverage 2 --max-coverage 10 --min-qual 20
+    - mask:
+        description: Remove indels
+    - filter:
+        options: --method withoutreplace --fastq-type sanger --target-coverage 2 --max-coverage 10 --min-qual 20
   statistics:
-    variance_sliding:
-      description: Popoolation variance sliding analysis
-      statistic: ['pi', 'theta']
-      window_size: [10000, 50000]
-      step_size: [10000, 50000]
-      engine: popoolation
+    - windowed_statistic:
+        statistic: ["pi", "theta"]
+        window_size: [10000]
+        options: --min-covered-fraction .1 --fastq-type sanger
+
 
 analysis/popoolation2_best_practice:
   description: >-
-    popoolation2 bestpractice. Filter sync files by indels.
+    Popoolation2 best practice analysis of combined pools.
   group: pool
+  tool: popoolation2
   filters:
-    filter_indels:
-      description: Filter sync files by indel
-      filter: popoolation2_indel_filtering_filter_sync_by_gtf
-      options: ""
-    remove_indels:
-      description: FIXME lookup motivation for this step. Based on perl one-liner
-      filter: popoolation2_indel_filtering_remove_indels
-      options: ""
-    subsample_synchronized:
-      description: subsample synchronized file
-      filter: popoolation2_subsample_synchronized
-      options: --max-coverage 8 --target-coverage 1 --method withoutreplace
+    - mask:
+        description: Remove indels
+    - filter:
+        options: --max-coverage 8 --target-coverage 1 --method withoutreplace
   statistics:
-    # FIXME: should be possible to group all windowed statistics
-    fst_sliding:
-      description: Popoolation2 fst sliding window analyses
-      statistic: ["fst"]
-      window_size: [10000, 50000]
-      step_size: [10000, 50000]
-      engine: popoolation2.window
-      options: --max-coverage 5
-    fisher_test:
-      description: Popoolation2 fisher test sliding window analyses
-      statistic: ["fet"]
-      window_size: [10000, 50000]
-      step_size: [10000, 50000]
-      engine: popoolation2.window
-      options: --max-coverage 5
-    snp_frequency_diff:
-      description: Popoolation2 snp frequency diff
-      statistic: ["rc", "pwc"]
-      engine: popoolation2
-      options: --max-coverage 5
+    - windowed_statistic:
+        statistic: ["fst", "fet"]
+        window_size: [10000]
+        options: --max-coverage 5
+    - plain_statistic:
+        statistic: ["rc", "pwc"]
+        options: --max-coverage 5
