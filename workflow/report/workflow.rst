@@ -16,6 +16,15 @@ The analysis can be rerun with the following command:
    snakemake -j 1 --use-conda -s {{ snakemake.config["__workflow_basedir__"] }}/Snakefile
 {% endif %}
 
+.. note::
+
+   Since the workflow is still work in progress, make sure to first
+   run the commands with the `--dry-run` (`-n`) flag to make sure you
+   don't inadvertedly have to regenerate large parts of the results.
+   Many workflow dependencies are complex and in particular when
+   running smaller parts of the workflow, unexpected things may
+   happen.
+
 
 Workflow summary
 ----------------
