@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: Statistic definitions
+
+type: object
+
+definitions:
+
+  statistic:
+    type: object
+    description: >-
+        population genomic statistic to run on input data
+    properties:
+      description:
+        type: string
+        description: description of statistic
+      statistic:
+        type: [string, array]
+        description: statistic
+        items:
+          enum: ['TajD', 'F_ST', 'pi',
+            'theta', 'D', 'fst', 'fet', 'rc', 'pwc']
+      engine:
+        type: string
+        description: what program/engine to use
+        enum: ['scikit-allel', 'popoolation', 'popoolation2', 'popoolation2.window', 'vcftools']
+      options:
+        description: options for engine
+        $ref: "defitions.schema.yaml#/definitions/options"
+      window_size:
+        $ref: "definitions.schema.yaml#/definitions/step_size"
+      step_size:
+        $ref: "definitions.schema.yaml#/definitions/step_size"
+      mask:
+        type: string
+        description: mask to be applied to statistic
+      plot:
+        type: object
+        properties:
+          script:
+            description: what script to use
+            type: string
+          options:
+            description: options; includes faceting
+            type: string
+    required: ['description', 'statistic', 'engine']
+    additionalProperties: false
+
+
+  plainStatistic:
+    type: object
+    description: >-
+      plain statistic
+    properties:
+      statistic:
+        type: object
+        $ref: "#/definitions/statistic"
+    additionalProperties: false
+
+  windowedStatistic:
+    type: object
+    description: >-
+      windowed statistic
+    properties:
+      windowed_statistic:
+        type: object
+        $ref: "#/definitions/statistic"
+    additionalProperties: false
+
+  analysisstatistics:
+    type: array
+    description: >-
+        calculate statistics on data object
+    items:
+      oneOf:
+      - type: object
+        $ref: "#/definitions/plainStatistic"
+      - type: object
+        $ref: "#/definitions/windowedStatistic"
+
+    # patternProperties:
+    #   "[a-zA-Z0-9_-]":
+    #     $ref: "#/definitions/statistic"
+    # additionalProperties: false

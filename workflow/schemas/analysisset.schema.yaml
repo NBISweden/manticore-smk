@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: >-
+    Analysis set component definitions and configuration
+
+    An analysis set consists of a set of filters, statistics, and
+    plots that are applied to an input data set.
+
+type: object
+
+definitions:
+  analysis:
+    description: >-
+        Analysis set configuration
+    properties:
+      description:
+        type: string
+        description: Description of analysis set
+      input:
+        type: [string, array, 'null']
+        default: null
+        description: >-
+            WIP: alternative input directory
+        items:
+          type: string
+          uniqueItems: true
+      group:
+        description: restrict analyses to sequencing group
+        $ref: "definitions.schema.yaml#/definitions/group"
+      tool:
+        description: set default tool for filters and statistics
+        $ref: "definitions.schema.yaml#/definitions/tool"
+      regions:
+        description: restrict analyses to listed regions
+        $ref: "definitions.schema.yaml#/definitions/regions"
+      sex:
+        description: restrict analyses to listed sex
+        $ref: "definitions.schema.yaml#/definitions/sex"
+      samples:
+        description: restrict analyses to listed samples
+        $ref: "definitions.schema.yaml#/definitions/samples"
+      filters:
+        description: >-
+          The filters property lists what filters to apply to input
+          data. They are applied sequentially, in the case that multiple
+          filters are defined.
+        default: []
+        $ref: "filter.schema.yaml#/definitions/analysisfilters"
+      statistics:
+        description: >-
+          The statistics property lists what statistics to apply to
+          the filtered data
+        default: []
+        $ref: "statistic.schema.yaml#/definitions/analysisstatistics"
+      plots:
+        description: >-
+          The plots property lists plots to apply to statistics
+        default: {}
+        $ref: "plot.schema.yaml#/definitions/analysisplots"
+
+    required: ['input', 'description']
+    additionalProperties: false

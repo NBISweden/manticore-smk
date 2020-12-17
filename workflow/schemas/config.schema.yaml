@@ -7,6 +7,7 @@ type: object
 properties:
   samples:
     type: object
+    description: samplesheet files
     default: {}
     properties:
       individual:
@@ -20,12 +21,9 @@ properties:
         description: samplesheet for pools
         default: null
       ignore:
-        type: array
+        $ref: "definitions.schema.yaml#/definitions/unitids"
         description: list of samples (SM) to exclude in analysis
-        uniqueItems: true
         default: []
-        items:
-          type: string
   reads:
     type: object
     default: {}
@@ -46,12 +44,9 @@ properties:
           - "{SM}_{unit}"
           - "{SM}_{PU}"
       ignore:
-        type: array
+        $ref: "definitions.schema.yaml#/definitions/unitids"
         description: list of reads (unit column) to exclude in analysis
-        uniqueItems: true
         default: []
-        items:
-          type: string
   datasources:
     type: [string, 'null']
     default: null
@@ -89,9 +84,7 @@ patternProperties:
         other factors
   '^analysis/[0-9a-zA-Z-_]+':
     type: object
-    $ref: "definitions.schema.yaml#/definitions/analysis"
-    default:
-      input: null
+    $ref: "analysisset.schema.yaml#/definitions/analysis"
     description: >-
         analysis/ properties define separate analyses that will be
         applied to input data. By default input data will be the raw
