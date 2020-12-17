@@ -80,15 +80,14 @@ def get_variant_filters(rule, wildcards, **kwargs):
     return d
 
 
-
 def get_filternames():
     """Retrieve a list of all filternames defined in config file"""
-    filters = []
-    for key in config.keys():
-        if not key.startswith("analysis/"):
-            continue
-        filters.extend(config[key]["filters"])
-    return filters
+    filternames = []
+    filterdef = load_schema("../schemas/filter.schema.yaml")
+    for k in filterdef["definitions"]["analysisfilters"]["items"]["oneOf"]:
+        fkey = re.sub(".+/", "", k["$ref"])
+        filternames.extend(filterdef["definitions"][fkey]["properties"].keys())
+    return list(set(filternames))
 
 
 def get_analysisnames():
@@ -138,6 +137,7 @@ def get_plot_options(wildcards, rulename=None):
     plots = config[analysis]["plots"]
     val = plots[wildcards.label].get("options", options)
     return val
+
 
 def analysis_subset_regions(key):
     """Subset regions for a given analysis"""
