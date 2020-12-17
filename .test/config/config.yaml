@@ -66,6 +66,7 @@ analysis/popoolation2_best_practice:
   filters:
     - mask:
         description: Remove indels
+    - select:
     - filter:
         options: --max-coverage 8 --target-coverage 1 --method withoutreplace
   statistics:

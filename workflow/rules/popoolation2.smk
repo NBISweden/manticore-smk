@@ -75,7 +75,7 @@ rule popoolation2_indel_filtering_remove_indels:
     input: unpack(get_popoolation2_filter_input)
     wildcard_constraints:
         tool = "popoolation2",
-        filtername = "filter"
+        filtername = "select"
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_remove_indels", "runtime", attempt)
     params:
@@ -91,7 +91,7 @@ rule popoolation2_subsample_synchronized:
         sync = temp("{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}")
     input: unpack(get_popoolation2_filter_input)
     wildcard_constraints:
-        filtername = "select",
+        filtername = "filter",
         tool = "popoolation2"
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_subsample_synchronized", "runtime", attempt)
