@@ -78,7 +78,6 @@ definitions:
       - type: object
         $ref: "#/definitions/windowedStatistic"
 
-    # patternProperties:
-    #   "[a-zA-Z0-9_-]":
-    #     $ref: "#/definitions/statistic"
-    # additionalProperties: false
+  statistic_windowed_vcf:
+    description: Generic windowed statistic config for vcf inputs
+    $ref: "definitions.schema.yaml#/definitions/resources.rule"

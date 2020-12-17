@@ -68,7 +68,7 @@ definitions:
     type: string
     description: tool to run filter/statistic
     default: bcftools
-    enum: ['gatk', 'bcftools', 'popoolation', 'popoolation2']
+    enum: ['gatk', 'bcftools', 'popoolation', 'popoolation2', 'python']
   group:
     type: string
     description: >-
@@ -536,6 +536,14 @@ definitions:
       filter_bcftools_concat_vcfs:
         default: {}
         $ref: "variantfilter.schema.yaml#/definitions/filter_bcftools_concat_vcfs"
+
+      ##############################
+      # Statistics
+      ##############################
+
+      statistic_windowed_vcf:
+        default: {}
+        $ref: "statistic.schema.yaml#/definitions/statistic_windowed_vcf"
 
       ##############################
       # Popoolation
