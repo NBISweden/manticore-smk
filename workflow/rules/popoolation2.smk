@@ -104,7 +104,7 @@ rule popoolation2_subsample_synchronized:
 
 rule popoolation2_fst_sliding:
     """Calculate Fst values using a sliding window approach"""
-    output: fst = "{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.txt.gz"
+    output: fst = temp("{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.txt.gz")
     input: unpack(get_popoolation2_filter_input)
     wildcard_constraints:
         statname = "windowed_statistic",
@@ -121,7 +121,7 @@ rule popoolation2_fst_sliding:
 
 rule popoolation2_fisher_test:
     """Run Fisher exact test to estimate the significance of allele frequency differences"""
-    output: fet = "{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.txt.gz"
+    output: fet = temp("{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.txt.gz")
     input: unpack(get_popoolation2_filter_input)
     wildcard_constraints:
         statname = "windowed_statistic",
@@ -139,8 +139,8 @@ rule popoolation2_fisher_test:
 rule popoolation2_snp_frequency_diff:
     """Calculate allele frequency differences"""
     output:
-        rc = "{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_rc.txt{gz}",
-        pwc = "{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_pwc.txt{gz}"
+        rc = temp("{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_rc.txt{gz}"),
+        pwc = temp("{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_pwc.txt{gz}")
     input: unpack(get_popoolation2_filter_input)
     resources:
         runtime = lambda wildcards, attempt: resources("popoolation2_snp_frequency_diff", "runtime", attempt)
