@@ -29,7 +29,7 @@ def popoolation_gather_parallel_results_input(wildcards):
 
 def popoolation_filter_pileup_by_gtf_input(wildcards):
     """Generate gtf input file from popoolation2, all samples"""
-    return "{results}/pool/raw/popoolation.indels/common.{region}.{target}.mpileup.gz.indels.gtf".format(**wildcards)
+    return "{results}/pool/raw/popoolation2.indels/common.{region}.{target}.mpileup.gz.indels.gtf".format(**wildcards)
 
 
 def popoolation_samtools_filter_mpileup_input(wildcards):
