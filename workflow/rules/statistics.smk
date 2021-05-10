@@ -9,8 +9,8 @@ rule statistic_windowed_vcf:
     params:
         options = lambda wildcards: get_stat_options(wildcards)
     resources:
-        runtime = lambda wildcards, attempt: resources("statistic_windowed_vcf", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("statistic_windowed_vcf", "mem_mb"),
+        runtime = lambda wildcards, attempt: resources("statistic_windowed_vcf", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("statistic_windowed_vcf", "mem_mb", attempt),
     threads: get_params("statistic_windowed_vcf", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/statistic/windowed_vcf"

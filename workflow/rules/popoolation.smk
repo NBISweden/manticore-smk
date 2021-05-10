@@ -107,7 +107,7 @@ rule popoolation_gather_parallel_results:
         filters = "([\.a-z]+\.|)",
         group = "pool"
     resources:
-        runtime = resources("popoolation_gather_parallel_results", "runtime")
+        runtime = lambda wildcards, attempt: resources("popoolation_gather_parallel_results", "runtime", attempt)
     params:
         options = get_params("popoolation_gather_parallel_results", "options")
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sample}{region}.w{window_size}.s{step_size}.{measure}.txt.gz.log"

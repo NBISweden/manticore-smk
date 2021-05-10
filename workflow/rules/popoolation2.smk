@@ -162,7 +162,7 @@ rule popoolation2_gather_parallel_results:
         tag = "(|\.w\d+\.s\d+)",
         group = "pool"
     resources:
-        runtime = resources("popoolation2_gather_parallel_results", "runtime")
+        runtime = lambda wildcards, attempt: resources("popoolation2_gather_parallel_results", "runtime", attempt)
     params:
         options = get_params("popoolation2_gather_parallel_results", "options")
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}{tag}.{suffix}.log"

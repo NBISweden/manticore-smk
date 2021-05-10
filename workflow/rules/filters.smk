@@ -13,8 +13,8 @@ rule filter_vcf_select:
         options = lambda wildcards: get_filter_options(wildcards),
         java_opts = lambda wildcards: get_params("filter_vcf_select", "java_options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_vcf_select", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_vcf_select", "mem_mb"),
+        runtime = lambda wildcards, attempt: resources("filter_vcf_select", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_select", "mem_mb", attempt),
     threads: get_params("filter_vcf_select", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_select"
@@ -36,8 +36,8 @@ rule filter_vcf_filter:
         options = lambda wildcards: get_filter_options(wildcards),
         java_opts = lambda wildcards: get_params("filter_vcf_filter", "java_options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_vcf_filter", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_vcf_filter", "mem_mb"),
+        runtime = lambda wildcards, attempt: resources("filter_vcf_filter", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_filter", "mem_mb", attempt),
     threads: get_params("filter_vcf_filter", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_filter"
@@ -59,8 +59,8 @@ rule filter_vcf_concat:
         options = lambda wildcards: get_filter_options(wildcards),
         java_opts = lambda wildcards: get_params("filter_vcf_concat", "java_options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_vcf_concat", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_vcf_concat", "mem_mb"),
+        runtime = lambda wildcards, attempt: resources("filter_vcf_concat", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_vcf_concat", "mem_mb", attempt),
     threads: get_params("filter_vcf_concat", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{region}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/filter/vcf_concat"
@@ -80,8 +80,8 @@ rule filter_gatk_select_variants:
         extra = lambda wildcards: get_filter_options(wildcards),
         java_opts = lambda wildcards: get_params("filter_gatk_select_variants", "java_options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_gatk_select_variants", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_gatk_select_variants", "mem_mb")
+        runtime = lambda wildcards, attempt: resources("filter_gatk_select_variants", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_gatk_select_variants", "mem_mb", attempt)
     threads: get_params("filter_gatk_select_variants", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{filtertype}/{region}.{target}.vcf.gz.log"
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/gatk/selectvariants"
@@ -103,8 +103,8 @@ rule filter_gatk_jexl_filter_variants:
         extra = lambda wildcards: get_params("filter_gatk_jexl_filter_variants", "options"),
         java_opts = lambda wildcards: get_params("filter_gatk_jexl_filter_variants", "java_options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_gatk_jexl_filter_variants", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_gatk_jexl_filter_variants", "mem_mb")
+        runtime = lambda wildcards, attempt: resources("filter_gatk_jexl_filter_variants", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_gatk_jexl_filter_variants", "mem_mb", attempt)
     threads: get_params("filter_gatk_select_variants", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{filtertype}/{region}.{target}.vcf.gz.log"
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/gatk/variantfiltration"
@@ -124,8 +124,8 @@ rule filter_bcftools_concat_vcfs:
     params:
         extra = get_params("filter_bcftools_concat_vcfs", "options")
     resources:
-        runtime = lambda wildcards, attempt: resources("filter_bcftools_concat_vcfs", "runtime"),
-        mem_mb = lambda wildcards, attempt: resources("filter_bcftools_concat_vcfs", "mem_mb")
+        runtime = lambda wildcards, attempt: resources("filter_bcftools_concat_vcfs", "runtime", attempt),
+        mem_mb = lambda wildcards, attempt: resources("filter_bcftools_concat_vcfs", "mem_mb", attempt)
     threads: get_params("filter_bcftools_concat_vcfs", "threads")
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{filtertype}/{region}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/bcftools/concat"
