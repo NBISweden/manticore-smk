@@ -36,14 +36,13 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
         stagein: mamba install -y -c conda-forge rsync
-    - name: Install popoolation packages
-      run: "ls && ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda"
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.18.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
+        stagein: "ls * && ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda"
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.18.0
       with:
