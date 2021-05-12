@@ -18,14 +18,6 @@ snp_frequency_diff = os.path.join(
     conda_prefix, "opt/popoolation2-code/snp-frequency-diff.pl"
 )
 
-if not os.path.exists(snp_frequency_diff):
-    logger.info("Popoolation2 not installed: checking out code with subversion")
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
-        "{popoolation2_code}"
-    )
-
 options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
 rc_out = re.sub(".txt$", "", re.sub(".gz$", "", snakemake.output.rc))

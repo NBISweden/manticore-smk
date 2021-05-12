@@ -17,14 +17,6 @@ zlog = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
 conda_prefix = os.getenv("CONDA_PREFIX")
 script = os.path.join(conda_prefix, "opt/popoolation-code/Variance-sliding.pl")
 
-if not os.path.exists(script):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation/code/trunk "
-        "{popoolation_code}"
-    )
-
 options = snakemake.params.get("options", "")
 samples = snakemake.params.samples
 config = snakemake.config

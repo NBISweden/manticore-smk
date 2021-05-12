@@ -3,5 +3,3 @@ channels:
   - defaults
 dependencies:
   - perl
-  - subversion
-  - svn

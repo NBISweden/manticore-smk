@@ -18,14 +18,6 @@ script = os.path.join(
     conda_prefix, "opt/popoolation2-code/indel_filtering/identify-indel-regions.pl"
 )
 
-if not os.path.exists(script):
-    logger.info("Popoolation2 not installed: checking out code with subversion")
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
-        "{popoolation2_code}"
-    )
-
 options = snakemake.params.get("options", "")
 
 mpileup = snakemake.input.mpileup
