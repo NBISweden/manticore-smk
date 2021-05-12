@@ -29,13 +29,21 @@ jobs:
       uses: textbook/git-checkout-submodule-action@2.0.0
     - name: Remove failing qualimap from tests
       run: "sed -i -e \"s/, 'qualimap'//g\" .test/config/config.yaml"
+    - name: Install workflow environments
+      uses: snakemake/snakemake-github-action@v1.12.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
+        stagein: mamba install -y -c conda-forge rsync
+    - name: Install popoolation packages
+      run: "/github/workspace/workflow/scripts/manticore_install_popoolation.py --snakefile /github/workspace/workflow/Snakefile --env-dir /github/workspace/.test/.snakemake/conda"
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.12.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --conda-frontend mamba --wrapper-prefix file:///github/workspace/workflow/wrappers"
-        stagein: mamba install -y -c conda-forge rsync
+        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.12.0
       with:
