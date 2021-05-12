@@ -42,9 +42,8 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
-        stagein:
-          - mamba install -y -c conda-forge subversion svn
-          - ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda
+        stagein: 'mamba install -y -c conda-forge subversion svn;
+         ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda'
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.18.0
       with:
