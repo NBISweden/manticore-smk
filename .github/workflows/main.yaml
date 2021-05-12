@@ -11,9 +11,9 @@ jobs:
   Linting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.12.0
+      uses: snakemake/snakemake-github-action@v1.18.0
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -24,28 +24,28 @@ jobs:
     needs: Linting
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
     - name: Remove failing qualimap from tests
       run: "sed -i -e \"s/, 'qualimap'//g\" .test/config/config.yaml"
     - name: Install workflow environments
-      uses: snakemake/snakemake-github-action@v1.12.0
+      uses: snakemake/snakemake-github-action@v1.18.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
         stagein: mamba install -y -c conda-forge rsync
     - name: Install popoolation packages
-      run: "/github/workspace/workflow/scripts/manticore_install_popoolation.py --snakefile /github/workspace/workflow/Snakefile --env-dir /github/workspace/.test/.snakemake/conda"
+      run: "ls && ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda"
     - name: Test workflow (local test data)
-      uses: snakemake/snakemake-github-action@v1.12.0
+      uses: snakemake/snakemake-github-action@v1.18.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
     - name: Test report
-      uses: snakemake/snakemake-github-action@v1.12.0
+      uses: snakemake/snakemake-github-action@v1.18.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
