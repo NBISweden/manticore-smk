@@ -16,12 +16,6 @@ log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 conda_prefix = os.getenv("CONDA_PREFIX")
 fisher_test = os.path.join(conda_prefix, "opt/popoolation2-code/fisher-test.pl")
 
-if not os.path.exists(fisher_test):
-    logger.info("Popoolation2 not installed: checking out code with subversion")
-    source = "https://svn.code.sf.net/p/popoolation2/code/trunk"
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell("svn checkout {source} " "{popoolation2_code}")
-
 # Add Text/NSP/Measures/2D/Fisher/twotailed.pm to search path
 siteperl = f"{conda_prefix}/lib/perl5/site_perl"
 for v in os.listdir(siteperl):

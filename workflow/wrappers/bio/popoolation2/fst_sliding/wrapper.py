@@ -16,14 +16,6 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
 conda_prefix = os.getenv("CONDA_PREFIX")
 fst_sliding = os.path.join(conda_prefix, "opt/popoolation2-code/fst-sliding.pl")
 
-if not os.path.exists(fst_sliding):
-    logger.info("Popoolation2 not installed: checking out code with subversion")
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
-        "{popoolation2_code}"
-    )
-
 options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
 outfile = os.path.splitext(snakemake.output.fst)[0]

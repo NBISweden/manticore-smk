@@ -19,14 +19,6 @@ mem_mb = snakemake.resources.get("mem_mb", 1000)
 conda_prefix = os.getenv("CONDA_PREFIX")
 mpileup2sync = os.path.join(conda_prefix, "opt/popoolation2-code/mpileup2sync.jar")
 
-if not os.path.exists(mpileup2sync):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
-        "{popoolation2_code}"
-    )
-
 options = snakemake.params.get("options", "")
 mpileup = snakemake.input.mpileup
 gzip = "" if snakemake.wildcards.gz == "" else "| gzip -vc "

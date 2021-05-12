@@ -86,7 +86,6 @@ if is_script:
 else:
     import snakemake
     from snakemake.deployment import conda
-    from common import cd
 
     parser = argparse.ArgumentParser(
         description="Install popoolation and popoolation2 in a conda environment"

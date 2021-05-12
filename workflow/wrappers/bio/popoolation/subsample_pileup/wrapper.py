@@ -19,14 +19,6 @@ script = os.path.join(
     conda_prefix, "opt/popoolation-code/basic-pipeline/subsample-pileup.pl"
 )
 
-if not os.path.exists(script):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation_code = os.path.join(conda_prefix, "opt/popoolation-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation/code/trunk "
-        "{popoolation_code}"
-    )
-
 options = snakemake.params.get("options", "")
 tmp = os.path.basename(tempfile.mkstemp()[1])
 pileup = snakemake.input.pileup

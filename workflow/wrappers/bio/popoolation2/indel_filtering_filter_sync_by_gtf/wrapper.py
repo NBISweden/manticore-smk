@@ -18,14 +18,6 @@ filter_pileup_by_gtf = os.path.join(
     conda_prefix, "opt/popoolation2-code/indel_filtering/filter-sync-by-gtf.pl"
 )
 
-if not os.path.exists(filter_pileup_by_gtf):
-    logger.info("Popoolation not installed: checking out code with subversion")
-    popoolation2_code = os.path.join(conda_prefix, "opt/popoolation2-code")
-    shell(
-        "svn checkout https://svn.code.sf.net/p/popoolation2/code/trunk "
-        "{popoolation2_code}"
-    )
-
 options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
 outfile = os.path.splitext(snakemake.output.sync)[0]
