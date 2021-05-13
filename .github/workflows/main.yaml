@@ -35,7 +35,6 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
-        stagein: mamba install -y -c conda-forge rsync
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.18.0
       with:

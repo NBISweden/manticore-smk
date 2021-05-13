@@ -7,7 +7,6 @@ samples:
   individual: config/samples.individual.tsv
   pool: config/samples.pool.tsv
   ignore: ["PUR.HG00731", "PUR.HG00733", "YRI.NA19238", "PUR", "CHS.HG00512"]
-datasources: config/datasources.tsv
 
 workflow:
   trim: true

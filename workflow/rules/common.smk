@@ -72,8 +72,6 @@ individuals = _read_tsv(config["samples"]["individual"], ["SM"],
                         "../schemas/samples.ind.schema.yaml")
 pools = _read_tsv(config["samples"]["pool"], ["SM"],
                   "../schemas/samples.pool.schema.yaml")
-datasources = _read_tsv(config["datasources"], ["data"],
-                        "../schemas/datasources.schema.yaml")
 reads = _read_tsv(config["reads"]["readfile"], ["SM", "unit", "id"],
                   "../schemas/reads.schema.yaml")
 

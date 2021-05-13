@@ -47,10 +47,6 @@ properties:
         $ref: "definitions.schema.yaml#/definitions/unitids"
         description: list of reads (unit column) to exclude in analysis
         default: []
-  datasources:
-    type: [string, 'null']
-    default: null
-    format: uri
   fs:
     $ref: "definitions.schema.yaml#/definitions/fs"
     default: {}
@@ -91,5 +87,3 @@ patternProperties:
         variant calls. There are three properties filters, statistics,
         and plots that define different data operations. The output
         directories are numbered according to occurence.
-
-additionalProperties: false
