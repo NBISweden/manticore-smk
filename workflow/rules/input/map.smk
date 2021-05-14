@@ -44,7 +44,7 @@ def map_sample_target(wildcards):
     """Retrieve mapping sample target name for a given alignment program"""
     df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
     fn = str(__INTERIM__ / f"map/bwa/{{SM}}.bam")
-    bam = [fn.format(**x) for k, x in df.iterrows()]
+    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
     return bam
 
 
@@ -55,16 +55,17 @@ def map_sample_target_bai(wildcards):
 
 
 def map_dedup_sample_target(wildcards):
+    """Return *unique* bam dedup sample targets"""
     df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
     fn = str(__INTERIM__ / "map/bwa/dedup/{SM}.bam")
-    bam = [fn.format(**x) for k, x in df.iterrows()]
+    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
     return bam
 
 def all_map_sample_targets(wildcards):
     """All merged map sample targets for a given alignment program """
     df = reads[reads["id"] == 1]
     fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
-    bam = [fn.format(**x) for k, x in df.iterrows()]
+    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
     return bam
 
 
@@ -75,7 +76,7 @@ def all_map_sample_dedup_targets(wildcards):
     """
     df = reads[reads["id"] == 1 & reads["SM"].isin(individuals["SM"])]
     fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
-    bam = [fn.format(**x) for k, x in df.iterrows()]
+    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
     return bam
 
 
@@ -88,5 +89,5 @@ def map_picard_merge_sam_input(wildcards):
     """
     df = reads[(reads["SM"] == wildcards.sample) & (reads["id"] == 1)]
     fn = str(__INTERIM__/ "map/bwa/{SM}/{unit}.bam")
-    bam = [fn.format(**x) for k, x in df.iterrows()]
+    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
     return bam
