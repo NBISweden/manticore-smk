@@ -3,8 +3,11 @@ def all_rawvc_input(wildcards):
     if len(individuals) == 0:
         return val
     regions = list(config['workflow']['regions'].keys())
+    populations = list(set(individuals["population"].tolist()))
     pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{region}.vcf.gz")
     val = expand(pfx, region=regions)
+    pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{population}.{region}.vcf.gz")
+    val = expand(pfx, region=regions, population=populations)
     tbi = [f"{x}.tbi" for x in val]
     return {'rawvc': val, 'rawvc.tbi': tbi}
 
@@ -23,16 +26,19 @@ def rawvc_gatkhc_targets_input(wildcards):
             'bam': bam, 'bai': bai, 'dict': d}
 
 
-def all_gatkhc_samples(wildcards):
+def all_gatkhc_samples(wildcards, population=None):
     d = dict(wildcards)
     fn = str(__INTERIM__ / "{group}/rawvc/gatkhc/{{SM}}.{target}.{region}.g.vcf.gz").format(**d)
-    return expand(fn, SM=individuals["SM"].tolist())
+    if population is not None:
+        return expand(fn, SM=list(set(individuals["SM"][individuals["population"].isin(population)].tolist())))
+    return expand(fn, SM=list(set(individuals["SM"].tolist())))
 
 
 def rawvc_gatk_genomics_db_import_input(wildcards):
     ref = config['db']['ref']
-    # Want vcfs for all samples, one region
-    vcf = all_gatkhc_samples(wildcards)
+    population = None if wildcards.population == '' else set([wildcards.population])
+    # Want vcfs for all samples, one region, and possibly one population
+    vcf = all_gatkhc_samples(wildcards, population=population)
     tbi = [f"{x}.tbi" for x in vcf]
     targets = os.path.join(
         os.path.dirname(ref), "gatkhc", f"{wildcards.region}.{wildcards.target}.bed")
@@ -42,7 +48,7 @@ def rawvc_gatk_genomics_db_import_input(wildcards):
 def rawvc_gatk_genotype_gvcfs_input(wildcards):
     """Retrieve genomics db databases from raw variant calling"""
     ref = config['db']['ref']
-    db = f"{wildcards.results}/{wildcards.group}/rawvc/gatkhc/genomicsdb/{wildcards.region}.{wildcards.target}.db"
+    db = "{results}/{group}/rawvc/gatkhc/genomicsdb/{population}{dot}{region}.{target}.db".format(**dict(wildcards))
     faext = wildcards_or(ext["fa"])
     d = re.sub(faext, ".dict", ref)
     targets = os.path.join(
@@ -52,7 +58,7 @@ def rawvc_gatk_genotype_gvcfs_input(wildcards):
 
 def _rawvc_vcfs_targets_input(wildcards):
     """Generic function to generate vcf targets to be merged"""
-    pfx = f"{wildcards.results}/{wildcards.group}/rawvc/gatkhc/{wildcards.region}.{{target}}.vcf.gz"
+    pfx = f"{wildcards.results}/{wildcards.group}/rawvc/gatkhc/{wildcards.population}{wildcards.dot}{wildcards.region}.{{target}}.vcf.gz"
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     infiles = expand(pfx, target=list(range(npart)))
     tbi = [f"{x}.tbi" for x in infiles]

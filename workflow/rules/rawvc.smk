@@ -55,7 +55,8 @@ rule rawvc_picard_create_sequence_dictionary:
 
 
 rule rawvc_gatk_genomics_db_import:
-    output: directory("{results}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db")
+    """Import gvcf files to genomics db. By default generates total db and population-based db"""
+    output: directory("{results}/{group}/rawvc/gatkhc/genomicsdb/{population}{dot}{region}.{target}.db")
     input: unpack(rawvc_gatk_genomics_db_import_input)
     params:
         options = get_params("rawvc_gatk_genomics_db_import", "options")
@@ -63,14 +64,14 @@ rule rawvc_gatk_genomics_db_import:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "mem_mb", attempt),
     threads: get_params("rawvc_gatk_genomics_db_import", "threads")
-    log: "logs/{results}/{group}/rawvc/gatkhc/genomicsdb/{region}.{target}.db"
+    log: "logs/{results}/{group}/rawvc/gatkhc/genomicsdb/{population}{dot}{region}.{target}.db"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genomics_db_import"
 
 
 rule rawvc_gatk_genotype_gvcfs:
     output:
-        vcf = "{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz",
-        tbi = "{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.tbi"
+        vcf = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.{target}.vcf.gz",
+        tbi = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.{target}.vcf.gz.tbi"
     input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
         options = get_params("rawvc_gatk_genotype_gvcfs", "options"),
@@ -79,16 +80,16 @@ rule rawvc_gatk_genotype_gvcfs:
         runtime = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "mem_mb", attempt),
     threads: get_params("rawvc_gatk_genotype_gvcfs", "threads")
-    log: "logs/{results}/{group}/rawvc/gatkhc/{region}.{target}.vcf.gz.log"
+    log: "logs/{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
 
 
 rule rawvc_bcftools_concat_vcfs_targets:
     """Concatenate target vcf results with bcftools"""
     output:
-        vcf = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz",
-        tbi = "{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.tbi",
-        stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{region}.vcf.gz.stats"
+        vcf = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz",
+        tbi = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.tbi",
+        stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.stats"
     input: unpack(rawvc_bcftools_concat_vcfs_targets_input),
            ref = config["db"]["ref"]
     params:
@@ -97,7 +98,7 @@ rule rawvc_bcftools_concat_vcfs_targets:
         runtime = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "runtime", attempt),
         mem_mb = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "mem_mb", attempt)
     threads: get_params("rawvc_bcftools_concat_vcfs_targets", "threads")
-    log: "logs/{results}/{group}/rawvc/gatkhc/{region}.vcf.gz.log"
+    log: "logs/{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/bcftools/concat"
 
 
