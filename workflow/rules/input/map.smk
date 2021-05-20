@@ -7,7 +7,7 @@ def all_map_input(wildcards):
 bwa_ext = [".amb", ".ann", ".bwt", ".pac", ".sa"]
 
 def bwa_mem_rg(wildcards):
-    df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample) & (reads["unit"] == wildcards.unit)]
+    df = reads.subset(id=1, samples=wildcards.sample, unit=wildcards.unit).data
     rg = {
         'LB': 'lib',
         'PL': 'ILLUMINA',
@@ -17,15 +17,14 @@ def bwa_mem_rg(wildcards):
     rglist = df.to_dict('rglist')
     assert len(rglist) == 1, "only one sample and unit should match read configuration"
     rg.update(rglist[0])
-    rg['id'] = config['reads']['read_group_fmt'].format(**rglist[0])
+    rg['id'] = cfg['reads']['read_group_fmt'].format(**rglist[0])
     rgstr = r'-R "@RG\tID:{id}LB:{LB}\tPL:{PL}\tSM:{SM}\tPU:{PU}"'.format(**rg)
     return rgstr
 
 
 def bwa_mem_index(wildcards):
     """Retrieve bma mem index"""
-    genome = os.path.splitext(os.path.basename(config['db']['ref']))[0]
-    return f"{wildcards.interim}/map/bwa/index/{genome}"
+    return f"{wildcards.interim}/map/bwa/index/{cfg.genome}"
 
 
 def bwa_mem_index_ext(wildcards):
@@ -36,15 +35,15 @@ def bwa_mem_index_ext(wildcards):
 
 def map_sample_unit_input(wildcards):
     """Retrieve input to a mapping job for a given sample and unit"""
-    df = reads[(reads["SM"] == wildcards.sample) & (reads["unit"] == wildcards.unit)]
-    return sorted(df['reads.trimmed'].to_list())
+    df = reads.subset(SM=wildcards.sample, unit=wildcards.unit)
+    return sorted(df.data['reads.trimmed'].to_list())
 
 
 def map_sample_target(wildcards):
     """Retrieve mapping sample target name for a given alignment program"""
-    df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
+    df = reads.subset(id=1, samples=wildcards.sample)
     fn = str(__INTERIM__ / f"map/bwa/{{SM}}.bam")
-    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
+    bam = [fn.format(SM=x) for x in df.unique_samples]
     return bam
 
 
@@ -56,16 +55,16 @@ def map_sample_target_bai(wildcards):
 
 def map_dedup_sample_target(wildcards):
     """Return *unique* bam dedup sample targets"""
-    df = reads[(reads["id"] == 1) & (reads["SM"] == wildcards.sample)]
+    df = reads.subset(id=1, samples=wildcards.sample)
     fn = str(__INTERIM__ / "map/bwa/dedup/{SM}.bam")
-    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
+    bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
 def all_map_sample_targets(wildcards):
     """All merged map sample targets for a given alignment program """
-    df = reads[reads["id"] == 1]
+    df = reads.subset(id=1)
     fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
-    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
+    bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
 
@@ -74,9 +73,9 @@ def all_map_sample_dedup_targets(wildcards):
 
     Does not apply to pools.
     """
-    df = reads[reads["id"] == 1 & reads["SM"].isin(individuals["SM"])]
+    df = reads.subset(id=1, samples=individuals.unique_samples.tolist())
     fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
-    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
+    bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
 
@@ -87,7 +86,7 @@ def map_picard_merge_sam_input(wildcards):
     sample-level bam file.
 
     """
-    df = reads[(reads["SM"] == wildcards.sample) & (reads["id"] == 1)]
+    df = reads.subset(samples=wildcards.sample, id=1)
     fn = str(__INTERIM__/ "map/bwa/{SM}/{unit}.bam")
-    bam = list(set([fn.format(**x) for k, x in df.iterrows()]))
+    bam = list(set([fn.format(**x) for k, x in df.data.iterrows()]))
     return bam

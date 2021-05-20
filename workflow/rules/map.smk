@@ -4,7 +4,7 @@ rule all_map:
 
 rule map_bwa_link_ref:
     output: "{interim}/map/bwa/index/{genome}.fasta"
-    input: ref = config["db"]["ref"]
+    input: ref = cfg.db["ref"]
     params:
         seq = lambda wildcards, input: os.path.abspath(input.ref)
     log: "logs/{interim}/map/bwa/index/{genome}.fasta.log"
@@ -15,9 +15,9 @@ rule map_samtools_faidx_ref:
     output: "{interim}/map/{prefix}{fa}{bgz}.fai"
     input: "{interim}/map/{prefix}{fa}{bgz}"
     log: "logs/{interim}/map/{prefix}{fa}{bgz}.log"
-    params: get_params("map_samtools_faidx_ref", "options")
+    params: cfg.rule("map_samtools_faidx_ref").params("options")
     resources:
-        runtime = lambda wilcards, attempt: resources("map_samtools_faidx_ref", "runtime", attempt)
+        runtime = lambda wilcards, attempt: cfg.rule("map_samtools_faidx_ref", attempt).resources("runtime")
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/samtools/faidx"
 
 
@@ -25,9 +25,9 @@ rule map_samtools_index:
     output: "{interim}/map/{prefix}{bam}.bai"
     input: "{interim}/map/{prefix}{bam}"
     log: "logs/{interim}/map/{prefix}{bam}.log"
-    params: get_params("map_samtools_index", "options")
+    params: cfg.rule("map_samtools_index").params("options")
     resources:
-        runtime = lambda wilcards, attempt: resources("map_samtools_index", "runtime", attempt)
+        runtime = lambda wilcards, attempt: cfg.rule("map_samtools_index", attempt).resources("runtime")
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/samtools/index"
 
 
@@ -36,12 +36,12 @@ rule map_bwa_index:
     output: expand("{{interim}}/map/bwa/index/{{genome}}{ext}", ext=bwa_ext)
     input: "{interim}/map/bwa/index/{genome}.fasta"
     resources:
-        runtime = lambda wilcards, attempt: resources("map_bwa_index", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("map_bwa_index", attempt).resources("runtime")
     log: "logs/{interim}/map/bwa/index/{genome}.log"
     params:
         prefix = lambda wildcards: f"{wildcards.interim}/map/bwa/index/{wildcards.genome}",
         algorithm = "bwtsw"
-    threads: get_params("map_bwa_index", "threads")
+    threads: cfg.rule("map_bwa_index").threads
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/bwa/index"
 
 
@@ -51,15 +51,15 @@ rule map_bwa_mem:
         index = bwa_mem_index_ext,
         reads = map_sample_unit_input
     resources:
-        runtime = lambda wilcards, attempt: resources("map_bwa_mem", "runtime", attempt)
+        runtime = lambda wilcards, attempt: cfg.rule("map_bwa_mem", attempt).resources("runtime")
     log: "logs/{interim}/map/bwa/{sample}/{unit}.log"
     params:
         index = bwa_mem_index,
-        sort = get_params("map_bwa_mem", "sort"),
-        sort_order = get_params("map_bwa_mem", "sort_order"),
-        sort_extra = get_params("map_bwa_mem", "sort_extra"),
+        sort = cfg.rule("map_bwa_mem").params("sort"),
+        sort_order = cfg.rule("map_bwa_mem").params("sort_order"),
+        sort_extra = cfg.rule("map_bwa_mem").params("sort_extra"),
         extra = bwa_mem_rg
-    threads: get_params("map_bwa_mem", "threads")
+    threads: cfg.rule("map_bwa_mem").threads
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/bwa/mem"
 
 
@@ -67,9 +67,9 @@ rule map_picard_merge_sam:
     output: "{interim}/map/bwa/{sample}.bam"
     input: map_picard_merge_sam_input
     resources:
-        runtime = lambda wildcards, attempt: resources("map_picard_merge_sam", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("map_picard_merge_sam", attempt).resources("runtime")
     log: "logs/{interim}/map/bwa/{sample}.log"
-    threads: get_params("map_picard_merge_sam", "threads")
+    threads: cfg.rule("map_picard_merge_sam").threads
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/picard/mergesamfiles"
 
 localrules: map_bwa_link_ref

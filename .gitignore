@@ -15,3 +15,6 @@ analysis/*
 !.test
 !LICENSE
 !README.md
+/workflow/.snakemake/
+/.test/README.md
+/.gitattributes

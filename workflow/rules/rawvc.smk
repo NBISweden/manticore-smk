@@ -7,19 +7,19 @@ rule rawvc_pybedtools_make_bed_targets:
         bed = "{prefix}/{ind_vc}/{region}.{partition}.bed"
     input: bed = "{prefix}/{region}.bed"
     params:
-        npart = lambda wildcards: config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
+        npart = lambda wildcards: cfg['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     log: "logs/{prefix}/{ind_vc}/{region}.{partition}.log"
     threads: 1
     wrapper: f"{WRAPPER_PREFIX}/bio/pybedtools/make_bed_targets"
 
 
 rule rawvc_samtools_faidx_ref:
-    output: f"{config['db']['ref']}.fai"
-    input: config['db']['ref']
+    output: f"{cfg['db']['ref']}.fai"
+    input: cfg['db']['ref']
     log: "logs/db/ref/samtools_faidx.log"
     params:
-        get_params("rawvc_samtools_faidx_ref", "options")
-    resources: runtime = lambda wildcards, attempt: resources("rawvc_samtools_faidx_ref", "runtime", attempt)
+        cfg.rule("rawvc_samtools_faidx_ref").params("options")
+    resources: runtime = lambda wildcards, attempt: cfg.rule("rawvc_samtools_faidx_ref", attempt).resources("runtime")
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/samtools/faidx"
 
 
@@ -32,25 +32,25 @@ rule rawvc_gatkhc_targets:
         unpack(rawvc_gatkhc_targets_input)
     wildcard_constraints: mode = "(.g|)"
     resources:
-        runtime = lambda wildcards, attempt: resources("rawvc_gatkhc_targets", "runtime", attempt),
-        mem_mb = lambda wildcards, attempt: resources("rawvc_gatkhc_targets", "mem_mb", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("rawvc_gatkhc_targets", attempt).resources("runtime"),
+        mem_mb = lambda wildcards, attempt: cfg.rule("rawvc_gatkhc_targets", attempt).resources( "mem_mb")
     params:
-        options = get_params("rawvc_gatkhc_targets", "options"),
-        annotation = get_params("rawvc_gatkhc_targets", "annotation"),
-        ploidy = lambda wildcards: get_ploidy(wildcards.sample, wildcards.region)
-    threads: get_params("rawvc_gatkhc_targets", "threads")
+        options = cfg.rule("rawvc_gatkhc_targets").params("options"),
+        annotation = cfg.rule("rawvc_gatkhc_targets").params("annotation"),
+        ploidy = lambda wildcards: cfg.ploidy(wildcards.sample, wildcards.region)
+    threads: cfg.rule("rawvc_gatkhc_targets").threads
     log: "logs/{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"
 
 
 rule rawvc_picard_create_sequence_dictionary:
     """Create sequence dictionary"""
-    output: re.sub(wc["fa"], ".dict", config['db']['ref'])
-    input: config['db']['ref']
+    output: re.sub(wc["fa"], ".dict", cfg['db']['ref'])
+    input: cfg['db']['ref']
     params:
-        extra = get_params("rawvc_picard_create_sequence_dictionary", "options")
-    threads: get_params("rawvc_picard_create_sequence_dictionary", "threads")
-    log: f"logs/rawvc/picard/{config['db']['ref']}.dict"
+        extra = cfg.rule("rawvc_picard_create_sequence_dictionary").params("options")
+    threads: cfg.rule("rawvc_picard_create_sequence_dictionary").threads
+    log: f"logs/rawvc/picard/{cfg['db']['ref']}.dict"
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/picard/createsequencedictionary"
 
 
@@ -59,11 +59,11 @@ rule rawvc_gatk_genomics_db_import:
     output: directory("{results}/{group}/rawvc/gatkhc/genomicsdb/{population}{dot}{region}.{target}.db")
     input: unpack(rawvc_gatk_genomics_db_import_input)
     params:
-        options = get_params("rawvc_gatk_genomics_db_import", "options")
+        options = cfg.rule("rawvc_gatk_genomics_db_import").params("options")
     resources:
-        runtime = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "runtime", attempt),
-        mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genomics_db_import", "mem_mb", attempt),
-    threads: get_params("rawvc_gatk_genomics_db_import", "threads")
+        runtime = lambda wildcards, attempt: cfg.rule("rawvc_gatk_genomics_db_import", attempt).resources("runtime"),
+        mem_mb = lambda wildcards, attempt: cfg.rule("rawvc_gatk_genomics_db_import", attempt).resources("mem_mb")
+    threads: cfg.rule("rawvc_gatk_genomics_db_import").threads
     log: "logs/{results}/{group}/rawvc/gatkhc/genomicsdb/{population}{dot}{region}.{target}.db"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genomics_db_import"
 
@@ -74,12 +74,12 @@ rule rawvc_gatk_genotype_gvcfs:
         tbi = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.{target}.vcf.gz.tbi"
     input: unpack(rawvc_gatk_genotype_gvcfs_input)
     params:
-        options = get_params("rawvc_gatk_genotype_gvcfs", "options"),
-        annotation = get_params("rawvc_gatk_genotype_gvcfs", "annotation")
+        options = cfg.rule("rawvc_gatk_genotype_gvcfs").params("options"),
+        annotation = cfg.rule("rawvc_gatk_genotype_gvcfs").params("annotation")
     resources:
-        runtime = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "runtime", attempt),
-        mem_mb = lambda wildcards, attempt: resources("rawvc_gatk_genotype_gvcfs", "mem_mb", attempt),
-    threads: get_params("rawvc_gatk_genotype_gvcfs", "threads")
+        runtime = lambda wildcards, attempt: cfg.rule("rawvc_gatk_genotype_gvcfs", attempt).resources("runtime"),
+        mem_mb = lambda wildcards, attempt: cfg.rule("rawvc_gatk_genotype_gvcfs", attempt).resources("mem_mb")
+    threads: cfg.rule("rawvc_gatk_genotype_gvcfs").threads
     log: "logs/{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.{target}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/genotype_gvcfs"
 
@@ -91,13 +91,13 @@ rule rawvc_bcftools_concat_vcfs_targets:
         tbi = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.tbi",
         stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.stats"
     input: unpack(rawvc_bcftools_concat_vcfs_targets_input),
-           ref = config["db"]["ref"]
+           ref = cfg["db"]["ref"]
     params:
-        extra = get_params("rawvc_bcftools_concat_vcfs_targets", "options")
+        extra = cfg.rule("rawvc_bcftools_concat_vcfs_targets").params("options")
     resources:
-        runtime = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "runtime", attempt),
-        mem_mb = lambda wildcards, attempt: resources("rawvc_bcftools_concat_vcfs_targets", "mem_mb", attempt)
-    threads: get_params("rawvc_bcftools_concat_vcfs_targets", "threads")
+        runtime = lambda wildcards, attempt: cfg.rule("rawvc_bcftools_concat_vcfs_targets", attempt).resources("runtime"),
+        mem_mb = lambda wildcards, attempt: cfg.rule("rawvc_bcftools_concat_vcfs_targets", attempt).resources("mem_mb")
+    threads: cfg.rule("rawvc_bcftools_concat_vcfs_targets").threads
     log: "logs/{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/bcftools/concat"
 

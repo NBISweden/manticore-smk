@@ -14,10 +14,10 @@ rule popoolation2_samtools_mpileup:
     output: pileup = temp("{interim_pool}/raw/popoolation2/{sex}.{region}.{target}.mpileup{gz}")
     input: unpack(popoolation2_samtools_mpileup_input)
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_samtools_mpileup", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_samtools_mpileup", attempt).resources("runtime")
     params:
-        options = get_params("popoolation2_samtools_mpileup", "options")
-    threads: lambda wildcards: resources("popoolation2_samtools_mpileup", "threads")
+        options = cfg.rule("popoolation2_samtools_mpileup").params("options")
+    threads: cfg.rule("popoolation2_samtools_mpileup").threads
     log: "logs/{interim_pool}/raw/popoolation2/{sex}.{region}.{target}.mpileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/samtools_mpileup"
 
@@ -27,11 +27,11 @@ rule popoolation2_mpileup2sync_jar:
     output: sync = "{results}/{group}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}"
     input: mpileup = __INTERIM__ / "{group}/raw/popoolation2/{sex}.{region}.{target}.mpileup.gz"
     resources:
-        mem_mb = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "mem_mb", attempt),
-        runtime = lambda wildcards, attempt: resources("popoolation2_mpileup2sync_jar", "runtime", attempt)
+        mem_mb = lambda wildcards, attempt: cfg.rule("popoolation2_mpileup2sync_jar", attempt).resources("mem_mb"),
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_mpileup2sync_jar", attempt).resources("runtime")
     params:
-        java_options = get_params("popoolation2_mpileup2sync_jar", "java_options")
-    threads: get_params("popoolation2_mpileup2sync_jar", "threads")
+        java_options = cfg.rule("popoolation2_mpileup2sync_jar").params("java_options")
+    threads: cfg.rule("popoolation2_mpileup2sync_jar").threads
     log: "logs/{results}/{group}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/mpileup2sync_jar"
 
@@ -41,11 +41,11 @@ rule popoolation2_indel_filtering_identify_indel_regions:
     output: gtf = "{results_pool}/raw/popoolation2.indels/{sex}.{region}.{target}.mpileup{gz}.indels.gtf"
     input: mpileup = __INTERIM_POOL__ / "raw/popoolation2/{sex}.{region}.{target}.mpileup{gz}"
     resources:
-        mem_mb = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "mem_mb", attempt),
-        runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_identify_indel_regions", "runtime", attempt)
+        mem_mb = lambda wildcards, attempt: cfg.rule("popoolation2_indel_filtering_identify_indel_regions", attempt).resources("mem_mb"),
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_indel_filtering_identify_indel_regions", attempt).resources("runtime")
     params:
-        java_options = get_params("popoolation2_indel_filtering_identify_indel_regions", "java_options")
-    threads: get_params("popoolation2_indel_filtering_identify_indel_regions", "threads")
+        java_options = cfg.rule("popoolation2_indel_filtering_identify_indel_regions").params("java_options")
+    threads: cfg.rule("popoolation2_indel_filtering_identify_indel_regions").threads
     log: "logs/{results_pool}/raw/popoolation2.indels/{sex}.{region}.{target}.mpileup{gz}.indels.gtf.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/indel_filtering_identify_indel_regions"
 
@@ -60,11 +60,11 @@ rule popoolation2_indel_filtering_filter_sync_by_gtf:
         tool = "popoolation2",
         filtername = "mask"
     resources:
-        mem_mb = lambda wildcards, attempt: resources("popoolation2_indel_filtering_filter_sync_by_gtf", "mem_mb", attempt),
-        runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_filter_sync_by_gtf", "runtime", attempt)
+        mem_mb = lambda wildcards, attempt: cfg.rule("popoolation2_indel_filtering_filter_sync_by_gtf", attempt).resources("mem_mb"),
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_indel_filtering_filter_sync_by_gtf", attempt).resources("runtime")
     params:
-        java_options = get_params("popoolation2_indel_filtering_filter_sync_by_gtf", "java_options")
-    threads: get_params("popoolation2_indel_filtering_filter_sync_by_gtf", "threads")
+        java_options = cfg.rule("popoolation2_indel_filtering_filter_sync_by_gtf").params("java_options")
+    threads: cfg.rule("popoolation2_indel_filtering_filter_sync_by_gtf").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/indel_filtering_filter_sync_by_gtf"
 
@@ -77,10 +77,10 @@ rule popoolation2_indel_filtering_remove_indels:
         tool = "popoolation2",
         filtername = "select"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_indel_filtering_remove_indels", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_indel_filtering_remove_indels", attempt).resources("runtime")
     params:
-        options = get_params("popoolation2_indel_filtering_remove_indels", "options")
-    threads: get_params("popoolation2_indel_filtering_remove_indels", "threads")
+        options = cfg.rule("popoolation2_indel_filtering_remove_indels").params("options")
+    threads: cfg.rule("popoolation2_indel_filtering_remove_indels").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/indel_filtering_remove_indels"
 
@@ -94,10 +94,10 @@ rule popoolation2_subsample_synchronized:
         filtername = "filter",
         tool = "popoolation2"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_subsample_synchronized", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_subsample_synchronized", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_filter_options(wildcards)
-    threads: get_params("popoolation2_subsample_synchronized", "threads")
+    threads: cfg.rule("popoolation2_subsample_synchronized").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/subsample_synchronized"
 
@@ -110,11 +110,11 @@ rule popoolation2_fst_sliding:
         statname = "windowed_statistic",
         tool = "popoolation2"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_fst_sliding", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_fst_sliding", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_fst_sliding"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
-    threads: lambda wildcards: resources("popoolation2_fst_sliding", "threads")
+    threads: cfg.rule("popoolation2_fst_sliding").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fst.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/fst_sliding"
 
@@ -127,7 +127,7 @@ rule popoolation2_fisher_test:
         statname = "windowed_statistic",
         tool = "popoolation2"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_fisher_test", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_fisher_test", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_fisher_test"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
@@ -143,7 +143,7 @@ rule popoolation2_snp_frequency_diff:
         pwc = temp("{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_pwc.txt{gz}")
     input: unpack(get_popoolation2_filter_input)
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_snp_frequency_diff", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_snp_frequency_diff", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_snp_frequency_diff"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
@@ -162,10 +162,10 @@ rule popoolation2_gather_parallel_results:
         tag = "(|\.w\d+\.s\d+)",
         group = "pool"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation2_gather_parallel_results", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation2_gather_parallel_results", attempt).resources("runtime")
     params:
-        options = get_params("popoolation2_gather_parallel_results", "options")
+        options = cfg.rule("popoolation2_gather_parallel_results").params("options")
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}{tag}.{suffix}.log"
-    threads: get_params("popoolation2_gather_parallel_results", "threads")
+    threads: cfg.rule("popoolation2_gather_parallel_results").threads
     shell:
         "cat {input.analysis} > {output.analysis}"

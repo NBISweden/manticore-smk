@@ -78,7 +78,7 @@ def all_analysisset_input(wildcards):
         wc = snakemake.io.Wildcards(fromdict=d)
         return wc
 
-    allsamples = pd.concat([pools, individuals])
+    allsamples = pd.concat([pools.data, individuals.data])
     val = {}
 
     for k in config.keys():

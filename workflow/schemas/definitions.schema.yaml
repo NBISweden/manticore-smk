@@ -47,8 +47,8 @@ definitions:
       minimum: 1
   ploidy:
     description: >
-        ploidy for region. Will be adjusted by pool size
-          for pool calls
+        ploidy for region. Will be adjusted by pool size for pool
+        calls. The ploidy keys also define sex levels.
     type: object
     properties:
       common:

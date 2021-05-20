@@ -1,6 +1,6 @@
 rule manticore_save_config:
     """Save manticore configuration"""
-    output: report("config/manticore.config.yaml", caption="../report/config.rst", category="Configuration")
+    output: report("results/config/manticore.config.yaml", caption="../report/config.rst", category="Configuration")
     log: "logs/manticore/manticore_save_config.log"
     script: "../scripts/manticore_save_config.py"
 

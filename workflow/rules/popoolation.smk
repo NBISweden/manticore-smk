@@ -13,7 +13,7 @@ rule popoolation_pybedtools_make_bed_targets:
         bed = "{prefix}/{pool_vc}/{region}.{partition}.bed"
     input: bed = "{prefix}/{region}.bed"
     params:
-        npart = lambda wildcards: config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
+        npart = lambda wildcards: cfg['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     log: "logs/{prefix}/{pool_vc}/{region}.{partition}.log"
     threads: 1
     wrapper: f"{WRAPPER_PREFIX}/bio/pybedtools/make_bed_targets"
@@ -23,7 +23,7 @@ rule popoolation_bedtools_repeatmask:
     """bedtools: apply repeat mask coordinates to interval file"""
     output: "{prefix}.rm.{partition}.bed"
     input: left = "{prefix}.{partition}.bed",
-           right = config['db']['repeats']
+           right = cfg['db']['repeats']
     threads: 1
     log: "logs/{prefix}.rm.{partition}.bed.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/bedtools/subtract"
@@ -34,10 +34,10 @@ rule popoolation_samtools_filter_mpileup:
     output: pileup = "{results_pool}/raw/popoolation/{sample}.{region}.{target}.pileup{gz}"
     input: unpack(popoolation_samtools_filter_mpileup_input)
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation_samtools_filter_mpileup", "runtime", attempt),
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation_samtools_filter_mpileup", attempt).resources("runtime"),
     params:
-        get_params("popoolation_samtools_filter_mpileup", "options")
-    threads: lambda wildcards: resources("popoolation_samtools_filter_mpileup", "threads")
+        cfg.rule("popoolation_samtools_filter_mpileup").params("options")
+    threads: cfg.rule("popoolation_samtools_filter_mpileup").threads
     log: "logs/{results_pool}/raw/popoolation/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/samtools_filter_mpileup"
 
@@ -54,7 +54,7 @@ rule popoolation_filter_pileup_by_gtf:
         filtername = "mask",
         tool = "popoolation"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation_filter_pileup_by_gtf", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation_filter_pileup_by_gtf", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_filter_options(wildcards)
     threads: lambda wildcards: resources("popoolation_filter_pileup_by_gtf", "threads")
@@ -72,7 +72,7 @@ rule popoolation_subsample_pileup:
         filtername = "filter",
         tool = "popoolation"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation_subsample_pileup", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation_subsample_pileup", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_filter_options(wildcards)
     threads: lambda wildcards: resources("popoolation_subsample_pileup", "threads")
@@ -88,7 +88,7 @@ rule popoolation_variance_sliding:
         tool = "popoolation",
         statname = "windowed_statistic"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation_variance_sliding", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation_variance_sliding", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation_variance_sliding"),
         samples = pools
@@ -107,11 +107,11 @@ rule popoolation_gather_parallel_results:
         filters = "([\.a-z]+\.|)",
         group = "pool"
     resources:
-        runtime = lambda wildcards, attempt: resources("popoolation_gather_parallel_results", "runtime", attempt)
+        runtime = lambda wildcards, attempt: cfg.rule("popoolation_gather_parallel_results", attempt).resources("runtime")
     params:
-        options = get_params("popoolation_gather_parallel_results", "options")
+        options = cfg.rule("popoolation_gather_parallel_results").params("options")
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sample}{region}.w{window_size}.s{step_size}.{measure}.txt.gz.log"
-    threads: get_params("popoolation_gather_parallel_results", "threads")
+    threads: cfg.rule("popoolation_gather_parallel_results").threads
     shell:
         "cat {input.analysis} > {output.analysis}"
 
