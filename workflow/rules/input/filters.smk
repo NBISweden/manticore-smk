@@ -1,3 +1,4 @@
+# This step currently fails when looking backwards for population.region targets
 def get_previous_filtering_step(wildcards, application, input=None, gather=False):
     """Retrieve previous step to base analysis on.
 
@@ -27,7 +28,7 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
     sample = f"{wildcards.sample}." if "sample" in wildcards.keys() else ""
     sex = f"{wildcards.sex}." if "sex" in wildcards.keys() else ""
     if count == 1:
-        fmt = f"{{root}}/{raw_application}/{sex}{sample}{wildcards.region}{target}{{ext}}"
+        fmt = f"{{root}}/{raw_application}/{sex}{sample}{wildcards.population}{wildcards.dot}{wildcards.region}{target}{{ext}}"
         return fmt
     nfilters = len(filters)
     ## Look at last step if count is none (for stats and plots)
@@ -41,12 +42,14 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
         logger.error(f"No tool defined for {k}; check configuration file")
         sys.exit(1)
     num = str(count-1).zfill(2)
-    fmt = f"{{root}}/{analysis}/{num}_{previous_filtername}_{previous_tool}/{sex}{sample}{wildcards.region}{target}{{ext}}"
+    fmt = f"{{root}}/{analysis}/{num}_{previous_filtername}_{previous_tool}/{sex}{sample}{wildcards.population}{wildcards.dot}{wildcards.region}{target}{{ext}}"
     return fmt
 
 
 def _get_vcf_tbi_input(wildcards, gather=False):
+    print(wildcards)
     fmt = get_previous_filtering_step(wildcards, "gatkhc", gather=gather)
+    print(fmt)
     npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
     root = f"{wildcards.results}/{wildcards.group}"
     val = {

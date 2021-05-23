@@ -2,11 +2,11 @@ def all_rawvc_input(wildcards):
     val = {}
     if len(individuals.data) == 0:
         return val
-    regions = list(cfg['workflow']['regions'].keys())
+    regions = list(cfg.workflow.regions.keys())
     pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{region}.vcf.gz")
     val = expand(pfx, region=regions)
     pfx = str(__RESULTS__ / "ind/rawvc/gatkhc/{population}.{region}.vcf.gz")
-    val = expand(pfx, region=regions, population=individuals.populations)
+    val.extend(expand(pfx, region=regions, population=individuals.populations))
     tbi = [f"{x}.tbi" for x in val]
     return {'rawvc': val, 'rawvc.tbi': tbi}
 

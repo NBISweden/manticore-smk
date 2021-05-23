@@ -91,7 +91,7 @@ rule rawvc_bcftools_concat_vcfs_targets:
         tbi = "{results}/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.tbi",
         stats = "{results}/qc/variants/{group}/rawvc/gatkhc/{population}{dot}{region}.vcf.gz.stats"
     input: unpack(rawvc_bcftools_concat_vcfs_targets_input),
-           ref = cfg["db"]["ref"]
+           ref = cfg.db.ref
     params:
         extra = cfg.rule("rawvc_bcftools_concat_vcfs_targets").params("options")
     resources:

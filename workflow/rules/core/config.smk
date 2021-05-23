@@ -34,29 +34,50 @@ def cd(path, logger):
         os.chdir(CWD)
 
 
-class Schema(OrderedDict):
+class PropertyDict(OrderedDict):
+    """Simple class that allows for property access"""
     def __init__(self, data):
-        if isinstance(data, str):
-            data = _load_configfile(data, filetype="Schema")
-        elif not isinstance(data, OrderedDict):
-            raise
+        super().__init__(data)
         for k, v in data.items():
-            if isinstance(v, OrderedDict):
-                data[k] = Schema(v)
+            if isinstance(v, dict):
+                v = PropertyDict(v)
+            elif isinstance(v, list):
+                val = []
+                for x in v:
+                    if isinstance(x, dict):
+                        val.append(PropertyDict(x))
+                    else:
+                        val.append(x)
+                v = val
+            else:
+                pass
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if key not in dir(dict()):
+            try:
+                setattr(self, key, value)
+            except Exception as e:
+                print(e)
+                print(key, value)
+                raise
+
+
+class Schema(PropertyDict):
+    def __init__(self, schemafile):
+        self._schemafile = schemafile
+        data = _load_configfile(self.schemafile, filetype="Schema")
         super().__init__(data)
 
-    def __getattr__(self, attr):
-        if attr in self:
-            return self.__getitem__(attr)
-        try:
-            return super().__getattribute__(attr)
-        except AttributeError as e:
-            raise e
 
+    @property
+    def schemafile(self):
+        return self._schemafile
 
 class FilterSchema(Schema):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, schemafile):
+        super().__init__(schemafile)
 
     @property
     def names(self):
@@ -68,6 +89,7 @@ class FilterSchema(Schema):
 
 
 sample_schema = Schema(os.path.join(SCHEMA_DIR, "samples.schema.yaml"))
+reads_schema = Schema(os.path.join(SCHEMA_DIR, "reads.schema.yaml"))
 analysis_schema = Schema(os.path.join(SCHEMA_DIR, "analysisset.schema.yaml"))
 statistic_schema = Schema(os.path.join(SCHEMA_DIR, "statistic.schema.yaml"))
 filter_schema = FilterSchema(os.path.join(SCHEMA_DIR, "filter.schema.yaml"))
@@ -79,7 +101,7 @@ class PloidyException(Exception):
 
 class SampleData:
     _index = ["SM"]
-    _schemafile = os.path.join(SCHEMA_DIR, "samples.schema.yaml")
+    _schemafile = sample_schema.schemafile
 
     def __init__(self, *args, ignore=None):
         self._data = pd.DataFrame()
@@ -140,10 +162,20 @@ class SampleData:
     def subset(self, invert=False, **kw):
         keep = self.data.SM.isin(self.data.SM)
         for k, v in kw.items():
+            if k == "sex" and v == "common":
+                continue
+            if k == "group":
+                if v == "ind":
+                    keep = keep & self.samplesize == 1
+                elif v == "pool":
+                    keep = keep & self.samplesize != 1
+                continue
             if isinstance(v, set):
                 v = list(v)
             if not isinstance(v, list):
                 v = [v]
+            if len(v) == 0:
+                continue
             if k == "samples":
                 keep = keep & self.data.SM.isin(v)
             else:
@@ -163,7 +195,7 @@ class SampleData:
 
 class ReadData(SampleData):
     _index = ["SM", "unit", "id"]
-    _schemafile = os.path.join(SCHEMA_DIR, "reads.schema.yaml")
+    _schemafile = reads_schema.schemafile
 
     def __init__(self, *args, ignore=None, trim=False):
         super().__init__(*args, ignore=ignore)
@@ -186,57 +218,125 @@ class ReadData(SampleData):
         return df
 
 
-class Filter(dict):
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        assert len(self.keys()) == 1,  f"more than one key defined: {v}"
-        self._filter = list(self.keys())[0]
-        if self[self._filter] is None:
-            self[self._filter] = OrderedDict({})
+##############################
+# Config related classes
+##############################
+class AnalysisItem(PropertyDict):
+    def __init__(self, data, analysis, index=0, tool=None):
+        for k, v in data.items():
+            if "tool" not in v.keys():
+                v["tool"] = tool
+                data[k] = v
+        super().__init__(data)
+        assert len(self.keys()) == 1,  f"more than one key defined: {self.keys()}"
+        self._name = list(self.keys())[0]
+        self._index = index
+        self._analysis = analysis
 
     @property
-    def filter(self):
-        return self._filter
+    def name(self):
+        return self._name
+
+    @property
+    def index(self):
+        return self._index + 1
+
+    @property
+    def num(self):
+        return str(self.index).zfill(2)
+
+    @property
+    def group(self):
+        return self._analysis.group
+
+    @property
+    def sex(self):
+        return self._analysis.sex
+
+    @property
+    def tool(self):
+        return self.get("tool")
+
+    @property
+    def prefix(self):
+        return self._analysis.prefix
+
+    @property
+    def populations(self):
+        return self._analysis.populations
+
+    @property
+    def unique_samples(self):
+        return self._analysis.allsamples.unique_samples
+
+    @property
+    def regions(self):
+        return self._analysis.regions.keys()
 
     def get(self, attr):
         """Get an attribute from the default key"""
-        return self[self.filter].get(attr, None)
+        return self[self.name].get(attr, None)
 
 
+class Filter(AnalysisItem):
+    def __init__(self, data, analysis, index=1, tool=None):
+        super().__init__(data, analysis, index=index, tool=tool)
 
-class Statistic(dict):
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-
-
-class Plot(dict):
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-
-
-class Analysis(dict):
-    _section = "analysis"
-
-    def __init__(self, name, data, regions, *args, **kw):
-        super().__init__(data, *args, **kw)
-        self._name = name
-        self["filters"] = [Filter(x) for x in self["filters"]]
-        self._regions = regions
-        self._sex = sample_schema['properties']['sex']['enum']
-
-
-    def __getattr__(self, name):
-        if name in self:
-            return self[name]
+    ## FIXME: hacky solution. Want to return target extension
+    ## depending on group and tool. IOW we want a Tool class...
+    @property
+    def ext(self):
+        """File extension for filter results"""
+        if self.group == "ind":
+            return ".vcf.gz"
+        elif self.group == "pool":
+            if self.tool == "popoolation2":
+                return ".sync.gz"
+            elif self.tool == "popoolation":
+                return ".pileup.gz"
         else:
-            raise AttributeError("No such attribute: " + name)
-
-    def subset(self, by):
-        pass
+            pass
 
     @property
-    def filters(self):
-        return self["filters"]
+    def fmt(self):
+        if self.group == "pool":
+            if self.tool == 'popoolation':
+                out = expand(f"{{sample}}.{{region}}{self.ext}", sample=self.unique_samples, region=self.regions)
+            elif self.tool == 'popoolation2':
+                out = expand(f"{{sex}}.{{region}}{self.ext}", sex=self.sex, region=self.regions)
+        else:
+            out = expand(f"{{region}}{self.ext}", region=self.regions) + \
+                expand(f"{{population}}.{{region}}{self.ext}", region=self.regions, population=self.populations)
+        if isinstance(out, list):
+            return [os.path.join(self.prefix, "_".join([self.num, self.name, self.tool]), o) for o in out]
+        return os.path.join(self.prefix, "_".join([self.num, self.name, self.tool]), out)
+
+
+class Statistic(AnalysisItem):
+    def __init__(self, data, analysis, index=0, tool=None):
+        super().__init__(data, analysis, index=index, tool=tool)
+
+class Plot(AnalysisItem):
+    def __init__(self, data, analysis, index=0, tool=None):
+        super().__init__(data, analysis, index=index, tool=tool)
+
+class Analysis(OrderedDict):
+    _section = "analysis"
+
+    def __init__(self, name, cfg, **kw):
+        self["sex"] = "common"
+        self["regions"] = cfg.workflow.regions
+        self["group"] = None
+        self["samples"] = []
+        self["filters"] = []
+        self["statistics"] = []
+        self["plots"] = []
+        super().__init__(cfg[name])
+        self._results = kw.get("results", "results")
+        self._name = name
+        # Subset samples already here
+        self["allsamples"] = cfg.allsamples.subset(group=self.group, samples=self.samples,
+                                                   sex=self.sex)
 
     @property
     def name(self):
@@ -246,11 +346,61 @@ class Analysis(dict):
     def longname(self):
         return self._name
 
-    def get_filter_options(self):
-        pass
+    @property
+    def filters(self):
+        return [Filter(x, self, index=i, tool=self.tool) for i, x in enumerate(self["filters"])]
+
+    @property
+    def statistics(self):
+        return [Statistic(x, self, index=i, tool=self.tool) for i, x in enumerate(self["statistics"])]
+
+    @property
+    def plots(self):
+        return [Plot(x, self, index=i, tool=self.tool) for i, x in enumerate(self["plots"])]
+
+    @property
+    def group(self):
+        return self["group"]
+
+    @property
+    def tool(self):
+        return self["tool"]
+
+    @property
+    def regions(self):
+        return self["regions"]
+
+    @property
+    def samples(self):
+        return self["samples"]
+
+    @property
+    def allsamples(self):
+        return self["allsamples"]
+
+    @property
+    def populations(self):
+        return self.allsamples.data.population.tolist()
+
+    @property
+    def sex(self):
+        return self["sex"]
+
+    @property
+    def check(self):
+        if len(self.statistics) == 0 and len(self.plots) == 0 and len(self.filters) == 0:
+            logger.info(f"No filters, statistics or plots section for {self.name}: skipping")
+            return False
+        return True
+
+    @property
+    def prefix(self):
+        if self.group is None:
+            return os.path.join(self._results, self.longname)
+        return os.path.join(self._results, self.group, self.longname)
 
 
-class ConfigRule(dict):
+class ConfigRule(PropertyDict):
     def __init__(self, name, attempt=None, *args, **kw):
         self._name = name
         self._attempt = attempt
@@ -267,7 +417,7 @@ class ConfigRule(dict):
         return self._name
 
     @property
-    def threads(self):
+    def xthreads(self):
         return self.attempt * self["threads"]
 
     def resources(self, resource):
@@ -277,44 +427,48 @@ class ConfigRule(dict):
     def params(self, attr):
         return self[attr]
 
-    def __str__(self):
-        return "ConfigRule: " + self.name
+
+class Region(PropertyDict):
+    def __init__(self, name, *args):
+        super().__init__(*args)
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
 
 
-class Config(dict):
+class Config(PropertyDict):
     _analysissection = "analysis"
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         for k in self.keys():
             if k.startswith(f"{self._analysissection}/"):
-                self[k] = Analysis(k, self[k], regions=self.regions)
-
-    def __getattr__(self, attr):
-        if attr in self:
-            return self.__getitem__(attr)
-        try:
-            return super().__getattribute__(attr)
-        except AttributeError as e:
-            raise e
+                self[k] = Analysis(k, self)
+        for k, v in self.workflow.regions.items():
+            self.workflow.regions[k] = Region(k, v)
 
     def rule(self, rulename, attempt=None):
         """Retrieve rule configuration"""
         ruleobj = ConfigRule(rulename, attempt, self['resources.default'])
-        if rulename in self['resources']:
-            ruleobj.update(**self['resources'][rulename])
+        if rulename in self.resources:
+            ruleobj.update(**self.resources[rulename])
         return ruleobj
 
-    # Region should be a class
     @property
     def regions(self):
-        return list(self["workflow"]["regions"].keys())
+        return [v for k, v in self.workflow.regions.items()]
+
+    @property
+    def allsamples(self):
+        return self.get("__allsamples__", None)
 
     def ploidy(self, sample, region, sex=None):
-        rconf = self["workflow"]["regions"][region]
+        rconf = self.workflow.regions[region]
         ploidy = rconf["ploidy"].get("common", 2)
         try:
-            sex = self["__allsamples__"].data.sex.at[sample]
+            sex = self.allsamples.data.sex.at[sample]
         except KeyError as e:
             logger.error("No such sample: %s", e)
         try:
@@ -327,7 +481,7 @@ class Config(dict):
 
     # This should be obtained from FilterSchema?
     def variant_filters(self, rule, vartype):
-        filters = self["resources"][rule]["filters"][vartype]
+        filters = self.resources[rule].filters[vartype]
         d = {f"'GATKStandard({v.split()[0]})'": v for v in filters}
         return d
 
@@ -395,42 +549,43 @@ def get_plot_options(wildcards, rulename=None):
     return val
 
 
-# def analysis_subset_regions(key):
-#     """Subset regions for a given analysis"""
-#     allregions = list(config["workflow"]["regions"].keys())
-#     regions = config[key].get("regions", allregions)
-#     try:
-#         assert set(regions) <= set(allregions)
-#     except AssertionError:
-#         logger.error(f"configuration section '{key}': some regions undefined: '{regions}'")
-#         raise
-#     return regions
+def analysis_subset_regions(key):
+    """Subset regions for a given analysis"""
+    allregions = list(config["workflow"]["regions"].keys())
+    regions = config[key].get("regions", allregions)
+    try:
+        assert set(regions) <= set(allregions)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some regions undefined: '{regions}'")
+        raise
+    return regions
 
 
-# def analysis_subset_sex(key, df):
-#     """Subset sex for a given analysis"""
-#     allsex = df["sex"].tolist() + ["common"]
-#     sex = [config[key].get("sex", "common")]
-#     try:
-#         assert set(sex) <= set(allsex)
-#     except AssertionError:
-#         logger.error(f"configuration section '{key}': some sexes undefined: '{sex}'")
-#         raise
-#     return sex
+def analysis_subset_sex(key, df):
+    """Subset sex for a given analysis"""
+    allsex = df["sex"].tolist() + ["common"]
+    sex = [config[key].get("sex", "common")]
+    try:
+        assert set(sex) <= set(allsex)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some sexes undefined: '{sex}'")
+        raise
+    return sex
 
 
-# def analysis_subset_samples(key, df):
-#     """Subset samples for a given analysis based on samples and sex keys"""
-#     allsamples = df.samples
-#     samplelist = config[key].get("samples", allsamples)
-#     sex = config[key].get("sex", None)
-#     try:
-#         assert set(samplelist) <= set(allsamples)
-#     except AssertionError:
-#         logger.error(f"configuration section '{key}': some samples undefined: '{samplelist}'")
-#         raise
-#     new = df.subset(samplelist, sex)
-#     return new
+def analysis_subset_samples(key, df):
+    """Subset samples for a given analysis based on samples and sex keys"""
+    samplelist = config[key].get("samples", allsamples.unique_samples)
+    sex = config[key].get("sex", None)
+    try:
+        assert set(samplelist) <= set(allsamples.unique_samples)
+    except AssertionError:
+        logger.error(f"configuration section '{key}': some samples undefined: '{samplelist}'")
+        raise
+    df = df[df["SM"].isin(samplelist)]
+    if sex is not None:
+        df = df[df["sex"].isin([sex])]
+    return df
 
 
 def analysis_get_window_config(key, stat):

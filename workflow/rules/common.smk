@@ -33,45 +33,43 @@ include: "core/config.smk"
 
 ##### load config and sample sheets #####
 configfile: "config/config.yaml"
-cfg = Config(config)
-validate(cfg, schema="../schemas/config.schema.yaml")
-# Redundant at present; needed to save config
-# TODO: convert cfg back to regular OrderedDict
+# FIXME: Redundant at present; needed to save config
 preprocess_config(config)
 validate(config, schema="../schemas/config.schema.yaml")
 
+individuals = SampleData(config["samples"].get("individual", None),
+                         ignore=config["samples"].get("ignore", None))
+pools = SampleData(config["samples"].get("pool", None),
+                   ignore=config["samples"].get("ignore", None))
+allsamples = SampleData(individuals, pools)
+reads = ReadData(config["reads"].get("readfile", None),
+                 ignore=config["reads"].get("ignore", None))
+reads = reads.subset(samples=allsamples.unique_samples.tolist())
+
+# FIXME: sometimes access to sample data is necessary in config
+# functions (e.g. when subsetting on population) or calculating
+# ploidy. Then again samples dictionary is not enormous
+config["__allsamples__"] = allsamples
+
+# Wrap config dictionary
+cfg = Config(config)
+
 ##############################
-## Paths
+## Paths - set in and get from config?
 ##############################
-__EXTERNAL__ = Path(cfg["fs"]["external"])
-__INTERIM__ = Path(cfg["fs"]["interim"])
-__INTERIM_POOL__ = Path(cfg["fs"]["interim"]) / "pool"
-__INTERIM_IND__ = Path(cfg["fs"]["interim"]) / "ind"
-__METADATA__ = Path(cfg["fs"]["metadata"])
-__RAW__ = Path(cfg["fs"]["raw"])
+__EXTERNAL__ = Path(cfg.fs.external)
+__INTERIM__ = Path(cfg.fs.interim)
+__INTERIM_POOL__ = Path(cfg.fs.interim) / "pool"
+__INTERIM_IND__ = Path(cfg.fs.interim) / "ind"
+__METADATA__ = Path(cfg.fs.metadata)
+__RAW__ = Path(cfg.fs.raw)
+__RESOURCES__ = Path(cfg.fs.resources)
 __REPORTS__ = Path("reports")
-__RESOURCES__ = Path(cfg["fs"]["resources"])
 __RESULTS__ = Path("results")
 __RESULTS_POOL__ = Path("results") / "pool"
 __RESULTS_IND__ = Path("results") / "ind"
 
-# Save current base dir for later validation in functions
-BASEDIR = workflow.current_basedir
-
-individuals = SampleData(cfg["samples"]["individual"],
-                         ignore=cfg["samples"].get("ignore", None))
-pools = SampleData(cfg["samples"]["pool"],
-                   ignore=cfg["samples"].get("ignore", None))
-allsamples = SampleData(individuals, pools)
-
-# Needed mainly for ploidy calculation
-cfg["__allsamples__"] = allsamples
-
-reads = ReadData(cfg["reads"]["readfile"],
-                 ignore=cfg["reads"].get("ignore", None))
-reads = reads.subset(samples=allsamples.unique_samples.tolist())
-
-if cfg.workflow["trim"]:
+if cfg.workflow.trim:
     reads.trim(__RAW__, __INTERIM__)
 
 ##############################
@@ -106,7 +104,7 @@ wildcard_constraints:
     bam = wildcards_or(ext["bam"]),
     bamfastq = wildcards_or(ext["bam"] + ext["fastq"]),
     bgz = wildcards_or(ext["bgz"], True),
-    caller = wildcards_or(cfg['workflow']['variantcallers']['ind'] + cfg['workflow']['variantcallers']['pool']),
+    caller = wildcards_or(cfg.workflow.variantcallers.ind + cfg.workflow.variantcallers.pool),
     callset = "rawvc",
     dot = "(|.)",
     fa = wildcards_or(ext["fa"]),
@@ -120,13 +118,12 @@ wildcard_constraints:
     kmer = "[0-9]+",
     ossep = "(|/)",
     partition = "[0-9]+",
-    pool_vc = wildcards_or(cfg['workflow']['variantcallers']['pool']),
-    #population = wildcards_or(list(set(individuals["population"].tolist() + pools["population"].tolist())), empty=True),
+    pool_vc = wildcards_or(cfg.workflow.variantcallers.pool),
     population = wildcards_or(allsamples.populations, empty=True),
     readno = wildcards_or(ext["readno"]),
-    region = wildcards_or(cfg['workflow']['regions'].keys()),
+    region = wildcards_or(cfg.workflow.regions.keys()),
     repeatmask = wildcards_or(ext["rm"], True),
-    sample = wildcards_or(allsamples.samples),
+    sample = wildcards_or(allsamples.unique_samples),
     sex = wildcards_or(definitions.definitions.ploidy.properties.keys()),
     statnum = "[0-9]{2}",
     statname = "(windowed_statistic|plain_statistic)",
@@ -168,7 +165,7 @@ def all(wildcards):
     d.update(**all_rawvc_input(wildcards))
     d.update(**all_popoolation_input(wildcards))
     d.update(**all_popoolation2_input(wildcards))
-    # d.update(**all_analysisset_input(wildcards))
+    d.update(**all_analysisset_input(wildcards))
     #d['stats'] = all_bcftools_stats(wildcards)
     d['config'] = "results/config/manticore.config.yaml"
     return d

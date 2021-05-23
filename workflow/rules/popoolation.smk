@@ -110,7 +110,7 @@ rule popoolation_gather_parallel_results:
         runtime = lambda wildcards, attempt: cfg.rule("popoolation_gather_parallel_results", attempt).resources("runtime")
     params:
         options = cfg.rule("popoolation_gather_parallel_results").params("options")
-    log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sample}{region}.w{window_size}.s{step_size}.{measure}.txt.gz.log"
+    log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.txt.gz.log"
     threads: cfg.rule("popoolation_gather_parallel_results").threads
     shell:
         "cat {input.analysis} > {output.analysis}"

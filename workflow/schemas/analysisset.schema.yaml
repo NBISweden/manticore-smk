@@ -58,5 +58,5 @@ definitions:
         default: {}
         $ref: "plot.schema.yaml#/definitions/analysisplots"
 
-    required: ['input', 'description']
+    required: ['input', 'description', 'tool']
     additionalProperties: false

@@ -49,8 +49,21 @@ def _stat2fmt(tool, group, window=True):
 def _plot2fmt(tool, group):
     pass
 
-## analysissets should probably be mapped to a class!
+
 def all_analysisset_input(wildcards):
+    val = {}
+    for analysis in cfg.analyses:
+        if not analysis.check:
+            continue
+        if len(analysis.filters) > 0:
+            f = analysis.filters[-1]
+            val[analysis.name] = f.fmt
+    return val
+
+
+
+## analysissets should probably be mapped to a class!
+def all_analysisset_input2(wildcards):
     """Generate inputs from all analysis sets
 
     Loop analysis sets and generate input names based on:
@@ -78,8 +91,12 @@ def all_analysisset_input(wildcards):
         wc = snakemake.io.Wildcards(fromdict=d)
         return wc
 
-    allsamples = pd.concat([pools.data, individuals.data])
+    # allsamples = pd.concat([pools.data, individuals.data])
     val = {}
+
+    for analysis in cfg.analyses:
+        if not analysis.check:
+            continue
 
     for k in config.keys():
         if not k.startswith("analysis/"):
@@ -87,11 +104,11 @@ def all_analysisset_input(wildcards):
 
         group = config[k].get("group", None)
         if group is None:
-            df = allsamples
+            df = allsamples.data
         elif group == "ind":
-            df = individuals
+            df = individuals.data
         elif group == "pool":
-            df = pools
+            df = pools.data
 
         wc = _update_wildcards(k, group)
         pfx = _make_prefix(wc)
@@ -103,6 +120,7 @@ def all_analysisset_input(wildcards):
             'sex': sex,
             'sample': df["SM"]
         }
+        #print(kw_target)
         val[k] = []
         filters = config[k].get("filters", [])
         statistics = config[k].get("statistics", [])
