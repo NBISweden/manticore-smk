@@ -44,8 +44,8 @@ pools = SampleData(config["samples"].get("pool", None),
 allsamples = SampleData(individuals, pools)
 reads = ReadData(config["reads"].get("readfile", None),
                  ignore=config["reads"].get("ignore", None))
-reads = reads.subset(samples=allsamples.unique_samples.tolist())
 
+reads = reads.subset(samples=allsamples.unique_samples.tolist())
 # FIXME: sometimes access to sample data is necessary in config
 # functions (e.g. when subsetting on population) or calculating
 # ploidy. Then again samples dictionary is not enormous

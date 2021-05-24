@@ -57,7 +57,7 @@ rule popoolation_filter_pileup_by_gtf:
         runtime = lambda wildcards, attempt: cfg.rule("popoolation_filter_pileup_by_gtf", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_filter_options(wildcards)
-    threads: lambda wildcards: resources("popoolation_filter_pileup_by_gtf", "threads")
+    threads: lambda wildcards: cfg.rule("popoolation_filter_pileup_by_gtf").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/filter_pileup_by_gtf"
 
@@ -75,7 +75,7 @@ rule popoolation_subsample_pileup:
         runtime = lambda wildcards, attempt: cfg.rule("popoolation_subsample_pileup", attempt).resources("runtime")
     params:
         options = lambda wildcards: get_filter_options(wildcards)
-    threads: lambda wildcards: resources("popoolation_subsample_pileup", "threads")
+    threads: lambda wildcards: cfg.rule("popoolation_subsample_pileup").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{filternum}_{filtername}_{tool}/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/subsample_pileup"
 
@@ -92,7 +92,7 @@ rule popoolation_variance_sliding:
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation_variance_sliding"),
         samples = pools
-    threads: lambda wildcards: resources("popoolation_variance_sliding", "threads")
+    threads: lambda wildcards: cfg.rule("popoolation_variance_sliding").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.{target}.txt.gz"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/variance_sliding"
 

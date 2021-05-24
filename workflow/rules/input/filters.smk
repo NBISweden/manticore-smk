@@ -47,38 +47,35 @@ def get_previous_filtering_step(wildcards, application, input=None, gather=False
 
 
 def _get_vcf_tbi_input(wildcards, gather=False):
-    print(wildcards)
-    fmt = get_previous_filtering_step(wildcards, "gatkhc", gather=gather)
-    print(fmt)
-    npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
-    root = f"{wildcards.results}/{wildcards.group}"
+    index = int(wildcards.filternum.lstrip("0"))
+    filt = cfg.get_analysis(wildcards.analysis).filters[index]
+    #fmt = get_previous_filtering_step(wildcards, "gatkhc", gather=gather)
     val = {
-        'vcf': expand(fmt, root=root, ext=".vcf.gz", target=list(range(npart))),
-        'tbi': expand(fmt, root=root, ext=".vcf.gz.tbi", target=list(range(npart)))
+        'vcf': filt.expand(wildcards)
     }
+    val['tbi'] = [f"{x}.tbi" for x in val['vcf']]
+
+    # root = f"{wildcards.results}/{wildcards.group}"
+    # val = {
+    #     'vcf': expand(fmt, root=root, ext=".vcf.gz", target=list(range(npart))),
+    #     'tbi': expand(fmt, root=root, ext=".vcf.gz.tbi", target=list(range(npart)))
+    # }
     return val
 
-def filter_vcf_input(wildcards):
-    """Get input for filter vcf generic rules"""
-    gather = False
-    if wildcards.filtername == "concat":
-        gather = True
-    return _get_vcf_tbi_input(wildcards, gather)
+
+# def filter_bcftools_concat_vcfs_input(wildcards):
+#     """Get input for filter_bcftools_concat_vcfs"""
+#     return _get_vcf_tbi_input(wildcards, gather=True)
 
 
-def filter_bcftools_concat_vcfs_input(wildcards):
-    """Get input for filter_bcftools_concat_vcfs"""
-    return _get_vcf_tbi_input(wildcards, gather=True)
+# def filter_gatk_jexl_filter_variants_input(wildcards):
+#     """Get input for filter_gatk_jexl_filter_variants"""
+#     return _get_vcf_tbi_input(wildcards)
 
 
-def filter_gatk_jexl_filter_variants_input(wildcards):
-    """Get input for filter_gatk_jexl_filter_variants"""
-    return _get_vcf_tbi_input(wildcards)
-
-
-def filter_gatk_select_variants_input(wildcards):
-    """Get input for filter_gatk_select_variants"""
-    return _get_vcf_tbi_input(wildcards)
+# def filter_gatk_select_variants_input(wildcards):
+#     """Get input for filter_gatk_select_variants"""
+#     return _get_vcf_tbi_input(wildcards)
 
 
 def manticore_plotvcf_input(wildcards):
@@ -86,22 +83,58 @@ def manticore_plotvcf_input(wildcards):
     return _get_vcf_tbi_input(wildcards)
 
 
+def _get_index(wildcards):
+    print(wildcards.get("filternum", "no filternum"))
+    if "filternum" in wildcards:
+        return int(wildcards.filternum.lstrip("0"))
+    elif "statnum" in wildcards:
+        return int(wildcards.statnum.lstrip("0"))
+    elif "plotnum" in wildcards:
+        return int(wildcards.plotnum.lstrip("0"))
+    return None
+
 def get_popoolation_filter_input(wildcards, **kwargs):
     """Get input for popoolation based filtering rules"""
-    fmt = get_previous_filtering_step(wildcards, "popoolation")
-    npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
-    root = f"{wildcards.results}/{wildcards.group}"
+    index = -1
+    if "filternum" in dict(wildcards).keys():
+        index = int(wildcards.filternum.lstrip("0"))
+    filt = cfg.get_analysis(wildcards.analysis).filters[index]
     val = {
-        'pileup': expand(fmt, root=root, ext=".pileup.gz", target=list(range(npart))),
+        'pileup': filt.expand(wildcards)
     }
     return val
+    # fmt = get_previous_filtering_step(wildcards, "popoolation")
+    # npart = config.workflow.regions.get(wildcards.region, {}).get('npart', 1)
+    # root = f"{wildcards.results}/{wildcards.group}"
+    # val = {
+    #     'pileup': expand(fmt, root=root, ext=".pileup.gz", target=list(range(npart))),
+    # }
+    # return val
 
 def get_popoolation2_filter_input(wildcards, **kwargs):
     """Retrieve partitioned input for popoolation2 filters"""
-    fmt = get_previous_filtering_step(wildcards, "popoolation2")
-    npart = config['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
-    root = f"{wildcards.results}/{wildcards.group}"
+    index = -1
+    if "filternum" in dict(wildcards).keys():
+        index = int(wildcards.filternum.lstrip("0"))
+    filt = cfg.get_analysis(wildcards.analysis).filters[index]
     val = {
-        'sync': expand(fmt, root=root, ext=".sync.gz", target=list(range(npart))),
+        'sync': filt.expand(wildcards)
     }
+    return val
+    # fmt = get_previous_filtering_step(wildcards, "popoolation2")
+    # npart = config.workflow.regions.get(wildcards.region, {}).get('npart', 1)
+    # root = f"{wildcards.results}/{wildcards.group}"
+    # val = {
+    #     'sync': expand(fmt, root=root, ext=".sync.gz", target=list(range(npart))),
+    # }
+    # return val
+
+def filter_vcf_input(wildcards):
+    """Get input for filter vcf generic rules"""
+    index = int(wildcards.filternum.lstrip("0"))
+    filt = cfg.get_analysis(wildcards.analysis).filters[index]
+    val = {
+        'vcf': filt.expand(wildcards),
+    }
+    val['tbi'] = [f"{x}.tbi" for x in val['vcf']]
     return val

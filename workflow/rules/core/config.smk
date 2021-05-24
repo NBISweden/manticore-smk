@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import json
 import numpy as np
 import pandas as pd
 import contextlib
@@ -36,7 +37,7 @@ def cd(path, logger):
 
 class PropertyDict(OrderedDict):
     """Simple class that allows for property access"""
-    def __init__(self, data):
+    def __init__(self, data=dict()):
         super().__init__(data)
         for k, v in data.items():
             if isinstance(v, dict):
@@ -44,7 +45,9 @@ class PropertyDict(OrderedDict):
             elif isinstance(v, list):
                 val = []
                 for x in v:
-                    if isinstance(x, dict):
+                    if isinstance(x, PropertyDict):
+                        val.append(x)
+                    elif isinstance(x, dict):
                         val.append(PropertyDict(x))
                     else:
                         val.append(x)
@@ -70,10 +73,11 @@ class Schema(PropertyDict):
         data = _load_configfile(self.schemafile, filetype="Schema")
         super().__init__(data)
 
-
     @property
     def schemafile(self):
         return self._schemafile
+
+
 
 class FilterSchema(Schema):
     def __init__(self, schemafile):
@@ -99,11 +103,14 @@ definitions = Schema(os.path.join(SCHEMA_DIR, "definitions.schema.yaml"))
 class PloidyException(Exception):
     pass
 
+
 class SampleData:
     _index = ["SM"]
     _schemafile = sample_schema.schemafile
 
     def __init__(self, *args, ignore=None):
+        if ignore is None:
+            ignore = []
         self._data = pd.DataFrame()
         if len(args) == 1:
             args = args[0]
@@ -122,7 +129,7 @@ class SampleData:
         else:
             raise TypeError
         validate(self.data, schema=self.schemafile)
-        if ignore is not None:
+        if len(ignore) > 0:
             self._data = self.subset(samples=ignore, invert=True).data
 
 
@@ -197,7 +204,7 @@ class ReadData(SampleData):
     _index = ["SM", "unit", "id"]
     _schemafile = reads_schema.schemafile
 
-    def __init__(self, *args, ignore=None, trim=False):
+    def __init__(self, *args, ignore=None):
         super().__init__(*args, ignore=ignore)
         self._data["reads.trimmed"] = self._data["reads"]
 
@@ -222,16 +229,31 @@ class ReadData(SampleData):
 # Config related classes
 ##############################
 class AnalysisItem(PropertyDict):
+    _section = None
+
     def __init__(self, data, analysis, index=0, tool=None):
+        if data is None:
+            data = PropertyDict(dict(raw=PropertyDict()))
         for k, v in data.items():
             if "tool" not in v.keys():
                 v["tool"] = tool
                 data[k] = v
         super().__init__(data)
-        assert len(self.keys()) == 1,  f"more than one key defined: {self.keys()}"
+        assert len(self.keys()) == 1,  f"only one key allowed: {self.keys()}"
         self._name = list(self.keys())[0]
-        self._index = index
+        self._index = int(index)
         self._analysis = analysis
+        self._wildcards = None
+        self._scatter = False
+
+    @property
+    def wildcards(self):
+        if self._wildcards is None:
+            return dict()
+        d = dict(self._wildcards)
+        if d != {} and "target" not in d.keys():
+            d["target"] = range(self.npart[0])
+        return d
 
     @property
     def name(self):
@@ -239,7 +261,7 @@ class AnalysisItem(PropertyDict):
 
     @property
     def index(self):
-        return self._index + 1
+        return self._index
 
     @property
     def num(self):
@@ -259,7 +281,22 @@ class AnalysisItem(PropertyDict):
 
     @property
     def prefix(self):
-        return self._analysis.prefix
+        if self.index >= 1:
+            return os.path.join(self._analysis.prefix, "_".join([self.num, self.name, self.tool]))
+        else:
+            # Ugly hack; the general tool gatk is different from the
+            # variant caller application name gatkhc
+            tool = self.tool
+            if tool == "gatk":
+                tool = "gatkhc"
+            if self.group == "ind":
+                return os.path.join(self.results, "rawvc", tool)
+            else:
+                return os.path.join(self.results, "raw", tool)
+
+    @property
+    def results(self):
+        return self._analysis.results
 
     @property
     def populations(self):
@@ -271,15 +308,36 @@ class AnalysisItem(PropertyDict):
 
     @property
     def regions(self):
-        return self._analysis.regions.keys()
+        return self._analysis.regions
 
-    def get(self, attr):
+    @property
+    def region_names(self):
+        return [r.name for r in self.regions]
+
+    @property
+    def npart(self):
+        return [r.npart for r in self.regions]
+
+    @property
+    def scatter(self):
+        return self._scatter
+
+    @property
+    def previous(self):
+        """Return previous step"""
+        if self.index >= 1:
+            return self._analysis.get(self._section)[self.index - 1]
+        return None
+
+    def get(self, attr, default=None):
         """Get an attribute from the default key"""
-        return self[self.name].get(attr, None)
+        return self[self.name].get(attr, default)
 
 
 class Filter(AnalysisItem):
-    def __init__(self, data, analysis, index=1, tool=None):
+    _section = "filters"
+
+    def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
 
     ## FIXME: hacky solution. Want to return target extension
@@ -299,44 +357,141 @@ class Filter(AnalysisItem):
 
     @property
     def fmt(self):
-        if self.group == "pool":
-            if self.tool == 'popoolation':
-                out = expand(f"{{sample}}.{{region}}{self.ext}", sample=self.unique_samples, region=self.regions)
-            elif self.tool == 'popoolation2':
-                out = expand(f"{{sex}}.{{region}}{self.ext}", sex=self.sex, region=self.regions)
+        target = ""
+        if self.scatter:
+            target = ".{target}"
         else:
-            out = expand(f"{{region}}{self.ext}", region=self.regions) + \
-                expand(f"{{population}}.{{region}}{self.ext}", region=self.regions, population=self.populations)
-        if isinstance(out, list):
-            return [os.path.join(self.prefix, "_".join([self.num, self.name, self.tool]), o) for o in out]
-        return os.path.join(self.prefix, "_".join([self.num, self.name, self.tool]), out)
+            if "target" in self.wildcards.keys():
+                target = f".{self.wildcards['target']}"
+        if self.group == "pool":
+            self._scatter = True
+            if self.tool == 'popoolation':
+                out = f"{{sample}}.{{region}}{target}{self.ext}"
+            elif self.tool == 'popoolation2':
+                out = f"{{sex}}.{{region}}{target}{self.ext}"
+            else:
+                raise Exception
+        elif self.group == "ind":
+            out = f"{{population}}{{dot}}{{region}}{target}{self.ext}"
+        else:
+            raise Exception
+        return os.path.join(self.prefix, out)
+
+    def expand(self, wildcards, previous=True):
+        """Expand targets taking wildcards context into consideration"""
+        filt = self
+        if previous:
+            filt = self.previous
+            if self.name in ["concat"]:
+                filt._scatter = True
+        if isinstance(wildcards, snakemake.io.Wildcards):
+            filt._wildcards = wildcards
+        if filt.wildcards:
+            return expand(filt.fmt, **filt.wildcards)
+        val = []
+        pops = filt.populations + [""]
+        dots = ["."] * len(filt.populations) + [""]
+        for r in self.regions:
+            for pop, dot in zip(pops, dots):
+                d = {
+                    'population': pop,
+                    'dot': dot,
+                    'sex': filt.sex,
+                    'region': r.name,
+                    'sample': filt.unique_samples,
+                    'target': list(range(r.npart))
+                }
+                val.extend(expand(filt.fmt, **d))
+        return val
 
 
 class Statistic(AnalysisItem):
+    _section = "statistics"
+
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
+
+    @property
+    def window_config(self):
+        window_size = self.get("window_size")
+        step_size = self.get("step_size", window_size)
+        try:
+            assert len(step_size) == len(window_size)
+        except AssertionError:
+            logger.error(f"config section 'statistics:{self.name}' window size and step size must be of equal lengths")
+            raise
+        return window_size, step_size
+
+    @property
+    def ext(self):
+        """File extension for statistics results"""
+        return ".txt.gz"
+
+    @property
+    def fmt(self):
+        fmt = "{region}"
+        if self.tool == "popoolation":
+            fmt = "{sample}.{region}"
+        elif self.tool == "popoolation2":
+            fmt = "{sex}.{region}"
+        if self.name == "windowed_statistic":
+            fmt = f"{fmt}.w{{window_size}}.s{{step_size}}.{{statistic}}"
+        else:
+            if self.tool == "popoolation2":
+                fmt = f"{fmt}.sync_{{statistic}}"
+        fmt = f"{fmt}{self.ext}"
+        return os.path.join(self.prefix, fmt)
+
+    def expand(self, wildcards, previous=True):
+        """Expand targets taking wildcards context into consideration"""
+        if isinstance(wildcards, snakemake.io.Wildcards):
+            self._wildcards = wildcards
+        if self.wildcards:
+            return expand(self.fmt, **filt.wildcards)
+        val = []
+        for r in self.regions:
+            for statistic in self.get("statistic"):
+                d = {
+                    'statistic': statistic,
+                    'sex': self.sex,
+                    'region': r.name,
+                    'sample': self.unique_samples
+                }
+                if self.name == "windowed_statistic":
+                    d['window_size'] = self.window_config[0]
+                    d['step_size'] = self.window_config[1]
+            val.extend(expand(self.fmt, **d))
+        return val
 
 class Plot(AnalysisItem):
+    _section = "plots"
+
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
 
-class Analysis(OrderedDict):
+class Analysis(PropertyDict):
     _section = "analysis"
 
-    def __init__(self, name, cfg, **kw):
-        self["sex"] = "common"
-        self["regions"] = cfg.workflow.regions
-        self["group"] = None
-        self["samples"] = []
-        self["filters"] = []
-        self["statistics"] = []
-        self["plots"] = []
-        super().__init__(cfg[name])
+    def __init__(self, name, default, **kw):
+        # Set defaults
+        default.update(**kw)
+        if default["regions"] == []:
+            default["regions"] = default["_regions"]
+        else:
+            default["regions"] = [r for r in default["_regions"] if r.name in default["regions"]]
+        super().__init__(default)
         self._results = kw.get("results", "results")
         self._name = name
         # Subset samples already here
-        self["allsamples"] = cfg.allsamples.subset(group=self.group, samples=self.samples,
-                                                   sex=self.sex)
+        self["allsamples"] = self.allsamples.subset(group=self.group, samples=self.samples,
+                                                    sex=self.sex)
+        # Insert 0th filter and update filters
+        self["filters"] = [Filter(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["filters"])]
+        self["plots"] = [Plot(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["plots"])]
+        self["statistics"] = [Statistic(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["statistics"])]
+        self["filters"].insert(0, Filter(None, self, tool=self.tool))
+        self["plots"].insert(0, Plot(None, self, tool=self.tool))
+        self["statistics"].insert(0, Statistic(None, self, tool=self.tool))
 
     @property
     def name(self):
@@ -347,44 +502,8 @@ class Analysis(OrderedDict):
         return self._name
 
     @property
-    def filters(self):
-        return [Filter(x, self, index=i, tool=self.tool) for i, x in enumerate(self["filters"])]
-
-    @property
-    def statistics(self):
-        return [Statistic(x, self, index=i, tool=self.tool) for i, x in enumerate(self["statistics"])]
-
-    @property
-    def plots(self):
-        return [Plot(x, self, index=i, tool=self.tool) for i, x in enumerate(self["plots"])]
-
-    @property
-    def group(self):
-        return self["group"]
-
-    @property
-    def tool(self):
-        return self["tool"]
-
-    @property
-    def regions(self):
-        return self["regions"]
-
-    @property
-    def samples(self):
-        return self["samples"]
-
-    @property
-    def allsamples(self):
-        return self["allsamples"]
-
-    @property
     def populations(self):
         return self.allsamples.data.population.tolist()
-
-    @property
-    def sex(self):
-        return self["sex"]
 
     @property
     def check(self):
@@ -398,6 +517,12 @@ class Analysis(OrderedDict):
         if self.group is None:
             return os.path.join(self._results, self.longname)
         return os.path.join(self._results, self.group, self.longname)
+
+    @property
+    def results(self):
+        if self.group is None:
+            return os.path.join(self._results)
+        return os.path.join(self._results, self.group)
 
 
 class ConfigRule(PropertyDict):
@@ -443,11 +568,26 @@ class Config(PropertyDict):
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
-        for k in self.keys():
-            if k.startswith(f"{self._analysissection}/"):
-                self[k] = Analysis(k, self)
         for k, v in self.workflow.regions.items():
             self.workflow.regions[k] = Region(k, v)
+
+        self._init_analyses()
+
+    def _init_analyses(self):
+        for k in self.keys():
+            default = {
+                '_regions': self.regions,
+                'allsamples': self.allsamples,
+                'regions': [],
+                'sex': 'common',
+                'group': None,
+                'samples': [],
+                'statistics': [],
+                'filters': [],
+                'plots': []
+            }
+            if k.startswith(f"{self._analysissection}/"):
+                self[k] = Analysis(k, default, **self[k])
 
     def rule(self, rulename, attempt=None):
         """Retrieve rule configuration"""
@@ -458,7 +598,7 @@ class Config(PropertyDict):
 
     @property
     def regions(self):
-        return [v for k, v in self.workflow.regions.items()]
+        return list(self.workflow.regions.values())
 
     @property
     def allsamples(self):
@@ -506,7 +646,6 @@ class Config(PropertyDict):
     def genome(self):
         """Return short genome name"""
         return os.path.splitext(os.path.basename(self.db["ref"]))[0]
-
 
 
 def get_filter_options(wildcards, key="options"):

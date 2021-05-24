@@ -131,7 +131,7 @@ rule popoolation2_fisher_test:
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_fisher_test"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
-    threads: lambda wildcards: resources("popoolation2_fisher_test", "threads")
+    threads: lambda wildcards: cfg.rule("popoolation2_fisher_test").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.gz.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/fisher_test"
 
@@ -147,7 +147,7 @@ rule popoolation2_snp_frequency_diff:
     params:
         options = lambda wildcards: get_stat_options(wildcards, rulename="popoolation2_snp_frequency_diff"),
         samples = lambda wildcards: pools if wildcards.sex == "common" else pools[pools.sex.isin([wildcards.sex])]
-    threads: lambda wildcards: resources("popoolation2_snp_frequency_diff", "threads")
+    threads: lambda wildcards: cfg.rule("popoolation2_snp_frequency_diff").threads
     log: "logs/{results}/{group}/analysis/{analysis}/{statnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_rc.txt{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation2/snp_frequency_diff"
 
