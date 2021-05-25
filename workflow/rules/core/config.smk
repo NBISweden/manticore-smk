@@ -111,7 +111,7 @@ class SampleData:
     def __init__(self, *args, ignore=None):
         if ignore is None:
             ignore = []
-        self._data = pd.DataFrame()
+        self._data = pd.DataFrame(columns=self._index)
         if len(args) == 1:
             args = args[0]
             if isinstance(args, SampleData):
@@ -206,7 +206,7 @@ class ReadData(SampleData):
 
     def __init__(self, *args, ignore=None):
         super().__init__(*args, ignore=ignore)
-        self._data["reads.trimmed"] = self._data["reads"]
+        self._data["reads.trimmed"] = self._data.get("reads")
 
     def trim(self, regex_from, regex_to):
         if len(self._data) > 0:
@@ -503,7 +503,7 @@ class Analysis(PropertyDict):
 
     @property
     def name(self):
-        return self._name.lstrip(self._section + "/")
+        return self._name.lstrip(f"{self._section}/")
 
     @property
     def longname(self):
@@ -598,7 +598,7 @@ class Config(PropertyDict):
             if k.startswith(f"{self._analysissection}/"):
                 self[k] = Analysis(k, default, **self[k])
 
-    def rule(self, rulename, attempt=None):
+    def ruleconf(self, rulename, attempt=None):
         """Retrieve rule configuration"""
         ruleobj = ConfigRule(rulename, attempt, self['resources.default'])
         if rulename in self.resources:
@@ -629,8 +629,8 @@ class Config(PropertyDict):
         return ploidy
 
     # This should be obtained from FilterSchema?
-    def variant_filters(self, rule, vartype):
-        filters = self.resources[rule].filters[vartype]
+    def variant_filters(self, rulename, vartype):
+        filters = self.resources[rulename].filters[vartype]
         d = {f"'GATKStandard({v.split()[0]})'": v for v in filters}
         return d
 
@@ -656,7 +656,7 @@ class Config(PropertyDict):
         """Return short genome name"""
         return os.path.splitext(os.path.basename(self.db["ref"]))[0]
 
-    def params(self, wildcards, attr, rule=None):
+    def params(self, wildcards, attr, rulename=None):
         """Get parameters in analysis context"""
         analysis = self.get_analysis(wildcards.analysis)
         index = int(wildcards.itemnum.lstrip("0"))
@@ -667,8 +667,8 @@ class Config(PropertyDict):
         elif "plotname" in dict(wildcards).keys():
             analysis_item = analysis.plots[index]
         default = None
-        if rule is not None:
-            default = self.rule(rule).params(attr)
+        if rulename is not None:
+            default = self.ruleconf(rulename).params(attr)
         return analysis_item.get(attr, default)
 
 ## FIXME: move this function to config

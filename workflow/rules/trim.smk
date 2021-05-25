@@ -16,11 +16,11 @@ rule trim_cutadapt_pe:
         read1 = __RAW__ / "{prefix}_1{fastq}{gz}",
         read2 = __RAW__ / "{prefix}_2{fastq}{gz}"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("trim_cutadapt_pe", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("trim_cutadapt_pe", attempt).resources("runtime")
     params:
-        others = cfg.rule("trim_cutadapt_pe").params("options"),
-        adapters = cfg.rule("trim_cutadapt_pe").params("adapters")
-    threads: cfg.rule("trim_cutadapt_pe").threads
+        others = cfg.ruleconf("trim_cutadapt_pe").params("options"),
+        adapters = cfg.ruleconf("trim_cutadapt_pe").params("adapters")
+    threads: cfg.ruleconf("trim_cutadapt_pe").threads
     log: "logs/{interim}/map/trim/{prefix}{fastq}{gz}.log"
     wrapper:
         f"{SMK_WRAPPER_PREFIX}/bio/cutadapt/pe"
@@ -33,11 +33,11 @@ rule trim_cutadapt_se:
         qc = "logs/{interim}/map/trim/{prefix}{fastq}{gz}.se.cutadapt_metrics.txt"
     input: __RAW__ / "{prefix}_1{fastq}{gz}"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("trim_cutadapt_se", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("trim_cutadapt_se", attempt).resources("runtime")
     params:
-        " ".join([cfg.rule("trim_cutadapt_se").params("options"),
-                  cfg.rule("trim_cutadapt_se").params("adapters")])
-    threads: cfg.rule("trim_cutadapt_se").threads
+        " ".join([cfg.ruleconf("trim_cutadapt_se").params("options"),
+                  cfg.ruleconf("trim_cutadapt_se").params("adapters")])
+    threads: cfg.ruleconf("trim_cutadapt_se").threads
     log: "logs/{interim}/map/trim/{prefix}{fastq}{gz}.log"
     wrapper:
         f"{SMK_WRAPPER_PREFIX}/bio/cutadapt/se"

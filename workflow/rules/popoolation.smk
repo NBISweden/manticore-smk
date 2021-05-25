@@ -34,10 +34,10 @@ rule popoolation_samtools_filter_mpileup:
     output: pileup = "{results_pool}/raw/popoolation/{sample}.{region}.{target}.pileup{gz}"
     input: unpack(popoolation_samtools_filter_mpileup_input)
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("popoolation_samtools_filter_mpileup", attempt).resources("runtime"),
+        runtime = lambda wildcards, attempt: cfg.ruleconf("popoolation_samtools_filter_mpileup", attempt).resources("runtime"),
     params:
-        cfg.rule("popoolation_samtools_filter_mpileup").params("options")
-    threads: cfg.rule("popoolation_samtools_filter_mpileup").threads
+        cfg.ruleconf("popoolation_samtools_filter_mpileup").params("options")
+    threads: cfg.ruleconf("popoolation_samtools_filter_mpileup").threads
     log: "logs/{results_pool}/raw/popoolation/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/samtools_filter_mpileup"
 
@@ -54,10 +54,10 @@ rule popoolation_filter_pileup_by_gtf:
         filtername = "mask",
         tool = "popoolation"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("popoolation_filter_pileup_by_gtf", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("popoolation_filter_pileup_by_gtf", attempt).resources("runtime")
     params:
         options = lambda wildcards: cfg.params(wildcards, "options", "popoolation_filter_pileup_by_gtf")
-    threads: lambda wildcards: cfg.rule("popoolation_filter_pileup_by_gtf").threads
+    threads: lambda wildcards: cfg.ruleconf("popoolation_filter_pileup_by_gtf").threads
     log: "logs/{results}/{group}/analysis/{analysis}/f{itemnum}_{filtername}_{tool}/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/filter_pileup_by_gtf"
 
@@ -72,10 +72,10 @@ rule popoolation_subsample_pileup:
         filtername = "filter",
         tool = "popoolation"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("popoolation_subsample_pileup", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("popoolation_subsample_pileup", attempt).resources("runtime")
     params:
         options = lambda wildcards: cfg.params(wildcards, "options", "popoolation_subsample_pileup")
-    threads: lambda wildcards: cfg.rule("popoolation_subsample_pileup").threads
+    threads: lambda wildcards: cfg.ruleconf("popoolation_subsample_pileup").threads
     log: "logs/{results}/{group}/analysis/{analysis}/f{itemnum}_{filtername}_{tool}/{sample}.{region}.{target}.pileup{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/subsample_pileup"
 
@@ -88,12 +88,12 @@ rule popoolation_variance_sliding:
         tool = "popoolation",
         statname = "windowed_statistic"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("popoolation_variance_sliding", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("popoolation_variance_sliding", attempt).resources("runtime")
     params:
         options = lambda wildcards: cfg.params(wildcards, "options", "popoolation_variance_sliding"),
         ploidy = lambda wildcards: cfg.ploidy(wildcards.region, sample=wildcards.sample),
         size = lambda wildcards: pools.samplesize.at[wildcards.sample]
-    threads: lambda wildcards: cfg.rule("popoolation_variance_sliding").threads
+    threads: lambda wildcards: cfg.ruleconf("popoolation_variance_sliding").threads
     log: "logs/{results}/{group}/analysis/{analysis}/s{itemnum}_{statname}_{tool}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.{target}.txt.gz"
     wrapper: f"{WRAPPER_PREFIX}/bio/popoolation/variance_sliding"
 
@@ -108,11 +108,11 @@ rule popoolation_gather_parallel_results:
         filters = "([\.a-z]+\.|)",
         group = "pool"
     resources:
-        runtime = lambda wildcards, attempt: cfg.rule("popoolation_gather_parallel_results", attempt).resources("runtime")
+        runtime = lambda wildcards, attempt: cfg.ruleconf("popoolation_gather_parallel_results", attempt).resources("runtime")
     params:
-        options = cfg.rule("popoolation_gather_parallel_results").params("options")
+        options = cfg.ruleconf("popoolation_gather_parallel_results").params("options")
     log: "logs/{results}/{group}/analysis/{analysis}/s{itemnum}_{statname}_{tool}/{sample}.{region}.w{window_size}.s{step_size}.{measure}.txt.gz.log"
-    threads: cfg.rule("popoolation_gather_parallel_results").threads
+    threads: cfg.ruleconf("popoolation_gather_parallel_results").threads
     shell:
         "cat {input.analysis} > {output.analysis}"
 
