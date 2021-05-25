@@ -18,13 +18,8 @@ conda_prefix = os.getenv("CONDA_PREFIX")
 script = os.path.join(conda_prefix, "opt/popoolation-code/Variance-sliding.pl")
 
 options = snakemake.params.get("options", "")
-samples = snakemake.params.samples
-config = snakemake.config
-sex = samples.at[snakemake.wildcards.sample, "sex"]
-size = samples.at[snakemake.wildcards.sample, "size"]
-if sex not in config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]:
-    sex = "common"
-ploidy = config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
+ploidy = snakemake.params.ploidy
+size = snakemake.params.size
 pool_size = size * ploidy
 
 outtxt = os.path.splitext(snakemake.output.txt)[0]

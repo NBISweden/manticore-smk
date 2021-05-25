@@ -20,14 +20,8 @@ options = snakemake.params.get("options", "")
 sync = snakemake.input.sync
 outfile = os.path.splitext(snakemake.output.fst)[0]
 
-
-samples = snakemake.params.samples
-config = snakemake.config
-sex = snakemake.wildcards.sex
-if sex not in config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"]:
-    sex = "common"
-ploidy = config["workflow"]["regions"][snakemake.wildcards.region]["ploidy"][sex]
-pool_size = samples["size"].tolist()
+ploidy = snakemake.params.ploidy
+pool_size = snakemake.params.size
 if len(set(pool_size)) == 1:
     pool_size = pool_size[0] * ploidy
 else:

@@ -22,7 +22,7 @@ def all_popoolation_raw_input(wildcards):
 def popoolation_gather_parallel_results_input(wildcards):
     """Generate input files for scattered popoolation jobs"""
     npart = cfg['workflow']['regions'].get(wildcards.region, {}).get('npart', 1)
-    analysis = expand("{{results}}/{{group}}/analysis/{{analysis}}/{{statnum}}_{{statname}}_{{tool}}/{{sample}}.{{region}}.w{{window_size}}.s{{step_size}}.{{measure}}.{partition}.txt.gz",
+    analysis = expand("{{results}}/{{group}}/analysis/{{analysis}}/s{{itemnum}}_{{statname}}_{{tool}}/{{sample}}.{{region}}.w{{window_size}}.s{{step_size}}.{{measure}}.{partition}.txt.gz",
                       partition = list(range(npart)), **wildcards)
     return {'analysis': analysis}
 

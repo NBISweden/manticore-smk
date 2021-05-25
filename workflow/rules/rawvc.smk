@@ -37,7 +37,7 @@ rule rawvc_gatkhc_targets:
     params:
         options = cfg.rule("rawvc_gatkhc_targets").params("options"),
         annotation = cfg.rule("rawvc_gatkhc_targets").params("annotation"),
-        ploidy = lambda wildcards: cfg.ploidy(wildcards.sample, wildcards.region)
+        ploidy = lambda wildcards: cfg.ploidy(wildcards.region, sample=wildcards.sample)
     threads: cfg.rule("rawvc_gatkhc_targets").threads
     log: "logs/{interim}/{group}/rawvc/gatkhc/{sample}.{target}.{region}{mode}.vcf{gz}.log"
     wrapper: f"{WRAPPER_PREFIX}/bio/gatk/hc_targets"
@@ -45,12 +45,12 @@ rule rawvc_gatkhc_targets:
 
 rule rawvc_picard_create_sequence_dictionary:
     """Create sequence dictionary"""
-    output: re.sub(wc["fa"], ".dict", cfg['db']['ref'])
-    input: cfg['db']['ref']
+    output: re.sub(wc["fa"], ".dict", cfg.db.ref)
+    input: cfg.db.ref
     params:
         extra = cfg.rule("rawvc_picard_create_sequence_dictionary").params("options")
     threads: cfg.rule("rawvc_picard_create_sequence_dictionary").threads
-    log: f"logs/rawvc/picard/{cfg['db']['ref']}.dict"
+    log: f"logs/rawvc/picard/{cfg['db']['ref']}.dict.log"
     wrapper: f"{SMK_WRAPPER_PREFIX}/bio/picard/createsequencedictionary"
 
 

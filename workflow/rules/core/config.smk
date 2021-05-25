@@ -230,6 +230,7 @@ class ReadData(SampleData):
 ##############################
 class AnalysisItem(PropertyDict):
     _section = None
+    _label = None
 
     def __init__(self, data, analysis, index=0, tool=None):
         if data is None:
@@ -268,6 +269,10 @@ class AnalysisItem(PropertyDict):
         return str(self.index).zfill(2)
 
     @property
+    def label(self):
+        return self._label
+
+    @property
     def group(self):
         return self._analysis.group
 
@@ -282,7 +287,7 @@ class AnalysisItem(PropertyDict):
     @property
     def prefix(self):
         if self.index >= 1:
-            return os.path.join(self._analysis.prefix, "_".join([self.num, self.name, self.tool]))
+            return os.path.join(self._analysis.prefix, "_".join([f"{self.label}{self.num}", self.name, self.tool]))
         else:
             # Ugly hack; the general tool gatk is different from the
             # variant caller application name gatkhc
@@ -336,6 +341,7 @@ class AnalysisItem(PropertyDict):
 
 class Filter(AnalysisItem):
     _section = "filters"
+    _label = "f"
 
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
@@ -407,6 +413,7 @@ class Filter(AnalysisItem):
 
 class Statistic(AnalysisItem):
     _section = "statistics"
+    _label = "s"
 
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
@@ -460,11 +467,12 @@ class Statistic(AnalysisItem):
                 if self.name == "windowed_statistic":
                     d['window_size'] = self.window_config[0]
                     d['step_size'] = self.window_config[1]
-            val.extend(expand(self.fmt, **d))
+                val.extend(expand(self.fmt, **d))
         return val
 
 class Plot(AnalysisItem):
     _section = "plots"
+    _label = "p"
 
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
@@ -566,8 +574,9 @@ class Region(PropertyDict):
 class Config(PropertyDict):
     _analysissection = "analysis"
 
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
+    def __init__(self, conf, samples, *args, **kw):
+        super().__init__(conf)
+        self["__allsamples__"] = samples
         for k, v in self.workflow.regions.items():
             self.workflow.regions[k] = Region(k, v)
 
@@ -604,17 +613,17 @@ class Config(PropertyDict):
     def allsamples(self):
         return self.get("__allsamples__", None)
 
-    def ploidy(self, sample, region, sex=None):
+    def ploidy(self, region, sample=None, sex=None):
         rconf = self.workflow.regions[region]
         ploidy = rconf["ploidy"].get("common", 2)
         try:
             sex = self.allsamples.data.sex.at[sample]
         except KeyError as e:
-            logger.error("No such sample: %s", e)
+            logger.error(f"No such sample {sample}: {e}")
         try:
             ploidy = rconf["ploidy"][sex]
         except KeyError as e:
-            logger.error("No such sex: %s", e)
+            logger.error(f"No such sex defined for ploidy in region {rconf.name}: {e}")
         finally:
             logger.info(f"falling back on common ploidy {ploidy}")
         return ploidy
@@ -647,97 +656,28 @@ class Config(PropertyDict):
         """Return short genome name"""
         return os.path.splitext(os.path.basename(self.db["ref"]))[0]
 
+    def params(self, wildcards, attr, rule=None):
+        """Get parameters in analysis context"""
+        analysis = self.get_analysis(wildcards.analysis)
+        index = int(wildcards.itemnum.lstrip("0"))
+        if "filtername" in dict(wildcards).keys():
+            analysis_item = analysis.filters[index]
+        elif "statname" in dict(wildcards).keys():
+            analysis_item = analysis.statistics[index]
+        elif "plotname" in dict(wildcards).keys():
+            analysis_item = analysis.plots[index]
+        default = None
+        if rule is not None:
+            default = self.rule(rule).params(attr)
+        return analysis_item.get(attr, default)
 
-def get_filter_options(wildcards, key="options"):
-    """Get filter options."""
-    analysis = f"analysis/{wildcards.analysis}"
-    index = int(wildcards.filternum.lstrip("0")) - 1
-    currentfilter = config[analysis]["filters"][index][wildcards.filtername]
-    val = currentfilter.get(key, "")
-    return val
-
-
+## FIXME: move this function to config
 def get_filter_input(wildcards):
     """Get filter input."""
     analysis = f"analysis/{wildcards.analysis}"
-    index = int(wildcards.filternum.lstrip("0")) - 1
+    index = int(wildcards.itemnum.lstrip("0")) - 1
     currentfilter = config[analysis]["filters"][index][wildcards.filtername]
     return currentfilter.get("input", {})
-
-
-def get_stat_options(wildcards, rulename=None, key="options"):
-    """Get stat tool options"""
-    options = ""
-    if rulename is not None:
-        options = get_params(rulename, "options")
-    analysis = f"analysis/{wildcards.analysis}"
-    index = int(wildcards.statnum.lstrip("0")) - 1
-    statistics = config[analysis]["statistics"][index][wildcards.statname]
-    val = statistics.get(key, options)
-    return val
-
-
-def get_plot_options(wildcards, rulename=None):
-    """Get stat engine options"""
-    options = ""
-    if rulename is not None:
-        options = get_params(rulename, "options")
-    analysis = f"analysis/{wildcards.analysis}"
-    plots = config[analysis]["plots"]
-    val = plots[wildcards.label].get("options", options)
-    return val
-
-
-def analysis_subset_regions(key):
-    """Subset regions for a given analysis"""
-    allregions = list(config["workflow"]["regions"].keys())
-    regions = config[key].get("regions", allregions)
-    try:
-        assert set(regions) <= set(allregions)
-    except AssertionError:
-        logger.error(f"configuration section '{key}': some regions undefined: '{regions}'")
-        raise
-    return regions
-
-
-def analysis_subset_sex(key, df):
-    """Subset sex for a given analysis"""
-    allsex = df["sex"].tolist() + ["common"]
-    sex = [config[key].get("sex", "common")]
-    try:
-        assert set(sex) <= set(allsex)
-    except AssertionError:
-        logger.error(f"configuration section '{key}': some sexes undefined: '{sex}'")
-        raise
-    return sex
-
-
-def analysis_subset_samples(key, df):
-    """Subset samples for a given analysis based on samples and sex keys"""
-    samplelist = config[key].get("samples", allsamples.unique_samples)
-    sex = config[key].get("sex", None)
-    try:
-        assert set(samplelist) <= set(allsamples.unique_samples)
-    except AssertionError:
-        logger.error(f"configuration section '{key}': some samples undefined: '{samplelist}'")
-        raise
-    df = df[df["SM"].isin(samplelist)]
-    if sex is not None:
-        df = df[df["sex"].isin([sex])]
-    return df
-
-
-def analysis_get_window_config(key, stat):
-    if "window_size" not in stat.keys():
-        return None, None
-    window_size = stat.get("window_size", None)
-    step_size = stat.get("step_size", window_size)
-    try:
-        assert len(step_size) == len(window_size)
-    except AssertionError:
-        logger.error(f"config section '{k}:statistics:{key}' window size and step size must be of equal lengths")
-        raise
-    return window_size, step_size
 
 
 def preprocess_config(config):

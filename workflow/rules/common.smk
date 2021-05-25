@@ -46,13 +46,9 @@ reads = ReadData(config["reads"].get("readfile", None),
                  ignore=config["reads"].get("ignore", None))
 
 reads = reads.subset(samples=allsamples.unique_samples.tolist())
-# FIXME: sometimes access to sample data is necessary in config
-# functions (e.g. when subsetting on population) or calculating
-# ploidy. Then again samples dictionary is not enormous
-config["__allsamples__"] = allsamples
 
 # Wrap config dictionary
-cfg = Config(config)
+cfg = Config(config, allsamples)
 
 ##############################
 ## Paths - set in and get from config?
@@ -109,12 +105,12 @@ wildcard_constraints:
     dot = "(|.)",
     fa = wildcards_or(ext["fa"]),
     fastq = wildcards_or(ext["fastq"]),
-    filternum = "[0-9]{2}",
     filtername = wildcards_or(filter_schema.names),
     genome = os.path.splitext(os.path.basename(cfg['db']['ref']))[0],
     group = "(ind|pool)",
     gz = wildcards_or(ext["gz"], True),
     ind_vc = wildcards_or(cfg['workflow']['variantcallers']['ind']),
+    itemnum = "[0-9]{2}",
     kmer = "[0-9]+",
     ossep = "(|/)",
     partition = "[0-9]+",
@@ -125,7 +121,6 @@ wildcard_constraints:
     repeatmask = wildcards_or(ext["rm"], True),
     sample = wildcards_or(allsamples.unique_samples),
     sex = wildcards_or(definitions.definitions.ploidy.properties.keys()),
-    statnum = "[0-9]{2}",
     statname = "(windowed_statistic|plain_statistic)",
     step_size = "[0-9]+",
     target = "[0-9]+",

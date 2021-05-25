@@ -54,7 +54,7 @@ analysis/popoolation_best_practice:
     - windowed_statistic:
         statistic: ["pi", "theta"]
         window_size: [10000]
-        options: --min-covered-fraction .1 --fastq-type sanger
+        options: --min-count 2 --min-coverage 6 --min-covered-fraction .1 --fastq-type sanger
 
 
 analysis/popoolation2_best_practice:
