@@ -81,7 +81,8 @@ rule qc_picard_collect_insert_size_metrics:
 rule qc_picard_mark_duplicates:
     output: metrics = "{interim}/map/{aligner}/dedup/{sample}{bam}.dup_metrics.txt",
             bam = "{interim}/map/{aligner}/dedup/{sample}{bam}"
-    input: "{interim}/map/{aligner}/{sample}{bam}"
+    input: bam = "{interim}/map/{aligner}/{sample}{bam}",
+           bai = "{interim}/map/{aligner}/{sample}{bam}.bai"
     log: "logs/{interim}/qc/align/{aligner}/{sample}{bam}.dup_metrics.log"
     resources:
         runtime = lambda wildcards, attempt: cfg.ruleconf("qc_picard_mark_duplicates", attempt).resources("runtime"),
