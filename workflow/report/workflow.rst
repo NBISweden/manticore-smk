@@ -89,11 +89,6 @@ starting point for subsequent analyses.
 Analysis sets
 --------------
 
-.. image:: {{ snakemake.config["__workflow_basedir__"] }}/report/raw.svg
-   :width: 20%
-   :align: center
-
-
 Once raw data has been generated it can be further analyzed in
 *analysis sets*. Each analysis set has a configuration section named
 `analysis/[0-9a-zA-Z-_]+` with results for any given set ending up in

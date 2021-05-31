@@ -47,6 +47,23 @@ reads = ReadData(config["reads"].get("readfile", None),
 
 reads = reads.subset(samples=allsamples.unique_samples.tolist())
 
+## Store some workflow metadata
+config["__workflow_basedir__"] = workflow.basedir
+config["__workflow_workdir__"] = os.getcwd()
+config["__worfklow_commit__"] = None
+config["__worfklow_commit_link__"] = None
+
+try:
+    with cd(workflow.basedir, logger):
+        commit = sp.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+        commit_short = sp.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+        config["__workflow_commit__"] = commit_short
+        config["__workflow_commit_link__"] = f"https://github.com/NBISweden/manticore-smk/commit/{commit}"
+except Exception as e:
+    print(e)
+    raise
+
+
 # Wrap config dictionary
 cfg = Config(config, allsamples)
 
@@ -127,22 +144,6 @@ wildcard_constraints:
     tool = wildcards_or(definitions.definitions.tool.enum)
 
 wc = workflow._wildcard_constraints
-
-## Store some workflow metadata
-cfg["__workflow_basedir__"] = workflow.basedir
-cfg["__workflow_workdir__"] = os.getcwd()
-cfg["__worfklow_commit__"] = None
-cfg["__worfklow_commit_link__"] = None
-
-try:
-    with cd(workflow.basedir, logger):
-        commit = sp.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
-        commit_short = sp.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
-        cfg["__workflow_commit__"] = commit_short
-        cfg["__workflow_commit_link__"] = f"https://github.com/NBISweden/manticore-smk/commit/{commit}"
-except Exception as e:
-    print(e)
-    raise
 
 
 ##################################################
