@@ -254,10 +254,9 @@ class AnalysisItem(PropertyDict):
         d = dict(self._wildcards)
         if d != {} and "target" not in d.keys():
             try:
-                npart = [self.get_region(d["region"]).npart]
+                npart = self.get_region(d["region"]).npart
             except Exception as e:
-                raise
-            finally:
+                print(e)
                 npart = self.npart[0]
             d["target"] = range(npart)
         return d
