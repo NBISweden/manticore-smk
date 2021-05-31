@@ -253,7 +253,13 @@ class AnalysisItem(PropertyDict):
             return dict()
         d = dict(self._wildcards)
         if d != {} and "target" not in d.keys():
-            d["target"] = range(self.npart[0])
+            try:
+                npart = [self.get_region(d["region"]).npart]
+            except Exception as e:
+                raise
+            finally:
+                npart = self.npart[0]
+            d["target"] = range(npart)
         return d
 
     @property
@@ -318,6 +324,9 @@ class AnalysisItem(PropertyDict):
     @property
     def region_names(self):
         return [r.name for r in self.regions]
+
+    def get_region(self, name):
+        return self._analysis.get_region(name)
 
     @property
     def npart(self):
@@ -512,6 +521,13 @@ class Analysis(PropertyDict):
     @property
     def populations(self):
         return self.allsamples.data.population.tolist()
+
+    def get_region(self, name):
+        for r in self.regions:
+            if name == r.name:
+                return r
+        logger.error(f"No such region '{name}' for analysis {self.name}")
+        return None
 
     @property
     def check(self):
