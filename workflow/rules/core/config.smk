@@ -465,7 +465,7 @@ class Statistic(AnalysisItem):
         if isinstance(wildcards, snakemake.io.Wildcards):
             self._wildcards = wildcards
         if self.wildcards:
-            return expand(self.fmt, **filt.wildcards)
+            return expand(self.fmt, **self.wildcards)
         val = []
         for r in self.regions:
             for statistic in self.get("statistic"):
@@ -476,9 +476,14 @@ class Statistic(AnalysisItem):
                     'sample': self.unique_samples
                 }
                 if self.name == "windowed_statistic":
-                    d['window_size'] = self.window_config[0]
-                    d['step_size'] = self.window_config[1]
-                val.extend(expand(self.fmt, **d))
+                    window_size = self.window_config[0]
+                    step_size = self.window_config[1]
+                    for w, s in zip(window_size, step_size):
+                        d['window_size'] = w
+                        d['step_size'] = s
+                        val.extend(expand(self.fmt, **d))
+                else:
+                    val.extend(expand(self.fmt, **d))
         return val
 
 class Plot(AnalysisItem):
