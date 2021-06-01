@@ -173,9 +173,12 @@ class SampleData:
                 continue
             if k == "group":
                 if v == "ind":
-                    keep = keep & self.samplesize == 1
+                    keep = keep & (self.samplesize == 1)
                 elif v == "pool":
-                    keep = keep & self.samplesize != 1
+                    keep = keep & (self.samplesize != 1)
+                else:
+                    logger.error("No such group {}".format(v))
+                    sys.exit()
                 continue
             if isinstance(v, set):
                 v = list(v)
