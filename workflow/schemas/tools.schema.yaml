@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: tool configurations
+
+type: object
+
+definitions:
+
+  jellyfish.config:
+    type: object
+    description: top-level jellyfish configuration
+    default: {}
+    properties:
+      kmer:
+        type: array
+        items:
+          type: integer
+        uniqueItems: true
+        default: [21]
