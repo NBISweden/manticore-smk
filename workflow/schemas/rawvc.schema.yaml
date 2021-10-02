@@ -6,54 +6,24 @@ type: object
 
 definitions:
 
-  resources.rule.java.gatk.annotation:
+  rule.gatk.annotation:
     description: Specifically tailored gatk rule for annotations
     type: object
     default: {}
     properties:
       options:
         $ref: "definitions.schema.yaml#/definitions/options"
-      threads:
-        $ref: "definitions.schema.yaml#/definitions/threads"
-      mem_mb:
-        $ref: "definitions.schema.yaml#/definitions/mem_mb"
-      runtime:
-        $ref: "definitions.schema.yaml#/definitions/runtime"
+      envmodules:
+        $ref: "definitions.schema.yaml#/definitions/envmodules"
       java_options:
         $ref: "definitions.schema.yaml#/definitions/java_options"
-      java_tmpdir:
-        $ref: "definitions.schema.yaml#/definitions/java_tmpdir"
       annotation:
         type: array
+        default: ['QualByDepth', 'FisherStrand',
+        'StrandOddsRatio', 'RMSMappingQuality',
+        'MappingQualityRankSumTest', 'ReadPosRankSumTest',
+        'InbreedingCoeff']
         items:
           type: string
         uniqueItems: true
     additionalProperties: false
-
-  rawvc_picard_create_sequence_dictionary:
-    description: configuration for picard CreateSequenceDictionary
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  rawvc_samtools_faidx_ref:
-    description: configuration for samtools faidx
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
-  rawvc_gatkhc_targets:
-    description: haplotype caller config
-    $ref: "#/definitions/resources.rule.java.gatk.annotation"
-
-  rawvc_gatk_genomics_db_import:
-    description: Genomics DB import config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  rawvc_gatk_genotype_gvcfs:
-    description: GenotypeGVCFs config
-    $ref: "#/definitions/resources.rule.java.gatk.annotation"
-
-  rawvc_picard_merge_vcfs_targets:
-    description: Picard merge vcfs for targeted regions
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  rawvc_bcftools_concat_vcfs_targets:
-    description: bcftools concat vcfs for targeted regions
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"

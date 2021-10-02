@@ -58,26 +58,23 @@ properties:
     default: {}
 
   ##############################
-  # Resources and rules
+  # Rule configuration
   ##############################
-  resources.default:
-    $ref: "definitions.schema.yaml#/definitions/resources.default"
+  rules:
+    $ref: "definitions.schema.yaml#/definitions/rules.config"
     default: {}
 
-  resources:
-    $ref: "definitions.schema.yaml#/definitions/resources"
-    default: {}
 
 ##############################
 # analysis sets
 ##############################
 patternProperties:
-  '^resources/[a-zA-Z\.\-_0-9/\{\}]+':
-    type: object
-    $ref: "definitions.schema.yaml#/definitions/resources"
-    description: >-
-        resources configuration for specific regions, treatments and
-        other factors
+#   '^resources/[a-zA-Z\.\-_0-9/\{\}]+':
+#     type: object
+#     $ref: "definitions.schema.yaml#/definitions/resources"
+#     description: >-
+#         resources configuration for specific regions, treatments and
+#         other factors
   '^analysis/[0-9a-zA-Z-_]+':
     type: object
     $ref: "analysisset.schema.yaml#/definitions/analysis"

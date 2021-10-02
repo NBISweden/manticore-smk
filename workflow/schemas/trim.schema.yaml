@@ -14,7 +14,7 @@ definitions:
       https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq
 
 
-  resources.rule.cutadapt:
+  rule.cutadapt.config:
     title: Cutadapt rule configuration
     description: generic configuration for cutadapt
     type: object
@@ -22,12 +22,8 @@ definitions:
     properties:
       options:
         $ref: "definitions.schema.yaml#/definitions/options"
-      threads:
-        $ref: "definitions.schema.yaml#/definitions/threads"
-      mem_mb:
-        $ref: "definitions.schema.yaml#/definitions/mem_mb"
-      runtime:
-        $ref: "definitions.schema.yaml#/definitions/runtime"
+      envmodules:
+        $ref: "definitions.schema.yaml#/definitions/envmodules"
       adapters:
         $ref: "#/definitions/adapters"
     additionalProperties: false

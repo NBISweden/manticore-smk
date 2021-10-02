@@ -18,10 +18,7 @@ workflow:
         common: 2
   qc: ['picard', 'fastqc', 'jellyfish', 'sambamba', 'bcftools', 'qualimap']
 
-resources.default:
-  java_options: -Xmx1024M
-
-resources:
+rules:
   popoolation_variance_sliding:
     options: --min-count 2 --min-coverage 6
 

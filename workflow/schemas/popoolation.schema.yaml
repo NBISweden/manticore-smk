@@ -6,18 +6,6 @@ type: object
 
 definitions:
 
-  popoolation_samtools_filter_mpileup:
-    description: samtools filter mpileup config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
-  popoolation_filter_pileup_by_gtf:
-    description: filter pileup by gtf config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
-  popoolation_subsample_pileup:
-    description: subsample pileup config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
   popoolation_variance_sliding:
     description: variance sliding config
     type: object
@@ -30,8 +18,4 @@ definitions:
             items:
               type: string
               enum: ['pi', 'D', 'theta']
-      - $ref: "definitions.schema.yaml#/definitions/resources.rule.window"
-
-  popoolation_gather_parallel_results:
-    description: gather parallel results config
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
+      - $ref: "definitions.schema.yaml#/definitions/rule.window.config"

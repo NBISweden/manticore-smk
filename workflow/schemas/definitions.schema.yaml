@@ -16,20 +16,14 @@ definitions:
     items:
       type: string
     uniqueItems: true
-  runtime:
-    description: rule runtime in minutes
-    type: integer
-  threads:
-    description: number of threads
-    type: integer
-  mem_mb:
-    description: Resource that defines assigned memory in megabases
-    type: integer
+  envmodules:
+    description: environment module list
+    type: array
+    items:
+      type: string
+    uniqueItems: true
   java_options:
     description: options to pass to java interpreter
-    type: string
-  java_tmpdir:
-    description: java temporary directory
     type: string
   step_size:
     description: step size
@@ -102,102 +96,6 @@ definitions:
       type: string
       uniqueItems: true
 
-
-  ##############################
-  # Default resources
-  ##############################
-
-  resources.default:
-    title: Default resources.
-    description: >
-      Default resources. Any rule that does not specify resources will
-      fall back on these default values.
-    type: object
-    default: {}
-    properties:
-      threads:
-        $ref: "#/definitions/threads"
-        default: 1
-      mem_mb:
-        $ref: "#/definitions/mem_mb"
-        default: 8192
-      runtime:
-        $ref: "#/definitions/runtime"
-        default: 120
-      options:
-        $ref: "#/definitions/options"
-        default: ""
-      java_options:
-        $ref: "#/definitions/java_options"
-        default: ""
-      java_tmpdir:
-        $ref: "#/definitions/java_tmpdir"
-        default: "/tmp"
-    additionalProperties: false
-
-  ##############################
-  # Rule resources
-  ##############################
-
-  resources.rule:
-    title: Rule configuration
-    description: generic configuration for rules
-    type: object
-    properties:
-      options:
-        $ref: "#/definitions/options"
-      threads:
-        $ref: "#/definitions/threads"
-      mem_mb:
-        $ref: "#/definitions/mem_mb"
-      runtime:
-        $ref: "#/definitions/runtime"
-
-
-  ##############################
-  # Java rule resources
-  ##############################
-
-  resources.rule.java:
-    title: Java rule configuration
-    description: generic configuration for java rules
-    type: object
-    properties:
-      options:
-        $ref: "#/definitions/options"
-      threads:
-        $ref: "#/definitions/threads"
-      mem_mb:
-        $ref: "#/definitions/mem_mb"
-      runtime:
-        $ref: "#/definitions/runtime"
-      java_options:
-        $ref: "#/definitions/java_options"
-      java_tmpdir:
-        $ref: "#/definitions/java_tmpdir"
-
-
-  ##############################
-  # Windowed rule resources
-  ##############################
-
-  resources.rule.window:
-    title: Windowed rule configuration
-    description: generic configuration for rules that do sliding window analyses
-    type: object
-    properties:
-      options:
-        $ref: "#/definitions/options"
-      threads:
-        $ref: "#/definitions/threads"
-      mem_mb:
-        $ref: "#/definitions/mem_mb"
-      runtime:
-        $ref: "#/definitions/runtime"
-      step_size:
-        $ref: "#/definitions/step_size"
-      window_size:
-        $ref: "#/definitions/window_size"
 
   ##############################
   # File system layout
@@ -338,231 +236,109 @@ definitions:
 
 
   ##############################
-  # Resources; defines property for the vast majority of workflow
+  # Rule definitions
+  ##############################
+
+  rule.config:
+    title: Rule configuration
+    description: generic configuration for rules
+    type: object
+    default: {}
+    properties:
+      options:
+        $ref: "#/definitions/options"
+      envmodules:
+        $ref: "#/definitions/envmodules"
+
+  ##############################
+  # Java rule
+  ##############################
+
+  rule.java.config:
+    title: Java rule configuration
+    description: generic configuration for java rules
+    type: object
+    properties:
+      options:
+        $ref: "#/definitions/options"
+      envmodules:
+        $ref: "#/definitions/envmodules"
+      java_options:
+        $ref: "#/definitions/java_options"
+
+
+  ##############################
+  # Windowed rule
+  ##############################
+
+  rule.window.config:
+    title: Windowed rule configuration
+    description: generic configuration for rules that do sliding window analyses
+    type: object
+    properties:
+      options:
+        $ref: "#/definitions/options"
+      envmodules:
+        $ref: "#/definitions/envmodules"
+      step_size:
+        $ref: "#/definitions/step_size"
+      window_size:
+        $ref: "#/definitions/window_size"
+
+  ##############################
+  # Rules; defines property for the vast majority of workflow
   # rules. This section is reused in its entirety in
   # config.schema.yaml in the patternProperties property listing
   ##############################
 
-  resources:
-    title: Resources configuration
+  rules.config:
+    title: Rule configuration
     description: >
       This schema defines rule schemas for all rules in the workflow.
-      There are also additional placeholders for sex, region and
-      treatment in case particular options/settings have to be applied
-      to specific subsets of the data
     type: object
+    default: {}
+    # Rules with specific defaults must be listed explicitly
     properties:
-      ##############################
-      # Region, treatment and sex placeholders
-      ##############################
-      region:
-        type: string
-
-      treatment:
-        $ref: "samples.ind.schema.yaml#/definitions/treatment"
-
-      sex:
-        $ref: "samples.ind.schema.yaml#/definitions/sex"
-
-      ##############################
-      # Trim rules
-      ##############################
+      # Trimming rules
       trim_cutadapt_pe:
         default:
           adapters: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
-        $ref: "trim.schema.yaml#/definitions/resources.rule.cutadapt"
+        $ref: "trim.schema.yaml#/definitions/rule.cutadapt.config"
 
       trim_cutadapt_se:
         default:
           adapters: -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
-        $ref: "trim.schema.yaml#/definitions/resources.rule.cutadapt"
-
-      ##############################
-      # Qc rules
-      ##############################
-      qc_multiqc:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_multiqc"
-
-      qc_fastqc:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_fastqc"
-
-      qc_jellyfish:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_jellyfish"
-
-      qc_jellyfish_count:
-        default:
-          options: -s 100M -C
-        $ref: "qc.schema.yaml#/definitions/qc_jellyfish_count"
-
-      qc_jellyfish_histo:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_jellyfish_histo"
-
-      qc_picard_collect_alignment_summary_metrics:
-        default:
-          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
-        $ref: "qc.schema.yaml#/definitions/qc_picard_collect_alignment_summary_metrics"
-
-      qc_picard_collect_insert_size_metrics:
-        default:
-          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
-        $ref: "qc.schema.yaml#/definitions/qc_picard_collect_insert_size_metrics"
-
-      qc_picard_mark_duplicates:
-        default:
-          options: "-VALIDATION_STRINGENCY LENIENT -REMOVE_DUPLICATES true"
-        $ref: "qc.schema.yaml#/definitions/qc_picard_mark_duplicates"
-
-      qc_qualimap_bamqc_se:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_qualimap_bamqc_se"
-
-      qc_qualimap_bamqc_pe:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_qualimap_bamqc_pe"
-
-      qc_sambamba_depth:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_sambamba_depth"
-
-      qc_bcftools_stats:
-        default: {}
-        $ref: "qc.schema.yaml#/definitions/qc_bcftools_stats"
-
-      ##############################
-      # Mapping
-      ##############################
-
-      map_samtools_faidx_ref:
-        default: {}
-        $ref: "map.schema.yaml#/definitions/map_samtools_faidx_ref"
-
-      map_samtools_index:
-        default: {}
-        $ref: "map.schema.yaml#/definitions/map_samtools_index"
-
-      map_bwa_index:
-        default: {}
-        $ref: "map.schema.yaml#/definitions/map_bwa_index"
+        $ref: "trim.schema.yaml#/definitions/rule.cutadapt.config"
 
       map_bwa_mem:
         default: {}
         $ref: "map.schema.yaml#/definitions/map_bwa_mem"
 
-      map_picard_merge_sam:
+      # QC rules
+      qc_jellyfish:
         default: {}
-        $ref: "map.schema.yaml#/definitions/map_picard_merge_sam"
+        $ref: "tools.schema.yaml#/definitions/jellyfish.config"
 
-
-      ##############################
-      # rawvc
-      ##############################
-
-      rawvc_samtools_faidx_ref:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_samtools_faidx_ref"
-
-      rawvc_gatkhc_targets:
+      qc_jellyfish_count:
         default:
-          annotation: ['QualByDepth', 'FisherStrand',
-            'StrandOddsRatio', 'RMSMappingQuality',
-            'MappingQualityRankSumTest', 'ReadPosRankSumTest',
-            'InbreedingCoeff']
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatkhc_targets"
+          options: -s 100M -C
+        $ref: "#/definitions/rule.config"
 
-      rawvc_picard_create_sequence_dictionary:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_create_sequence_dictionary"
-
-      rawvc_gatk_genomics_db_import:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genomics_db_import"
-
-      rawvc_gatk_genotype_gvcfs:
+      qc_picard_mark_duplicates:
         default:
-          annotation: ['QualByDepth', 'FisherStrand',
-            'StrandOddsRatio', 'RMSMappingQuality',
-            'MappingQualityRankSumTest', 'ReadPosRankSumTest',
-            'InbreedingCoeff']
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_gatk_genotype_gvcfs"
-
-      rawvc_picard_merge_vcfs_targets:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_picard_merge_vcfs_targets"
-
-      rawvc_bcftools_concat_vcfs_targets:
-        default: {}
-        $ref: "rawvc.schema.yaml#/definitions/rawvc_bcftools_concat_vcfs_targets"
-
-      ##############################
-      # Variantfilter
-      ##############################
-
-      filter_vcf_select:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_select"
-
-      filter_vcf_filter:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_filter"
-
-      filter_vcf_convert:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_convert"
-
-      filter_vcf_concat:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_concat"
-
-      filter_vcf_mask:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_vcf_mask"
-
-      filter_gatk_select_variants:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_select_variants"
-
-      filter_gatk_variant_JEXL_filtration:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_variant_JEXL_filtration"
-
-      filter_gatk_jexl_filter_variants:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_gatk_jexl_filter_variants"
-
-      filter_bcftools_concat_vcfs:
-        default: {}
-        $ref: "variantfilter.schema.yaml#/definitions/filter_bcftools_concat_vcfs"
-
-      ##############################
-      # Statistics
-      ##############################
-
-      statistic_windowed_vcf:
-        default: {}
-        $ref: "statistic.schema.yaml#/definitions/statistic_windowed_vcf"
-
-      ##############################
-      # Popoolation
-      ##############################
+          options: "-VALIDATION_STRINGENCY LENIENT -REMOVE_DUPLICATES true"
+        $ref: "#/definitions/rule.config"
 
       popoolation_samtools_filter_mpileup:
         default:
           filter_options: -q 20
-        $ref: "popoolation.schema.yaml#/definitions/popoolation_samtools_filter_mpileup"
-
-      popoolation_filter_pileup_by_gtf:
-        default: {}
-        $ref: "popoolation.schema.yaml#/definitions/popoolation_filter_pileup_by_gtf"
+        $ref: "#/definitions/rule.config"
 
       popoolation_subsample_pileup:
         default:
           options:
             --method withoutreplace --fastq-type sanger --target-coverage 50 --max-coverage 100 --min-qual 20
-        $ref: "popoolation.schema.yaml#/definitions/popoolation_subsample_pileup"
+        $ref: "#/definitions/rule.config"
 
       popoolation_variance_sliding:
         default:
@@ -570,50 +346,61 @@ definitions:
           step_size: [50000]
         $ref: "popoolation.schema.yaml#/definitions/popoolation_variance_sliding"
 
-      popoolation_gather_parallel_results:
-        default: {}
-        $ref: "popoolation.schema.yaml#/definitions/popoolation_gather_parallel_results"
+      qc_picard_collect_alignment_summary_metrics:
+        default:
+          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+        $ref: "#/definitions/rule.config"
 
-      ##############################
-      # Popoolation2
-      ##############################
+      qc_picard_collect_insert_size_metrics:
+        default:
+          options: "VALIDATION_STRINGENCY=LENIENT METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
+        $ref: "#/definitions/rule.config"
 
-      popoolation2_samtools_mpileup:
+      rawvc_gatkhc_targets:
         default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_samtools_mpileup"
+        $ref: "rawvc.schema.yaml#/definitions/rule.gatk.annotation"
 
-      popoolation2_mpileup2sync_jar:
+      rawvc_gatk_genotype_gvcfs:
         default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_mpileup2sync_jar"
+        $ref: "rawvc.schema.yaml#/definitions/rule.gatk.annotation"
 
-      popoolation2_indel_filtering_identify_indel_regions:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_indel_filtering_identify_indel_regions"
+    ##############################
+    # patternProperties: only for validation; not possible to set defaults
+    ##############################
+    patternProperties:
+      ^(filter_bcftools_concat_vcfs|statistic_windowed_vcf)$:
+        $ref: "#/definitions/rule.config"
 
-      popoolation2_gather_parallel_results:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_gather_parallel_results"
+      ^qc_(multiqc|fastqc|jellyfish_histo|qualimap_bamqc_pe|qualimap_bamqc_se|sambamba_depth|bcftools_stats)$:
+        description: qc rule configuration
+        $ref: "#/definitions/rule.config"
 
-      popoolation2_indel_filtering_filter_sync_by_gtf:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_indel_filtering_filter_sync_by_gtf"
+      ^map_(samtools_faidx_ref|samtools_index|bwa_index|picard_merge_sam)$:
+        description: map rules
+        $ref: "#/definitions/rule.config"
 
-      popoolation2_indel_filtering_remove_indels:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_indel_filtering_remove_indels"
+      ^rawvc_(picard_create_sequence_dictionary|gatk_genomics_db_import|picard_merge_vcfs_targets)$:
+        description: rawvc java rules
+        $ref: "#/definitions/rule.java.config"
 
-      popoolation2_subsample_synchronized:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_subsample_synchronized"
+      ^rawvc_(samtools_faidx_ref|bcftools_concat_vcfs_targets)$:
+        description: rawvc rules
+        $ref: "#/definitions/rule.config"
 
-      popoolation2_fst_sliding:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_fst_sliding"
+      ^filter_(vcf_select|vcf_filter|vcf_convert|vcf_concat|vcf_mask|gatk_select_variants)$:
+        $ref: "#/definitions/rule.java.config"
 
-      popoolation2_fisher_test:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_fisher_test"
+      ^filter_(gatk_variant_JEXL_filtration|gatk_jexl_filter_variants)$:
+        $ref: "variantfilter.schema.yaml#/definitions/rule.java.gatk.filter.config"
 
-      popoolation2_snp_frequency_diff:
-        default: {}
-        $ref: "popoolation2.schema.yaml#/definitions/popoolation2_snp_frequency_diff"
+      ^popoolation_(filter_pileup_by_gtf|gather_parallel_results)$:
+        $ref: "#/definitions/rule.config"
+
+      ^popoolation2_(samtools_mpileup|indel_filtering_identify_indel_regions|gather_parallel_results|indel_filtering_filter_sync_by_gtf|indel_filtering_remove_indels|subsample_synchronized|snp_frequency_diff)$:
+        $ref: "#/definitions/rule.config"
+
+      ^popoolation2_(mpileup2sync_jar)$:
+        $ref: "#/definitions/rule.java.config"
+
+      ^popoolation2_(fst_sliding|fisher_test)$:
+        $ref: "#/definitions/rule.window.config"

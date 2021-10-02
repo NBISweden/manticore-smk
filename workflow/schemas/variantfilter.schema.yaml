@@ -6,23 +6,15 @@ type: object
 
 definitions:
 
-  resources.rule.java.gatk.filter:
+  rule.java.gatk.filter.config:
     description: Specifically tailored gatk rule for filters
     type: object
     default: {}
     properties:
       options:
         $ref: "definitions.schema.yaml#/definitions/options"
-      threads:
-        $ref: "definitions.schema.yaml#/definitions/threads"
-      mem_mb:
-        $ref: "definitions.schema.yaml#/definitions/mem_mb"
-      runtime:
-        $ref: "definitions.schema.yaml#/definitions/runtime"
       java_options:
         $ref: "definitions.schema.yaml#/definitions/java_options"
-      java_tmpdir:
-        $ref: "definitions.schema.yaml#/definitions/java_tmpdir"
       # FIXME: this is obsolete in new setup
       filters:
         type: object
@@ -41,39 +33,3 @@ definitions:
             uniqueItems: true
             default: ["QD < 2.0", "ReadPosRankSum < -20.0", "FS > 200.0", "SOR > 10.0"]
     additionalProperties: false
-
-  filter_vcf_select:
-    description: Filter vcf select configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_vcf_filter:
-    description: Filter vcf configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_vcf_convert:
-    description: Filter vcf convert configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_vcf_concat:
-    description: Filter vcf concat configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_vcf_mask:
-    description: Filter vcf mask configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_gatk_select_variants:
-    description: GATK SelectVariants configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule.java"
-
-  filter_gatk_variant_JEXL_filtration:
-    description: GATK JEXL filtration configuration
-    $ref: "#/definitions/resources.rule.java.gatk.filter"
-
-  filter_gatk_jexl_filter_variants:
-    description: GATK JEXL filtration configuration
-    $ref: "#/definitions/resources.rule.java.gatk.filter"
-
-  filter_bcftools_concat_vcfs:
-    description: GATK JEXL filtration configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"

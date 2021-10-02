@@ -8,9 +8,14 @@ import contextlib
 from collections import OrderedDict
 from snakemake.utils import logger, validate
 from snakemake.io import _load_configfile
+from typing import Union, List, Dict
+from dataclasses import dataclass, field, asdict
 
-WORKFLOW_DIR = workflow.current_basedir
-SCHEMA_DIR = os.path.realpath(os.path.join(WORKFLOW_DIR, os.pardir, os.pardir, "schemas"))
+WORKFLOW_DIR = str(workflow.current_basedir)
+SCHEMA_DIR = os.path.realpath(
+    os.path.join(WORKFLOW_DIR, os.pardir, os.pardir, "schemas")
+)
+
 
 def wildcards_or(items, empty=False):
     items = list(set(items))
@@ -37,6 +42,7 @@ def cd(path, logger):
 
 class PropertyDict(OrderedDict):
     """Simple class that allows for property access"""
+
     def __init__(self, data=dict()):
         super().__init__(data)
         for k, v in data.items():
@@ -76,7 +82,6 @@ class Schema(PropertyDict):
     @property
     def schemafile(self):
         return self._schemafile
-
 
 
 class FilterSchema(Schema):
@@ -121,8 +126,9 @@ class SampleData:
             elif isinstance(args, str):
                 self._read_tsv(args)
         elif len(args) > 1:
-            assert all(isinstance(x, SampleData) for x in args), \
-                logger.error("all instances must be SampleData")
+            assert all(isinstance(x, SampleData) for x in args), logger.error(
+                "all instances must be SampleData"
+            )
             self._index = args[0]._index
             self._schemafile = args[0]._schemafile
             self._data = pd.concat(x.data for x in args)
@@ -131,7 +137,6 @@ class SampleData:
         validate(self.data, schema=self.schemafile)
         if len(ignore) > 0:
             self._data = self.subset(samples=ignore, invert=True).data
-
 
     def _read_tsv(self, infile):
         self._data = pd.read_csv(infile, sep="\t").set_index(self._index, drop=False)
@@ -213,7 +218,9 @@ class ReadData(SampleData):
 
     def trim(self, regex_from, regex_to):
         if len(self._data) > 0:
-            self._data["reads.trimmed"] = self._data["reads"].str.replace(str(regex_from), str(regex_to / "map/trim"))
+            self._data["reads.trimmed"] = self._data["reads"].str.replace(
+                str(regex_from), str(regex_to / "map/trim")
+            )
 
     @property
     def populations(self):
@@ -243,7 +250,7 @@ class AnalysisItem(PropertyDict):
                 v["tool"] = tool
                 data[k] = v
         super().__init__(data)
-        assert len(self.keys()) == 1,  f"only one key allowed: {self.keys()}"
+        assert len(self.keys()) == 1, f"only one key allowed: {self.keys()}"
         self._name = list(self.keys())[0]
         self._index = int(index)
         self._analysis = analysis
@@ -295,7 +302,10 @@ class AnalysisItem(PropertyDict):
     @property
     def prefix(self):
         if self.index >= 1:
-            return os.path.join(self._analysis.prefix, "_".join([f"{self.label}{self.num}", self.name, self.tool]))
+            return os.path.join(
+                self._analysis.prefix,
+                "_".join([f"{self.label}{self.num}", self.name, self.tool]),
+            )
         else:
             # Ugly hack; the general tool gatk is different from the
             # variant caller application name gatkhc
@@ -382,9 +392,9 @@ class Filter(AnalysisItem):
                 target = f".{self.wildcards['target']}"
         if self.group == "pool":
             self._scatter = True
-            if self.tool == 'popoolation':
+            if self.tool == "popoolation":
                 out = f"{{sample}}.{{region}}{target}{self.ext}"
-            elif self.tool == 'popoolation2':
+            elif self.tool == "popoolation2":
                 out = f"{{sex}}.{{region}}{target}{self.ext}"
             else:
                 raise Exception
@@ -411,12 +421,12 @@ class Filter(AnalysisItem):
         for r in self.regions:
             for pop, dot in zip(pops, dots):
                 d = {
-                    'population': pop,
-                    'dot': dot,
-                    'sex': filt.sex,
-                    'region': r.name,
-                    'sample': filt.unique_samples,
-                    'target': list(range(r.npart))
+                    "population": pop,
+                    "dot": dot,
+                    "sex": filt.sex,
+                    "region": r.name,
+                    "sample": filt.unique_samples,
+                    "target": list(range(r.npart)),
                 }
                 val.extend(expand(filt.fmt, **d))
         return val
@@ -436,7 +446,9 @@ class Statistic(AnalysisItem):
         try:
             assert len(step_size) == len(window_size)
         except AssertionError:
-            logger.error(f"config section 'statistics:{self.name}' window size and step size must be of equal lengths")
+            logger.error(
+                f"config section 'statistics:{self.name}' window size and step size must be of equal lengths"
+            )
             raise
         return window_size, step_size
 
@@ -470,21 +482,22 @@ class Statistic(AnalysisItem):
         for r in self.regions:
             for statistic in self.get("statistic"):
                 d = {
-                    'statistic': statistic,
-                    'sex': self.sex,
-                    'region': r.name,
-                    'sample': self.unique_samples
+                    "statistic": statistic,
+                    "sex": self.sex,
+                    "region": r.name,
+                    "sample": self.unique_samples,
                 }
                 if self.name == "windowed_statistic":
                     window_size = self.window_config[0]
                     step_size = self.window_config[1]
                     for w, s in zip(window_size, step_size):
-                        d['window_size'] = w
-                        d['step_size'] = s
+                        d["window_size"] = w
+                        d["step_size"] = s
                         val.extend(expand(self.fmt, **d))
                 else:
                     val.extend(expand(self.fmt, **d))
         return val
+
 
 class Plot(AnalysisItem):
     _section = "plots"
@@ -492,6 +505,7 @@ class Plot(AnalysisItem):
 
     def __init__(self, data, analysis, index=0, tool=None):
         super().__init__(data, analysis, index=index, tool=tool)
+
 
 class Analysis(PropertyDict):
     _section = "analysis"
@@ -502,17 +516,29 @@ class Analysis(PropertyDict):
         if default["regions"] == []:
             default["regions"] = default["_regions"]
         else:
-            default["regions"] = [r for r in default["_regions"] if r.name in default["regions"]]
+            default["regions"] = [
+                r for r in default["_regions"] if r.name in default["regions"]
+            ]
         super().__init__(default)
         self._results = kw.get("results", "results")
         self._name = name
         # Subset samples already here
-        self["allsamples"] = self.allsamples.subset(group=self.group, samples=self.samples,
-                                                    sex=self.sex)
+        self["allsamples"] = self.allsamples.subset(
+            group=self.group, samples=self.samples, sex=self.sex
+        )
         # Insert 0th filter and update filters
-        self["filters"] = [Filter(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["filters"])]
-        self["plots"] = [Plot(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["plots"])]
-        self["statistics"] = [Statistic(x, self, index=i+1, tool=self.tool) for i, x in enumerate(self["statistics"])]
+        self["filters"] = [
+            Filter(x, self, index=i + 1, tool=self.tool)
+            for i, x in enumerate(self["filters"])
+        ]
+        self["plots"] = [
+            Plot(x, self, index=i + 1, tool=self.tool)
+            for i, x in enumerate(self["plots"])
+        ]
+        self["statistics"] = [
+            Statistic(x, self, index=i + 1, tool=self.tool)
+            for i, x in enumerate(self["statistics"])
+        ]
         self["filters"].insert(0, Filter(None, self, tool=self.tool))
         self["plots"].insert(0, Plot(None, self, tool=self.tool))
         self["statistics"].insert(0, Statistic(None, self, tool=self.tool))
@@ -538,8 +564,14 @@ class Analysis(PropertyDict):
 
     @property
     def check(self):
-        if len(self.statistics) == 0 and len(self.plots) == 0 and len(self.filters) == 0:
-            logger.info(f"No filters, statistics or plots section for {self.name}: skipping")
+        if (
+            len(self.statistics) == 0
+            and len(self.plots) == 0
+            and len(self.filters) == 0
+        ):
+            logger.info(
+                f"No filters, statistics or plots section for {self.name}: skipping"
+            )
             return False
         return True
 
@@ -556,32 +588,30 @@ class Analysis(PropertyDict):
         return os.path.join(self._results, self.group)
 
 
-class ConfigRule(PropertyDict):
-    def __init__(self, name, attempt=None, *args, **kw):
-        self._name = name
-        self._attempt = attempt
-        super().__init__(*args, **kw)
+@dataclass
+class RuleConfig:
+    _default = workflow.default_resources.parsed
+    name: str
+    envmodules: List[str] = field(default_factory=list)
+    options: Union[str, list, dict] = ""
+    runtime: int = _default.get("runtime", 100)
+    threads: int = 1
+    attempt: int = 1
+    mem_mb: int = _default.get("mem_mb", 1000)
+    java_options: str = _default.get("java_options", "")
+    java_tmpdir: str = _default.get("java_tmpdir", _default["tmpdir"])
+    window_size: List[int] = field(default_factory=list)
+    step_size: List[int] = field(default_factory=list)
+    extra: Dict = field(default_factory=dict)
 
-    @property
-    def attempt(self):
-        if self._attempt is None:
-            return 1
-        return self._attempt
+    def xthreads(self, wildcards, attempt):
+        return attempt * self.threads
 
-    @property
-    def name(self):
-        return self._name
+    def xruntime(self, wildcards, attempt):
+        return attempt * self.runtime
 
-    @property
-    def xthreads(self):
-        return self.attempt * self["threads"]
-
-    def resources(self, resource):
-        assert isinstance(self[resource], int), f"{self}: resource '{resource}' is not an int"
-        return self.attempt * self[resource]
-
-    def params(self, attr):
-        return self[attr]
+    def xmem(self, wildcards, attempt):
+        return attempt * self.mem_mb
 
 
 class Region(PropertyDict):
@@ -608,25 +638,29 @@ class Config(PropertyDict):
     def _init_analyses(self):
         for k in self.keys():
             default = {
-                '_regions': self.regions,
-                'allsamples': self.allsamples,
-                'regions': [],
-                'sex': 'common',
-                'group': None,
-                'samples': [],
-                'statistics': [],
-                'filters': [],
-                'plots': []
+                "_regions": self.regions,
+                "allsamples": self.allsamples,
+                "regions": [],
+                "sex": "common",
+                "group": None,
+                "samples": [],
+                "statistics": [],
+                "filters": [],
+                "plots": [],
             }
             if k.startswith(f"{self._analysissection}/"):
                 self[k] = Analysis(k, default, **self[k])
 
-    def ruleconf(self, rulename, attempt=None):
+    def ruleconf(self, rulename, **kw):
         """Retrieve rule configuration"""
-        ruleobj = ConfigRule(rulename, attempt, self['resources.default'])
-        if rulename in self.resources:
-            ruleobj.update(**self.resources[rulename])
-        return ruleobj
+        rckeys = RuleConfig.__dataclass_fields__.keys()
+        data = {"name": rulename, **kw}
+        if "rules" in self.keys():
+            if rulename in self.rules:
+                d = self.rules[rulename]
+                data.update(**{k: d[k] for k in d.keys() if k in rckeys})
+                data["extra"] = {k: d[k] for k in d.keys() if k not in rckeys}
+        return RuleConfig(**data)
 
     @property
     def regions(self):
@@ -653,7 +687,7 @@ class Config(PropertyDict):
 
     # This should be obtained from FilterSchema?
     def variant_filters(self, rulename, vartype):
-        filters = self.resources[rulename].filters[vartype]
+        filters = self.rules[rulename].filters[vartype]
         d = {f"'GATKStandard({v.split()[0]})'": v for v in filters}
         return d
 
@@ -663,7 +697,9 @@ class Config(PropertyDict):
     @property
     def analyses(self):
         """Retrieve analyses"""
-        return [self[k] for k in self.keys() if k.startswith(f"{self._analysissection}/")]
+        return [
+            self[k] for k in self.keys() if k.startswith(f"{self._analysissection}/")
+        ]
 
     @property
     def analysisnames(self):
@@ -694,6 +730,7 @@ class Config(PropertyDict):
             default = self.ruleconf(rulename).params(attr)
         return analysis_item.get(attr, default)
 
+
 ## FIXME: move this function to config
 def get_filter_input(wildcards):
     """Get filter input."""
@@ -703,8 +740,11 @@ def get_filter_input(wildcards):
     return currentfilter.get("input", {})
 
 
+## FIXME: document why this is needed
+## patternProperties is not validated!
 def preprocess_config(config):
-    """Update filter defaults"""
+    """Update analysis section filter defaults"""
+
     def _update_section(k, section):
         values = config[k].get(section, [])
         updated = []

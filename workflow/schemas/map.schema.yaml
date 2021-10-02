@@ -6,22 +6,9 @@ type: object
 
 definitions:
 
-  map_samtools_faidx_ref:
-    description: samtools faidx mapping configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
-  map_samtools_index:
-    description: samtools index mapping configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
-  map_bwa_index:
-    description: bwa index configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
-
   map_bwa_mem:
     description: bwa mem configuration
     type: object
-    default: {}
     properties:
       sort:
         type: string
@@ -36,14 +23,4 @@ definitions:
         default: ""
       options:
         $ref: "definitions.schema.yaml#/definitions/options"
-      threads:
-        $ref: "definitions.schema.yaml#/definitions/threads"
-      mem_mb:
-        $ref: "definitions.schema.yaml#/definitions/mem_mb"
-      runtime:
-        $ref: "definitions.schema.yaml#/definitions/runtime"
     additionalProperties: false
-
-  map_picard_merge_sam:
-    description: picard merge sam configuration
-    $ref: "definitions.schema.yaml#/definitions/resources.rule"
