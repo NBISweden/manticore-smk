@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.18.0
+      uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -28,13 +28,13 @@ jobs:
     - name: Remove failing qualimap from tests
       run: "sed -i -e \"s/, 'qualimap'//g\" .test/config/config.yaml"
     - name: Install workflow environments
-      uses: snakemake/snakemake-github-action@v1.18.0
+      uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
     - name: Test workflow (local test data)
-      uses: snakemake/snakemake-github-action@v1.18.0
+      uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -42,7 +42,7 @@ jobs:
         stagein: 'mamba install -y -c conda-forge subversion svn;
          ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda'
     - name: Test report
-      uses: snakemake/snakemake-github-action@v1.18.0
+      uses: snakemake/snakemake-github-action@v1.21.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
