@@ -599,7 +599,7 @@ class RuleConfig:
     attempt: int = 1
     mem_mb: int = _default.get("mem_mb", 1000)
     java_options: str = _default.get("java_options", "")
-    java_tmpdir: str = _default.get("java_tmpdir", _default["tmpdir"])
+    java_tmpdir: str = _default.get("java_tmpdir", _default.get("tmpdir", "tmp"))
     window_size: List[int] = field(default_factory=list)
     step_size: List[int] = field(default_factory=list)
     extra: Dict = field(default_factory=dict)

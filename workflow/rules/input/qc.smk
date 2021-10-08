@@ -21,7 +21,9 @@ def all_trim(wildcards):
     df["metrics"] = df["reads"].str.replace(
         str(__RAW__), f"logs/{str(__INTERIM__)}/map/trim"
     )
-    df["metrics"] = df["metrics"].str.replace(ext, "\\2.{pe}.cutadapt_metrics.txt")
+    df["metrics"] = df["metrics"].str.replace(
+        ext, "\\2.{pe}.cutadapt_metrics.txt", regex=True
+    )
     qc = [x.format(pe=pe) for x, pe in zip(df["metrics"], df["pe"])]
     return dict(reads=seq, qc=qc)
 
