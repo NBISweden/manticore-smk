@@ -613,6 +613,9 @@ class RuleConfig:
     def xmem(self, wildcards, attempt):
         return attempt * self.mem_mb
 
+    def params(self, attr):
+        return getattr(self, attr)
+
 
 class Region(PropertyDict):
     def __init__(self, name, *args):
@@ -651,7 +654,7 @@ class Config(PropertyDict):
             if k.startswith(f"{self._analysissection}/"):
                 self[k] = Analysis(k, default, **self[k])
 
-    def ruleconf(self, rulename, **kw):
+    def ruleconf(self, rulename, analysis=None, **kw):
         """Retrieve rule configuration"""
         rckeys = RuleConfig.__dataclass_fields__.keys()
         data = {"name": rulename, **kw}
@@ -715,8 +718,9 @@ class Config(PropertyDict):
         """Return short genome name"""
         return os.path.splitext(os.path.basename(self.db["ref"]))[0]
 
+    ## Return ruleconf for consistency?
     def params(self, wildcards, attr, rulename=None):
-        """Get parameters in analysis context"""
+        """Get rule parameters and options in analysis context"""
         analysis = self.get_analysis(wildcards.analysis)
         index = int(wildcards.itemnum.lstrip("0"))
         if "filtername" in dict(wildcards).keys():

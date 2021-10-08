@@ -14,7 +14,7 @@ rule filter_vcf_select:
     wildcard_constraints:
         filtername="select",
     params:
-        options=cfg.ruleconf("filter_vcf_select").options,
+        options=lambda wildcards: cfg.params(wildcards, "options", "filter_vcf_select"),
         java_opts=cfg.ruleconf("filter_vcf_select").java_options,
     resources:
         runtime=cfg.ruleconf("filter_vcf_select").runtime,
@@ -43,7 +43,7 @@ rule filter_vcf_filter:
         filtername="filter",
     params:
         filters=lambda wildcards: cfg.params(wildcards, "filters"),
-        options=cfg.ruleconf("filter_vcf_filter").options,
+        options=lambda wildcards: cfg.params(wildcards, "options", "filter_vcf_filter"),
         java_opts=cfg.ruleconf("filter_vcf_filter").java_options,
     resources:
         runtime=cfg.ruleconf("filter_vcf_filter").runtime,
@@ -68,7 +68,7 @@ rule filter_vcf_concat:
     wildcard_constraints:
         filtername="concat",
     params:
-        options=cfg.ruleconf("filter_vcf_concat").options,
+        options=lambda wildcards: cfg.params(wildcards, "options", "filter_vcf_concat"),
         java_opts=cfg.ruleconf("filter_vcf_concat").java_options,
     resources:
         runtime=cfg.ruleconf("filter_vcf_concat").runtime,

@@ -137,7 +137,9 @@ rule popoolation2_subsample_synchronized:
     resources:
         runtime=cfg.ruleconf("popoolation2_subsample_synchronized").runtime,
     params:
-        options=cfg.ruleconf("popoolation2_subsample_synchronized").options,
+        options=lambda wildcards: cfg.params(
+            wildcards, "options", "popoolation2_subsample_synchronized"
+        ),
     threads: cfg.ruleconf("popoolation2_subsample_synchronized").threads
     log:
         "logs/{results}/{group}/analysis/{analysis}/f{itemnum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}.log",
@@ -159,7 +161,9 @@ rule popoolation2_fst_sliding:
     resources:
         runtime=cfg.ruleconf("popoolation2_fst_sliding").runtime,
     params:
-        options=cfg.ruleconf("popoolation2_fst_sliding").options,
+        options=lambda wildcards: cfg.params(
+            wildcards, "options", "popoolation2_fst_sliding"
+        ),
         ploidy=lambda wildcards: cfg.ploidy(wildcards.region, sex=wildcards.sex),
         size=lambda wildcards: pools.subset(sex=wildcards.sex).samplesize.tolist(),
     threads: cfg.ruleconf("popoolation2_fst_sliding").threads
@@ -183,7 +187,9 @@ rule popoolation2_fisher_test:
     resources:
         runtime=cfg.ruleconf("popoolation2_fisher_test").runtime,
     params:
-        options=cfg.ruleconf("popoolation2_fisher_test").options,
+        options=lambda wildcards: cfg.params(
+            wildcards, "options", "popoolation2_fisher_test"
+        ),
     threads: cfg.ruleconf("popoolation2_fisher_test").threads
     log:
         "logs/{results}/{group}/analysis/{analysis}/s{itemnum}_{statname}_{tool}/{sex}.{region}.w{window_size}.s{step_size}.{target}.fet.gz.log",
@@ -205,7 +211,9 @@ rule popoolation2_snp_frequency_diff:
     resources:
         runtime=cfg.ruleconf("popoolation2_snp_frequency_diff").runtime,
     params:
-        options=cfg.ruleconf("popoolation2_snp_frequency_diff").options,
+        options=lambda wildcards: cfg.params(
+            wildcards, "options", "popoolation2_snp_frequency_diff"
+        ),
     threads: cfg.ruleconf("popoolation2_snp_frequency_diff").threads
     log:
         "logs/{results}/{group}/analysis/{analysis}/s{itemnum}_{statname}_{tool}/{sex}.{region}.{target}.sync_rc.txt{gz}.log",
