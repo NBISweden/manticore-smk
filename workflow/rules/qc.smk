@@ -26,7 +26,7 @@ rule qc_fastqc:
     input:
         "{prefix}{bamfastq}{gz}",
     resources:
-        runtime=cfg.ruleconf("qc_fastqc").runtime,  # cfg.ruleconf("qc_fastqc").runtime
+        runtime=cfg.ruleconf("qc_fastqc").runtime,
     params:
         cfg.ruleconf("qc_fastqc").options,
     threads: cfg.ruleconf("qc_fastqc").threads
