@@ -32,13 +32,13 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file://github/workspace/workflow/wrappers --conda-create-envs-only"
+        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file://github/workspace/workflow/wrappers"
+        args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
         stagein: 'mamba install -y -c conda-forge -c bioconda -c defaults subversion svn snakemake-wrapper-utils;
          ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda'
     - name: Test report
@@ -46,4 +46,4 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--report report.zip --wrapper-prefix file://github/workspace/workflow/wrappers"
+        args: "--report report.zip --wrapper-prefix file:///github/workspace/workflow/wrappers"
