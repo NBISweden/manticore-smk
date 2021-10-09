@@ -15,8 +15,8 @@ definitions:
         $ref: "definitions.schema.yaml#/definitions/options"
       envmodules:
         $ref: "definitions.schema.yaml#/definitions/envmodules"
-      java_options:
-        $ref: "definitions.schema.yaml#/definitions/java_options"
+      java_opts:
+        $ref: "definitions.schema.yaml#/definitions/java_opts"
       annotation:
         type: array
         default: ['QualByDepth', 'FisherStrand',

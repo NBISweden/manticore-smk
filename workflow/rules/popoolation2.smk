@@ -41,7 +41,7 @@ rule popoolation2_mpileup2sync_jar:
         mem_mb=cfg.ruleconf("popoolation2_mpileup2sync_jar").mem_mb,
         runtime=cfg.ruleconf("popoolation2_mpileup2sync_jar").runtime,
     params:
-        java_options=cfg.ruleconf("popoolation2_mpileup2sync_jar").java_options,
+        java_opts=cfg.ruleconf("popoolation2_mpileup2sync_jar").java_opts,
     threads: cfg.ruleconf("popoolation2_mpileup2sync_jar").threads
     log:
         "logs/{results}/{group}/raw/popoolation2/{sex}.{region}.{target}.sync{gz}.log",
@@ -64,9 +64,9 @@ rule popoolation2_indel_filtering_identify_indel_regions:
             "popoolation2_indel_filtering_identify_indel_regions"
         ).runtime,
     params:
-        java_options=cfg.ruleconf(
+        java_opts=cfg.ruleconf(
             "popoolation2_indel_filtering_identify_indel_regions"
-        ).java_options,
+        ).java_opts,
     threads: cfg.ruleconf("popoolation2_indel_filtering_identify_indel_regions").threads
     log:
         "logs/{results_pool}/raw/popoolation2.indels/{sex}.{region}.{target}.mpileup{gz}.indels.gtf.log",
@@ -91,9 +91,9 @@ rule popoolation2_indel_filtering_filter_sync_by_gtf:
         mem_mb=cfg.ruleconf("popoolation2_indel_filtering_filter_sync_by_gtf").mem_mb,
         runtime=cfg.ruleconf("popoolation2_indel_filtering_filter_sync_by_gtf").runtime,
     params:
-        java_options=cfg.ruleconf(
+        java_opts=cfg.ruleconf(
             "popoolation2_indel_filtering_filter_sync_by_gtf"
-        ).java_options,
+        ).java_opts,
     threads: cfg.ruleconf("popoolation2_indel_filtering_filter_sync_by_gtf").threads
     log:
         "logs/{results}/{group}/analysis/{analysis}/f{itemnum}_{filtername}_{tool}/{sex}.{region}.{target}.sync{gz}.log",

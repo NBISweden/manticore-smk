@@ -22,7 +22,7 @@ definitions:
     items:
       type: string
     uniqueItems: true
-  java_options:
+  java_opts:
     description: options to pass to java interpreter
     type: string
   step_size:
@@ -263,8 +263,8 @@ definitions:
         $ref: "#/definitions/options"
       envmodules:
         $ref: "#/definitions/envmodules"
-      java_options:
-        $ref: "#/definitions/java_options"
+      java_opts:
+        $ref: "#/definitions/java_opts"
 
 
   ##############################

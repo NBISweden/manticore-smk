@@ -598,7 +598,7 @@ class RuleConfig:
     threads: int = 1
     attempt: int = 1
     mem_mb: int = _default.get("mem_mb", 1000)
-    java_options: str = _default.get("java_options", "")
+    java_opts: str = _default.get("java_opts", "")
     java_tmpdir: str = _default.get("java_tmpdir", _default.get("tmpdir", "tmp"))
     window_size: List[int] = field(default_factory=list)
     step_size: List[int] = field(default_factory=list)

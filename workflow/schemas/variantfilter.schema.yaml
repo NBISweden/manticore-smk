@@ -13,8 +13,8 @@ definitions:
     properties:
       options:
         $ref: "definitions.schema.yaml#/definitions/options"
-      java_options:
-        $ref: "definitions.schema.yaml#/definitions/java_options"
+      java_opts:
+        $ref: "definitions.schema.yaml#/definitions/java_opts"
       # FIXME: this is obsolete in new setup
       filters:
         type: object
