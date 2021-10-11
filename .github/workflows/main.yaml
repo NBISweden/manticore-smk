@@ -6,10 +6,22 @@ on:
     branches_ignore: []
 
 jobs:
-  Linting:
+  Linting-and-testing:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v2
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: cache-conda
+      uses: actions/cache@v2
+      env:
+        CACHE_NUMBER: 0
+      with:
+        path: .snakemake/conda
+        key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('.environments.yaml.txt') }}
+
     - name: Lint workflow
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
@@ -17,22 +29,19 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--lint"
 
-  Testing:
-    runs-on: ubuntu-latest
-    needs: Linting
-    timeout-minutes: 30
-    steps:
-    - uses: actions/checkout@v2
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
+
     - name: Remove failing qualimap from tests
       run: "sed -i -e \"s/, 'qualimap'//g\" .test/config/config.yaml"
+
     - name: Install workflow environments
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers --conda-create-envs-only"
+
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.23.0
       with:
@@ -41,6 +50,7 @@ jobs:
         args: "--use-conda --show-failed-logs -j 2 --conda-cleanup-pkgs cache --wrapper-prefix file:///github/workspace/workflow/wrappers"
         stagein: 'mamba install -y -c conda-forge -c bioconda -c defaults subversion svn snakemake-wrapper-utils;
          ./workflow/scripts/manticore_install_popoolation.py --snakefile workflow/Snakefile --env-dir .test/.snakemake/conda'
+
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.21.0
       with:
