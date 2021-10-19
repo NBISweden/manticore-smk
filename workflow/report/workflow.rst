@@ -27,7 +27,8 @@ The analysis can be rerun with the following command:
 
 
 Workflow summary
-----------------
+-----------------
+
 
 The workflow runs the following steps:
 
@@ -76,7 +77,7 @@ Raw data analysis
 ------------------
 
 .. figure:: {{ snakemake.config["__workflow_basedir__"] }}/report/raw.svg
-   :width: 30%
+   :width: 40%
    :align: center
 
    Schematic overview of raw variant calling.
