@@ -211,48 +211,50 @@ See also
 [config.schema.yaml](https://github.com/NBISweden/manticore-smk/blob/main/workflow/schemas/config.schema.yaml)
 for the main configuration sections.
 
+### Rule configuration
+
+Every rule has a corresponding configuration entry under the
+configuration key `rules`. Hence, it is possible to modify and amend
+program `options` and in some cases other settings. For details you
+currently have to inspect the schema files. The following example
+shows how to set some properties for `map_bwa_mem`:
+
+    rules:
+      map_bwa_mem:
+        options: -k 25
+        sort: picard
+        sort_order: queryname
+
 ### Resource configuration
 
-Every rule has a corresponding configuration entry. Hence, it is
-possible to fine tune resource configuration of `threads`, `runtime`,
-and `mem_mb`, as well as modify and amend program `options`. In most
-cases, these values are not initialized, in which case resources fall
-back on default values defined in the `resources.default`
-configuration section:
+Recent snakemake versions have added options that allow for
+fine-tuning of resources via either the command line or
+[profiles](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles).
+Since the workflow consists of many rules, the latter is recommended.
+At its simplest, a profile is a directory with a `config.yaml` file.
+For more elaborate profile templates for cluster execution, see
+[snakemake profiles
+documentation](https://github.com/snakemake-profiles/doc).
 
-    resources.default:
-      threads: 1
-      mem_mb: 8192
-      runtime: 120
-      options: ""
-      java_options: ""
-      java_tmpdir: "/tmp"
+An example profile configuration could look as follows:
 
-Consequently, changing settings in `resources.default` will affect all
-resource settings.
+    restart-times: 3
+    max-jobs-per-second: 1
+    max-status-checks-per-second: 10
+    local-cores: 1
+    latency-wait: 60
+    default-resources:
+      - runtime=100
+      - mem_mb=6000
+      - disk_mb=1000000
+    set-threads:
+      - map_bwa_mem=20
+      - trim_cutadapt_pe=20
+      - qc_qualimap_bamqc_pe=10
+    set-resources:
+      - qc_qualimap_bamqc_pe:mem_mb=12000
+      - rawvc_gatkhc_targets:runtime=1200
 
-To modify resources for a rule, add the corresponding property in the
-`resources` section under the rule name. For instance, to change
-runtime, memory use, and threads for `map_bwa_mem`, add
-
-    resources:
-      map_bwa_mem:
-        threads: 10
-        runtime: 600
-        mem_mb: 16000
-
-### Resource configuration for specific factor levels (WIP)
-
-NB: this has not yet been implemented!
-
-Some resources have to be fine-tuned for specific factor levels. Here,
-a factor level can be the `sex` of a sample or a specific `region`.
-Hence, resources can be tailored specifically for these settings by
-using a syntax `resources/region/sex`:
-
-    resources/Y/female:
-      popoolation2_fisher_test:
-        options: --suppress-noninformative --min-count 2 --min-coverage 25 --max-coverage 10000 --min-covered-fraction .1
 
 
 ## Testing
