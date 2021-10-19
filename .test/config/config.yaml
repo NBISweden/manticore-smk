@@ -63,6 +63,7 @@ analysis/popoolation2_best_practice:
     - mask:
         description: Remove indels
     - select:
+        description: Select true indel sites with a perl snippet
     - filter:
         options: --max-coverage 8 --target-coverage 1 --method withoutreplace
   statistics:
