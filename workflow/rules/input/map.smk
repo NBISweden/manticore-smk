@@ -1,23 +1,27 @@
 def all_map_input(wildcards):
-    targets = all_fastqc(wildcards) + all_jellyfish(wildcards) + \
-        list(set(all_map_sample_targets(wildcards) + all_map_sample_dedup_targets(wildcards)))
+    targets = (
+        all_fastqc(wildcards)
+        + all_jellyfish(wildcards)
+        + list(
+            set(
+                all_map_sample_targets(wildcards)
+                + all_map_sample_dedup_targets(wildcards)
+            )
+        )
+    )
     return targets
 
 
 bwa_ext = [".amb", ".ann", ".bwt", ".pac", ".sa"]
 
+
 def bwa_mem_rg(wildcards):
     df = reads.subset(id=1, samples=wildcards.sample, unit=wildcards.unit).data
-    rg = {
-        'LB': 'lib',
-        'PL': 'ILLUMINA',
-        'SM': wildcards.sample,
-        'PU': wildcards.unit
-    }
-    rglist = df.to_dict('rglist')
+    rg = {"LB": "lib", "PL": "ILLUMINA", "SM": wildcards.sample, "PU": wildcards.unit}
+    rglist = df.to_dict("rglist")
     assert len(rglist) == 1, "only one sample and unit should match read configuration"
     rg.update(rglist[0])
-    rg['id'] = cfg['reads']['read_group_fmt'].format(**rglist[0])
+    rg["id"] = cfg["reads"]["read_group_fmt"].format(**rglist[0])
     rgstr = r'-R "@RG\tID:{id}LB:{LB}\tPL:{PL}\tSM:{SM}\tPU:{PU}"'.format(**rg)
     return rgstr
 
@@ -36,7 +40,7 @@ def bwa_mem_index_ext(wildcards):
 def map_sample_unit_input(wildcards):
     """Retrieve input to a mapping job for a given sample and unit"""
     df = reads.subset(SM=wildcards.sample, unit=wildcards.unit)
-    return sorted(df.data['reads.trimmed'].to_list())
+    return sorted(df.reads.to_list())
 
 
 def map_sample_target(wildcards):
@@ -60,10 +64,11 @@ def map_dedup_sample_target(wildcards):
     bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
+
 def all_map_sample_targets(wildcards):
-    """All merged map sample targets for a given alignment program """
+    """All merged map sample targets for a given alignment program"""
     df = reads.subset(id=1)
-    fn = str(__INTERIM__/ "map/bwa/{SM}.bam")
+    fn = str(__INTERIM__ / "map/bwa/{SM}.bam")
     bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
@@ -74,7 +79,7 @@ def all_map_sample_dedup_targets(wildcards):
     Does not apply to pools.
     """
     df = reads.subset(id=1, samples=individuals.unique_samples.tolist())
-    fn = str(__INTERIM__/ "map/bwa/dedup/{SM}.bam")
+    fn = str(__INTERIM__ / "map/bwa/dedup/{SM}.bam")
     bam = [fn.format(SM=sm) for sm in df.unique_samples.tolist()]
     return bam
 
@@ -87,6 +92,6 @@ def map_picard_merge_sam_input(wildcards):
 
     """
     df = reads.subset(samples=wildcards.sample, id=1)
-    fn = str(__INTERIM__/ "map/bwa/{SM}/{unit}.bam")
+    fn = str(__INTERIM__ / "map/bwa/{SM}/{unit}.bam")
     bam = list(set([fn.format(**x) for k, x in df.data.iterrows()]))
     return bam

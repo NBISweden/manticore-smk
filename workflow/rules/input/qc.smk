@@ -15,7 +15,7 @@ def all_multiqc(wildcards):
 def all_trim(wildcards):
     if not cfg.workflow["trim"]:
         return {"reads": [], "qc": []}
-    seq = reads.data["reads.trimmed"].tolist()
+    seq = reads.reads.tolist()
     df = reads.read_pairs
     ext = rf"(_1)({wc['fastq']}{wc['gz']})$"
     df["metrics"] = df["reads"].str.replace(

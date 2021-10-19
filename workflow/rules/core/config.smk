@@ -211,16 +211,23 @@ class SampleData:
 class ReadData(SampleData):
     _index = ["SM", "unit", "id"]
     _schemafile = reads_schema.schemafile
+    _trim = False
+    _regex_from = None
+    _regex_to = None
 
     def __init__(self, *args, ignore=None):
         super().__init__(*args, ignore=ignore)
-        self._data["reads.trimmed"] = self._data.get("reads")
 
     def trim(self, regex_from, regex_to):
-        if len(self._data) > 0:
-            self._data["reads.trimmed"] = self._data["reads"].str.replace(
-                str(regex_from), str(regex_to / "map/trim")
-            )
+        self._trim = True
+        self._regex_from = regex_from
+        self._regex_to = regex_to
+
+    def subset(self, invert=False, **kw):
+        new = super().subset(invert, **kw)
+        if self._trim:
+            new.trim(self._regex_from, self._regex_to)
+        return new
 
     @property
     def populations(self):
@@ -233,6 +240,15 @@ class ReadData(SampleData):
         df = self.data[self.data["id"] == 1].droplevel("id").join(df["pe"])
         df["pe"] = df["pe"].map({1: "se", 2: "pe"})
         return df
+
+    @property
+    def reads(self):
+        """Return read paths"""
+        if not self._trim:
+            return self._data["reads"]
+        return self._data["reads"].str.replace(
+            str(self._regex_from), str(self._regex_to / "map/trim")
+        )
 
 
 ##############################
